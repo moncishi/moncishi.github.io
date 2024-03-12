@@ -5,19 +5,6 @@
     
     <entry>
       <title>stm32-hal-gpio</title>
-      <link href="/2024/03/11/stm32-hal-gpio-1/"/>
-      <url>/2024/03/11/stm32-hal-gpio-1/</url>
-      
-        <content type="html"><![CDATA[]]></content>
-      
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>stm32-hal-gpio</title>
       <link href="/2024/03/11/stm32-hal-gpio/"/>
       <url>/2024/03/11/stm32-hal-gpio/</url>
       
@@ -32,6 +19,12 @@
           
       </categories>
       
+      
+        <tags>
+            
+            <tag> stm32 </tag>
+            
+        </tags>
       
     </entry>
     
