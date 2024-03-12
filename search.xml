@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>STM32 HAL GPIO详细篇</title>
+      <link href="/2024/03/11/STM32HAL%E5%BA%93%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94GPIO/"/>
+      <url>/2024/03/11/STM32HAL%E5%BA%93%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94GPIO/</url>
+      
+        <content type="html"><![CDATA[<meta name="referrer" content="no-referrer"/><h2 id="一、基础知识"><a href="#一、基础知识" class="headerlink" title="一、基础知识"></a>一、基础知识</h2><p>GPIO全名为General Purpose Input Output，即通用输入输出。有时候简称为“IO口”。通用，说明它是常见的。输入输出，就是说既能当输入口使用，又能当输出口使用。端口，就是元器件上的一个引脚。</p><p>输入模式和输出模式是GPIO的基本特性，当然GPIO还有其它模式可选。</p><p><img src="https://img-blog.csdnimg.cn/4b4a4a4a754c42a686395c54851dac7f.png" alt="./figures/4b4a4a4a754c42a686395c54851dac7f.png"></p><h3 id="IO耐压问题"><a href="#IO耐压问题" class="headerlink" title="IO耐压问题"></a>IO耐压问题</h3><p>STM32是一款3.3V电压的芯片，IO输出是3.3V,但IO大部分都是可以容忍5V电压输入。一般在芯片手册的“引脚定义”章节可以查看到有FT标识表示该IO可以容忍5V电压输入。</p><p><img src="https://img-blog.csdnimg.cn/417fa39b882b42de99526837d5af45b2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5bCP56W655qE5a6d5a6d,size_20,color_FFFFFF,t_70,g_se,x_16" alt="./figures/417fa39b882b42de99526837d5af45b2.png"></p><h2 id="二、在HAL库中的GPIO的模式"><a href="#二、在HAL库中的GPIO的模式" class="headerlink" title="二、在HAL库中的GPIO的模式"></a>二、在HAL库中的GPIO的模式</h2><h2 id="１、输入模式GPIO＿Input"><a href="#１、输入模式GPIO＿Input" class="headerlink" title="１、输入模式GPIO＿Input"></a>１、输入模式GPIO＿Input</h2><h4 id="上拉或下拉输入（GPIO-Pull-up／Pull-down）："><a href="#上拉或下拉输入（GPIO-Pull-up／Pull-down）：" class="headerlink" title="上拉或下拉输入（GPIO　Pull-up／Pull-down）："></a>上拉或下拉输入（GPIO　Pull-up／Pull-down）：</h4><p>        ｜浮空输入（No　pull－up　and　no　pull－down）：引脚电平是真实的外部连接器件电压，电平有不确定性</p><p>        ｜上拉输入（Pull－up）：默认通过电阻上拉到VCC,不接外部器件时可以读出高电平</p><p>        ｜下拉输入（Pull-down）：默认通过电阻下拉到GND,不接外部器件时可以读出低电平</p><h3 id="２、输出模式GPIO-Out"><a href="#２、输出模式GPIO-Out" class="headerlink" title="２、输出模式GPIO_Out"></a>２、输出模式GPIO_Out</h3><h4 id="默认输出电平（GPIO-output-level）："><a href="#默认输出电平（GPIO-output-level）：" class="headerlink" title="默认输出电平（GPIO　output　level）："></a>默认输出电平（GPIO　output　level）：</h4><p>        ｜低电平（Low）：默认输出低电平</p><p>        ｜高电平（High）：默认输出高电平</p><h4 id="输出类型（GPIO-Mode）："><a href="#输出类型（GPIO-Mode）：" class="headerlink" title="输出类型（GPIO　Mode）："></a>输出类型（GPIO　Mode）：</h4><p>        ｜推挽输出（Output　Push　Pull）：一种使用一对选择性地从相连负载灌电流或者拉电流的器件的电路。</p><p>        ｜开漏输出（Output　Open　Drain）：高电平时没有驱动能力，需要借助外部上拉电阻完成对外驱动。</p><h4 id="上拉或下拉输出（GPIO-Pull-up／Pull-down）："><a href="#上拉或下拉输出（GPIO-Pull-up／Pull-down）：" class="headerlink" title="上拉或下拉输出（GPIO　Pull-up／Pull-down）："></a>上拉或下拉输出（GPIO　Pull-up／Pull-down）：</h4><p>        ｜浮空输出（No　pull－up　and　no　pull－down）：引脚电平是真实的外部连接器件电压，电平有不确定性</p><p>        ｜上拉输出（Pull－up）：默认通过电阻上拉到VCC,不接外部器件时可以输出高电平</p><p>        ｜下拉输出（Pull-down）：默认通过电阻下拉到GND,不接外部器件时可以输出低电平 </p><h4 id="输出频率（Maximum-output-speed）："><a href="#输出频率（Maximum-output-speed）：" class="headerlink" title="输出频率（Maximum　output　speed）："></a>输出频率（Maximum　output　speed）：</h4><p>        ｜低频率输出（LOW）</p><p>        ｜中频率输出（Medium）</p><p>        ｜高频率输出（High）</p><p>        ｜极高频率输出（Very　High）</p><h2 id="三、在CubeMX中修改引脚名称"><a href="#三、在CubeMX中修改引脚名称" class="headerlink" title="三、在CubeMX中修改引脚名称"></a>三、在CubeMX中修改引脚名称</h2><p>        1.在左侧找到System Core-&gt;GPIO；</p><p>        2.找到应对的GPIO，例如PH10；</p><p>        3.在下方的配置单中User Label 填写命名，填好后会在芯片缩略图中更新</p><p>        4.点击 GENERATE CODE 生成代码</p><h2 id="四、常用引脚输入函数"><a href="#四、常用引脚输入函数" class="headerlink" title="四、常用引脚输入函数"></a>四、常用引脚输入函数</h2><p>        函数名：HAL_GPIO_ReadPin(参数1,参数2)</p><p>        函数作用：读取对应的引脚电平</p><p>        返回值：若读取到高电平，则返回GPIO_PIN_SET；反之，读取到低电平，则返回GPIO_PIN_RESET      </p><p>        参数1：GPIOx      对应GPIO总线，其中x可以是A…I，例如PH10，则输入GPIOH</p><p>        参数2：GPIO_Pin   对应引脚数，可以是1…15，例如PH10，则输入GPIO_PIN_10</p><h2 id="五、常用引脚输出函数"><a href="#五、常用引脚输出函数" class="headerlink" title="五、常用引脚输出函数"></a>五、常用引脚输出函数</h2><p>        函数名：HAL_GPIO_WritePin(参数1,参数2,参数3)</p><p>        函数作用：使对应的引脚输出高电平或者低电平</p><p>        返回值：viod</p><p>        参数1：GPIOx      对应GPIO总线，其中x可以是A…I，例如PH10，则输入GPIOH</p><p>        参数2：GPIO_Pin   对应引脚数，可以是1…15，例如PH10，则输入GPIO_PIN_10</p><p>        参数3：PinState    GPIO_PIN_RESET，输出低电平；GPIO_PIN_SET，输出高电平</p><p>（若修改对应引脚的名字，例如PH10修改为LED，则输入 HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,参数3)）</p><h2 id="六、其他常用函数"><a href="#六、其他常用函数" class="headerlink" title="六、其他常用函数"></a>六、其他常用函数</h2><p>        函数名：HAL_GPIO_ToglePin(参数1,参数2)</p><p>        函数作用：翻转对应引脚的电平</p><p>        返回值：viod</p><p>        参数1：GPIOx      对应GPIO总线，其中x可以是A…I，例如PH10，则输入GPIOH</p><p>        参数2：GPIO_Pin   对应引脚数，可以是1…15，例如PH10，则输入GPIO_PIN_10</p><p>        </p><p>        函数名：HAL_Delay(参数1)</p><p>        函数作用：延时</p><p>        返回值：void</p><p>        参数1：常数，单位ms</p><p>参考文章：<a href="https://www.cnblogs.com/dongxiaodong/p/14128088.html">STM32 GPIO详细篇（基于HAL库）</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> stm32 </category>
+          
+          <category> stm32 hal库开发 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> stm32 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Hexo使用教程</title>
       <link href="/2024/03/10/usageOfHexo/"/>
       <url>/2024/03/10/usageOfHexo/</url>
