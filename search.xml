@@ -4,33 +4,6 @@
   
     
     <entry>
-      <title>STM32 HAL GPIO详细篇</title>
-      <link href="/2024/03/11/stm32-hal-gpio/"/>
-      <url>/2024/03/11/stm32-hal-gpio/</url>
-      
-        <content type="html"><![CDATA[<meta name="referrer" content="no-referrer"/>一、基础认识GPIO全名为General Purpose Input Output，即通用输入输出。有时候简称为“IO口”。通用，说明它是常见的。输入输出，就是说既能当输入口使用，又能当输出口使用。端口，就是元器件上的一个引脚。<p>输入模式和输出模式是GPIO的基本特性，当然GPIO还有其它模式可选。<br><img src="/6834b76384294002e8589b29d76cae54.png" alt="alt text"></p>]]></content>
-      
-      
-      <categories>
-          
-          <category> stm32 </category>
-          
-          <category> stm32 hal库开发 </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> stm32 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>Hexo使用教程</title>
       <link href="/2024/03/10/usageOfHexo/"/>
       <url>/2024/03/10/usageOfHexo/</url>
