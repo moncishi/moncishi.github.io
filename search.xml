@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>python的requests在网络请求中添加cookies参数</title>
+      <link href="/2024/03/python-python%E7%9A%84requests%E5%9C%A8%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E4%B8%AD%E6%B7%BB%E5%8A%A0cookies%E5%8F%82%E6%95%B0/"/>
+      <url>/2024/03/python-python%E7%9A%84requests%E5%9C%A8%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E4%B8%AD%E6%B7%BB%E5%8A%A0cookies%E5%8F%82%E6%95%B0/</url>
+      
+        <content type="html"><![CDATA[<p>哎，好久没有学习爬虫了，现在想要重新拾起来。发现之前学习爬虫有些粗糙，竟然连requests中添加cookies都没有掌握，惭愧。废话不宜多，直接上内容。</p><p>我们平时使用requests获取网络内容很简单，几行代码搞定了，例如：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">res=requests.get(<span class="string">&quot;https://cloud.flyme.cn/browser/index.jsp&quot;</span>)</span><br><span class="line"><span class="built_in">print</span> res.content</span><br></pre></td></tr></table></figure><p>你没有看错，真的只有三行代码。但是简单归简单，问题还是不少的。</p><p>首先，这里的请求只是get方法，并且没有解决cookies的问题。</p><p>然后就是这里并没有解决乱码的问题。（乱码是python中的变态点）</p><p>其实，在requests的get方法中添加cookies的方法不难 可以这样子：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">res=requests.get(<span class="string">&quot;https://cloud.flyme.cn/browser/index.jsp&quot;</span>,cookies=cookies)</span><br></pre></td></tr></table></figure><p>我们所面临的问题是，如何构造这里的cookies。</p><p>这里的cookies是一个字典格式的数据。</p><p>平时我们浏览网页的时候，在审查元素中可以查看到所访问网页的cookies内容，大都是这样子的：</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sn_openNetBySms=%23810EBMA3TE53; sn_map=810EBMA3TE53; DSESSIONID=f1987887-3d1d-4a85-ad75-c6270e588290; JSESSIONID=; _uid=; _keyLogin=; _rmtk=; _uticket=ns_0393027c2f9f686e3499e8ebb8d1d622; _ckk=ns_397a592791064029bf1336eff1cf516e; ucuid=8a135520affa423584307f6e2c210f02; _domain=cloud.flyme.cn; _islogin=true; lang=zh_CN; JSESSIONID=1gmfzynp0ns6s1u6a92xkqgi6q</span><br></pre></td></tr></table></figure><p>天那，这是人看的吗？不是。这是经过加密处理后的数据。同样，我们可以将加密后的数据传递到get方法的cookies参数中，服务器会自动将加密后的数据进行解密，再检查数据的正确性。</p><p>至于，如何查看所访问网页的cookies内容，可以使用浏览器的审查功能，F12或者右击审查（Chrome）打开。在network中查看链接的Headers内容。另外，也可以使用软件抓包查看，如Fiddler web Debugger。</p><p>这里假设获取到了cookies的内容，我们可以保存到本地TXT文件中（直接把cookies的内容粘贴进去即可），例如test.txt文件。</p><p>然后，</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">f=<span class="built_in">open</span>(<span class="string">r&#x27;test.txt&#x27;</span>,<span class="string">&#x27;r&#x27;</span>)<span class="comment">#打开所保存的cookies内容文件</span></span><br><span class="line">cookies=&#123;&#125;<span class="comment">#初始化cookies字典变量</span></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> f.read().split(<span class="string">&#x27;;&#x27;</span>):   <span class="comment">#按照字符：进行划分读取</span></span><br><span class="line">    <span class="comment">#其设置为1就会把字符串拆分成2份</span></span><br><span class="line">    name,value=line.strip().split(<span class="string">&#x27;=&#x27;</span>,<span class="number">1</span>)</span><br><span class="line">    cookies[name]=value  <span class="comment">#为字典cookies添加内容</span></span><br></pre></td></tr></table></figure><p>这时候我们将cookies添加到get方法中：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">res=requests.get(<span class="string">&quot;https://cloud.flyme.cn/browser/index.jsp&quot;</span>,cookies=cookies)</span><br></pre></td></tr></table></figure><p>这时候获取到的res.content中就是我们将cookies信息添加到get中后访问网页所获取的内容。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> python </category>
+          
+          <category> requests </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> python </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>【STM32】HAL库_STM32CubeMX教程十三---RTC时钟</title>
       <link href="/2024/03/stm32-%E3%80%90STM32%E3%80%91HAL%E5%BA%93-STM32CubeMX%E6%95%99%E7%A8%8B%E5%8D%81%E4%B8%89-RTC%E6%97%B6%E9%92%9F/"/>
       <url>/2024/03/stm32-%E3%80%90STM32%E3%80%91HAL%E5%BA%93-STM32CubeMX%E6%95%99%E7%A8%8B%E5%8D%81%E4%B8%89-RTC%E6%97%B6%E9%92%9F/</url>
@@ -358,31 +385,6 @@
             <tag> linux </tag>
             
             <tag> ubuntu </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>python的requests在网络请求中添加cookies参数</title>
-      <link href="/2024/01/python-python%E7%9A%84requests%E5%9C%A8%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E4%B8%AD%E6%B7%BB%E5%8A%A0cookies%E5%8F%82%E6%95%B0/"/>
-      <url>/2024/01/python-python%E7%9A%84requests%E5%9C%A8%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E4%B8%AD%E6%B7%BB%E5%8A%A0cookies%E5%8F%82%E6%95%B0/</url>
-      
-        <content type="html"><![CDATA[<p>tags:<br>    - python<br>categories:<br>    - python<br>哎，好久没有学习爬虫了，现在想要重新拾起来。发现之前学习爬虫有些粗糙，竟然连requests中添加cookies都没有掌握，惭愧。废话不宜多，直接上内容。</p><p>我们平时使用requests获取网络内容很简单，几行代码搞定了，例如：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">res=requests.get(<span class="string">&quot;https://cloud.flyme.cn/browser/index.jsp&quot;</span>)</span><br><span class="line"><span class="built_in">print</span> res.content</span><br></pre></td></tr></table></figure><p>你没有看错，真的只有三行代码。但是简单归简单，问题还是不少的。</p><p>首先，这里的请求只是get方法，并且没有解决cookies的问题。</p><p>然后就是这里并没有解决乱码的问题。（乱码是python中的变态点）</p><p>其实，在requests的get方法中添加cookies的方法不难 可以这样子：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">res=requests.get(<span class="string">&quot;https://cloud.flyme.cn/browser/index.jsp&quot;</span>,cookies=cookies)</span><br></pre></td></tr></table></figure><p>我们所面临的问题是，如何构造这里的cookies。</p><p>这里的cookies是一个字典格式的数据。</p><p>平时我们浏览网页的时候，在审查元素中可以查看到所访问网页的cookies内容，大都是这样子的：</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sn_openNetBySms=%23810EBMA3TE53; sn_map=810EBMA3TE53; DSESSIONID=f1987887-3d1d-4a85-ad75-c6270e588290; JSESSIONID=; _uid=; _keyLogin=; _rmtk=; _uticket=ns_0393027c2f9f686e3499e8ebb8d1d622; _ckk=ns_397a592791064029bf1336eff1cf516e; ucuid=8a135520affa423584307f6e2c210f02; _domain=cloud.flyme.cn; _islogin=true; lang=zh_CN; JSESSIONID=1gmfzynp0ns6s1u6a92xkqgi6q</span><br></pre></td></tr></table></figure><p>天那，这是人看的吗？不是。这是经过加密处理后的数据。同样，我们可以将加密后的数据传递到get方法的cookies参数中，服务器会自动将加密后的数据进行解密，再检查数据的正确性。</p><p>至于，如何查看所访问网页的cookies内容，可以使用浏览器的审查功能，F12或者右击审查（Chrome）打开。在network中查看链接的Headers内容。另外，也可以使用软件抓包查看，如Fiddler web Debugger。</p><p>这里假设获取到了cookies的内容，我们可以保存到本地TXT文件中（直接把cookies的内容粘贴进去即可），例如test.txt文件。</p><p>然后，</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">f=<span class="built_in">open</span>(<span class="string">r&#x27;test.txt&#x27;</span>,<span class="string">&#x27;r&#x27;</span>)<span class="comment">#打开所保存的cookies内容文件</span></span><br><span class="line">cookies=&#123;&#125;<span class="comment">#初始化cookies字典变量</span></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> f.read().split(<span class="string">&#x27;;&#x27;</span>):   <span class="comment">#按照字符：进行划分读取</span></span><br><span class="line">    <span class="comment">#其设置为1就会把字符串拆分成2份</span></span><br><span class="line">    name,value=line.strip().split(<span class="string">&#x27;=&#x27;</span>,<span class="number">1</span>)</span><br><span class="line">    cookies[name]=value  <span class="comment">#为字典cookies添加内容</span></span><br></pre></td></tr></table></figure><p>这时候我们将cookies添加到get方法中：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">res=requests.get(<span class="string">&quot;https://cloud.flyme.cn/browser/index.jsp&quot;</span>,cookies=cookies)</span><br></pre></td></tr></table></figure><p>这时候获取到的res.content中就是我们将cookies信息添加到get中后访问网页所获取的内容。</p>]]></content>
-      
-      
-      <categories>
-          
-          <category> python </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> python </tag>
             
         </tags>
       
