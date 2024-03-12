@@ -4,12 +4,33 @@
   
     
     <entry>
-      <title>Hello World</title>
-      <link href="/2024/03/10/hello-world/"/>
-      <url>/2024/03/10/hello-world/</url>
+      <title>stm32-hal-gpio</title>
+      <link href="/2024/03/11/stm32-hal-gpio-1/"/>
+      <url>/2024/03/11/stm32-hal-gpio-1/</url>
       
-        <content type="html"><![CDATA[<p>Welcome to my blog!!!</p>]]></content>
+        <content type="html"><![CDATA[]]></content>
       
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>stm32-hal-gpio</title>
+      <link href="/2024/03/11/stm32-hal-gpio/"/>
+      <url>/2024/03/11/stm32-hal-gpio/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      <categories>
+          
+          <category> stm32 </category>
+          
+          <category> stm32 hal库开发 </category>
+          
+      </categories>
       
       
     </entry>
