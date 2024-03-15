@@ -1,0 +1,331 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值 | 秋意寒</title><meta name="author" content="Gryphon"><meta name="copyright" content="Gryphon"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值 📺0-1023数据采集: 🔖STC15W408AS引脚功能图 📑STC15系列单片机的A/D转换器 A/D转换器的结构  📺0-1023数据采集:  🔖STC15W408AS引脚功能图  📑STC15系列单片机的A/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值">
+<meta property="og:url" content="https://blog.moncy.cn/2024/03/Stc15-STC15W408AS%E5%8D%95%E7%89%87%E6%9C%BA%E9%80%9A%E8%BF%87ADC%E7%AB%AF%E5%8F%A3%E9%87%87%E9%9B%86%E6%A8%A1%E6%8B%9F%E9%87%8F%E5%B9%B6%E4%BB%8E%E4%B8%B2%E5%8F%A3%E6%89%93%E5%8D%B0%E6%95%B0%E5%80%BC/index.html">
+<meta property="og:site_name" content="秋意寒">
+<meta property="og:description" content="STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值 📺0-1023数据采集: 🔖STC15W408AS引脚功能图 📑STC15系列单片机的A/D转换器 A/D转换器的结构  📺0-1023数据采集:  🔖STC15W408AS引脚功能图  📑STC15系列单片机的A/">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2024-03-15T06:46:08.000Z">
+<meta property="article:modified_time" content="2024-03-15T07:03:33.053Z">
+<meta property="article:author" content="Gryphon">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.moncy.cn/2024/03/Stc15-STC15W408AS%E5%8D%95%E7%89%87%E6%9C%BA%E9%80%9A%E8%BF%87ADC%E7%AB%AF%E5%8F%A3%E9%87%87%E9%9B%86%E6%A8%A1%E6%8B%9F%E9%87%8F%E5%B9%B6%E4%BB%8E%E4%B8%B2%E5%8F%A3%E6%89%93%E5%8D%B0%E6%95%B0%E5%80%BC/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-03-15 15:03:33'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/styles/main.css"><link rel="stylesheet" href="/css/modify.css"><meta name="generator" content="Hexo 7.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.gif" data-original="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">477</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/top.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="秋意寒"><span class="site-name">秋意寒</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-03-15T06:46:08.000Z" title="发表于 2024-03-15 14:46:08">2024-03-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-03-15T07:03:33.053Z" title="更新于 2024-03-15 15:03:33">2024-03-15</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('/img/top.jpg');"></div><article class="post-content" id="article-container"><meta name="referrer" content="no-referrer">
+
+<h1 id="STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值"><a href="#STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值" class="headerlink" title="STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值"></a>STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值</h1><h3 id="STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值-1"><a href="#STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值-1" class="headerlink" title="STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值"></a>STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值</h3><ul>
+<li>📺0-1023数据采集:</li>
+<li>🔖STC15W408AS引脚功能图</li>
+<li>📑STC15系列单片机的A/D转换器</li>
+<li>A/D转换器的结构</li>
+</ul>
+<p>📺0-1023数据采集:</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/bfacce81dbb648c8a93b2cda478bcf0d.gif#pic_center" alt="在这里插入图片描述"></p>
+<p>🔖STC15W408AS引脚功能图</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/69555f71b1bc49c0be28772c185ee0a9.png" alt="在这里插入图片描述"></p>
+<p>📑STC15系列单片机的A/D转换器</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/214a8523fbdc48a9b9218c5288361161.png" alt="在这里插入图片描述"></p>
+<p>A/D转换器的结构</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/f3062fd3d4da445da42ff8922a428656.png" alt="在这里插入图片描述"></p>
+<p>STC15系列单片机ADC由多路选择开关、比较器、逐次比较寄存器、10位DAC、转换结果寄存器（ADC_RES和ADC_RESL）以及ADC_CONTR构成。 STC15系列单片机的ADC是逐次比较型ADC。逐次比较型ADC由一个比较器和D/A转换器构成，通过逐次比较逻辑，从最高位（MSB）开始，顺序地对每一输入电压与内置D/A转换器输出进行比较，经过多次比较，使转换所得的数字量逐次逼近输入模拟量对应值。逐次比较型A/D转换器具有速度高，功耗低等优点。 从上图可以看出，通过模拟多路开关，将通过ADCO<del>7的模拟量输入送给比较器。用数 /模转换器（DAC）转换的模拟量与输入的模拟量通过比较器进行比较，将比较结果保存到逐次比较寄存器，并通过逐次比较寄存器输出转换结果。A/D转换结束后，最终的转换结果保存到ADC转换结果寄存器ADC_RES和ADC_RESL，同时，置位ADC控制寄存器ADC_CONTR中的A/D转换结束标志位ADC_FLAG，以供程序查询或发出中断申请。模拟通道的选择控制由ADC控制寄存器ADC_CONTR中的CHS2</del>CHSO确定。ADC的转换速度由ADC控制寄存器中的SPEED1和SPEED0确定。在使用ADC之前，应先给ADC上电，也就是置位ADC控制寄存器中ADC_POWER位。</p>
+<ul>
+<li>当ADRJ=0时，如果取10位结果，则按下面公式计算：</li>
+<li>当ADRJ=0时，如果取8位结果，按下面公式计算：</li>
+<li>当ADRJ=1时，如果取10位结果，则按下面公式计算：</li>
+</ul>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/3af37b5b7bd24af69c11b472235099f9.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/38d6c52e05b24ea0a469ca1ea5411b79.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/5c255190f9cc4c25b8bb90a67fd35e18.png" alt="在这里插入图片描述"></p>
+<p>式中，Vin为模拟输入通道输入电压，Vcc为单片机实际工作电压，用单片机工作电压作为模拟参考电压。</p>
+<h4 id="与A-D转换相关的寄存器"><a href="#与A-D转换相关的寄存器" class="headerlink" title="与A/D转换相关的寄存器"></a>与A/D转换相关的寄存器</h4><p>与STC15系列单片机A/D转换相关的寄存器列于下表所示:</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/df7c7a0211ef45cd91198fe25050b582.png" alt="在这里插入图片描述"></p>
+<ol>
+<li>P1口模拟功能控制寄存器P1ASF</li>
+</ol>
+<p>STC15系列单片机的A/D转换口在P1口（P1.7-P1.0），有8路10位高速A/D转换器，速度可达到300KHz（30万次/秒）。8路电压输入型A/D，可做温度检测、电池电压检测、按键扫描、频谱检测等。上电复位后P1口为弱上拉型/O口，用户可以通过软件设置将8路中的任何一路设置为A/D转换，不需作为A/D使用的P1口可继续作为I/O口使用（建议只作为输入）。需作为A/D使用的口需先将PlASF特殊功能寄存器中的相应位置为‘1’，将相应的口设置为模拟功能。PlASF寄存器的格式如下：</p>
+<p>P1ASF:P1口模拟功能控制寄存器（该寄存器是只写寄存器，读无效）  2. ADC控制寄存器ADC_CONTR ADC_CONTR寄存器的格式如下： ADCCONTR:ADC控制寄存器  对ADCCONTR寄存器进行操作，建议直接用MOV赋值语句，不要用‘与’和‘或’语句。 ADC_POWER:ADC电源控制位。 0：关闭ADC电源； 1：打开A/D转换器电源. 建议进入空闲模式和掉电模式前，将ADC电源关闭，即ADCPOWER=0，可降低功耗。启动A/D转换前一定要确认A/D电源已打开，A/D转换结束后关闭A/D电源可降低功耗，也可不关闭。初次打开内部A/D转换模拟电源，需适当延时，等内部模拟电源稳定后，再启动A/D转换。 建议启动A/D转换后，在A/D转换结束之前，不改变任何I/0口的状态，有利于高精度A/D转换，如能将定时器/串行口/中断系统关闭更好。 SPEED1，SPEEDO：模数转换器转换速度控制位  ADCFLAG：模数转换器转换结束标志位，当A/D转换完成后，ADCFLAG=1，要由软件清0。 不管是A/D转换完成后由该位申请产生中断，还是由软件查询该标志位A/D转换是否结束，当A/D转换完成后，ADC_FLAG=1，一定要软件清0。 ADC_START：模数转换器（ADC）转换启动控制位，设置为“1”时，开始转换，转换结束后为0。 CHS2/CHS1/CHSO：模拟输入通道选择，CHS2/CHS1/CHSO  3. ADC转换结果调整寄存器位—ADRJ ADC转换结果调整寄存器位一—ADRJ位于寄存器CLK_DIV/PCON中，用于控制ADC转换结果存放的位置。  ADRJ:ADC转换结果调整 0：ADCRES[7：01存放高8位ADC结果，ADCRESL[1：0]存放低2位ADC结果1：ADC_RES[1：0]存放高2位ADC结果，ADC_RESL[7：0]存放低8位ADC结果 4. A/D转换结果寄存器ADC_RES、ADC_RESL特殊功能寄存器ADC_RES和ADC_RESL寄存器用于保存A/D转换结果，其格式如下：  CKKO_DIV寄存器的ADRJ位是A/D转换结果寄存器（ADC_RES，ADC_RESL）的数据格式调整控制位. 当ADRJ=0时，10位A/D转换结果的高8位存放在ADC_RES中，低2位存放在ADC_RESL的低2位中。  此时，如果需取完整10位结果，按下面公式计算：  如果用户只需取8位结果，按下面公式计算：  式中，Vin为模拟输入通道输入电压，Vcc为单片机实际工作电压，用单片机工作电压作为模拟参考电压。 当ADRJ=1时，10位A/D转换结果的高2位存放在ADC_RES的低2位中，低8位存放在ADC_RESL中。 此时，如果用户需取完整10位结果，按下面公式计算：</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/912a48a9a4db4a27b079d1304c5e20c5.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/23b6970898534399a767dd6a64cbdb2c.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/415f7821fd3f4f9fb9f5b8e43734701e.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/2b8362b4f13d41a4ad4f9eabacb8a8b8.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/5964df02cdf04e4db7be51027d15d43d.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/ad2d99e494da4b7aaf3d31a1f9e3703e.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/1da2524700364793a3758cd8c0f74c2f.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/657d073f65e84077a65ac669cb4b56a6.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/3b8e679552ea457bb8d5f5f5d95a2799.png" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/18737ad3b6ff4945aaf4a121f15de7c4.png" alt="在这里插入图片描述"></p>
+<p>式中，Vin为模拟输入通道输入电压，Vcc为单片机实际工作电压，用单片机工作电压作为模拟参考电压。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/a050a81568cf434db81a5df1ceeb35cd.png" alt="在这里插入图片描述"></p>
+<p>以上资料来自STC单片机资料。</p>
+<h4 id="程序结构"><a href="#程序结构" class="headerlink" title="程序结构"></a>程序结构</h4><p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/2ebf0a2ce20f40bba6b6a66a1df46928.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>可调定位器接线图</li>
+</ul>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/b5d80a46e06d45a593e9d1791dc78db1.png" alt="在这里插入图片描述"></p>
+<h4 id="主程序实例代码"><a href="#主程序实例代码" class="headerlink" title="主程序实例代码"></a>主程序实例代码</h4><ul>
+<li>采集P1.4端口的模拟量数值</li>
+</ul>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">/*--------------------------------------------------------------------------------</span><br><span class="line"> * 项目名称:</span><br><span class="line"></span><br><span class="line">     AD模拟量采集测试程序 V1.0.0</span><br><span class="line"></span><br><span class="line"> * 功能描述:</span><br><span class="line"></span><br><span class="line">     1、采集ADC口的数据发送到串口显示</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> * 配置说明:</span><br><span class="line">     MCU:             STC15W408AS</span><br><span class="line">     开发板:       	  STC15W408AS开发板</span><br><span class="line">     晶振:      	  内部时钟：11.0592MHz</span><br><span class="line">     扩展模块:  	  -</span><br><span class="line">     软件:            Keil.C51.V9.01</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> * 备注:</span><br><span class="line">     - 将开发板的串口与电脑串口连接</span><br><span class="line">-------------------------------------------------------------------------------------*/</span><br><span class="line">/************************包含头文件***************************************************/</span><br><span class="line"></span><br><span class="line">#include&lt;STC15W.h&gt;</span><br><span class="line">#include&lt;USART.h&gt;</span><br><span class="line">#include&lt;ADC.h&gt;</span><br><span class="line"></span><br><span class="line">//定义要采集AD通道</span><br><span class="line">#define ch	4		//即P1.4端口</span><br><span class="line"></span><br><span class="line">//sfr P1M1 = 0x91;    //PxM1.n,PxM0.n     =00---&gt;Standard,    01---&gt;push-pull</span><br><span class="line">//sfr P1M0 = 0x92;    //                  =10---&gt;pure input,  11---&gt;open drain</span><br><span class="line"></span><br><span class="line">/************************主函数******************************************************/</span><br><span class="line">void main()</span><br><span class="line">{</span><br><span class="line">    unsigned int res=0;</span><br><span class="line">    unsigned char result[4]= {0};</span><br><span class="line"></span><br><span class="line">    P1M1=0;</span><br><span class="line">    P1M0=0;</span><br><span class="line"></span><br><span class="line">    InitSerialPort(); 		//初始化串口,波特率9600，8bit数据位，1停止位，无校验</span><br><span class="line">    OpenADC_CHx(ch);</span><br><span class="line"></span><br><span class="line">    while(1)</span><br><span class="line">    {</span><br><span class="line">        //发送数据采集结果</span><br><span class="line">        SendByte('\t');</span><br><span class="line">        SendString("AD_Value = ");</span><br><span class="line">        GetADCResult_Char(ch,result);</span><br><span class="line">        SendString(result);</span><br><span class="line">        //SendByte(GetADCResult_High(ch));</span><br><span class="line">        //SendByte(GetADCResult_Low(ch));</span><br><span class="line">        //换行</span><br><span class="line">        SendByte('\n');</span><br><span class="line">        //延时</span><br><span class="line">        Delay(30);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line">/*********************************The End****************************************/</span><br></pre></td></tr></tbody></table></figure>
+
+<p>`/*——————————————————————————–</p>
+<ul>
+<li><p>项目名称:</p>
+<p>  AD模拟量采集测试程序 V1.0.0</p>
+</li>
+<li><p>功能描述:</p>
+<p>  1、采集ADC口的数据发送到串口显示</p>
+</li>
+<li><p>配置说明:<br>  MCU:             STC15W408AS<br>  开发板:       	  STC15W408AS开发板<br>  晶振:      	  内部时钟：11.0592MHz<br>  扩展模块:  	  -<br>  软件:            Keil.C51.V9.01</p>
+</li>
+<li><p>备注:</p>
+<ul>
+<li>将开发板的串口与电脑串口连接<br>————————————————————————————-<em>/<br>/<strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong>包含头文件</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></em>**************************/</li>
+</ul>
+</li>
+</ul>
+<p>#include&lt;STC15W.h&gt;<br>#include&lt;USART.h&gt;<br>#include&lt;ADC.h&gt;</p>
+<p>//定义要采集AD通道<br>#define ch	4		//即P1.4端口</p>
+<p>//sfr P1M1 = 0x91;    //PxM1.n,PxM0.n     =00—&gt;Standard,    01—&gt;push-pull<br>//sfr P1M0 = 0x92;    //                  =10—&gt;pure input,  11—&gt;open drain</p>
+<p>/<strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong>主函数</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>******************************/<br>void main()<br>{<br>    unsigned int res=0;<br>    unsigned char result[4]= {0};</p>
+<pre><code>P1M1=0;
+P1M0=0;
+
+InitSerialPort(); 		//初始化串口,波特率9600，8bit数据位，1停止位，无校验
+OpenADC_CHx(ch);
+
+while(1)
+{
+    //发送数据采集结果
+    SendByte('\t');
+    SendString("AD_Value = ");
+    GetADCResult_Char(ch,result);
+    SendString(result);
+    //SendByte(GetADCResult_High(ch));
+    //SendByte(GetADCResult_Low(ch));
+    //换行
+    SendByte('\n');
+    //延时
+    Delay(30);
+}
+</code></pre>
+<p>}<br>/<em><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong>The End</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></em>*******/`</p>
+<h4 id="📚工程资源代码"><a href="#📚工程资源代码" class="headerlink" title="📚工程资源代码"></a>📚工程资源代码</h4><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">链接：https://pan.baidu.com/s/1eeBckMwQ0Lt1e9QMxYL4Jw </span><br><span class="line">提取码：ijc2</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>链接：https://pan.baidu.com/s/1eeBckMwQ0Lt1e9QMxYL4Jw  提取码：ijc2</code></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://blog.moncy.cn">Gryphon</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://blog.moncy.cn/2024/03/Stc15-STC15W408AS%E5%8D%95%E7%89%87%E6%9C%BA%E9%80%9A%E8%BF%87ADC%E7%AB%AF%E5%8F%A3%E9%87%87%E9%9B%86%E6%A8%A1%E6%8B%9F%E9%87%8F%E5%B9%B6%E4%BB%8E%E4%B8%B2%E5%8F%A3%E6%89%93%E5%8D%B0%E6%95%B0%E5%80%BC/">https://blog.moncy.cn/2024/03/Stc15-STC15W408AS%E5%8D%95%E7%89%87%E6%9C%BA%E9%80%9A%E8%BF%87ADC%E7%AB%AF%E5%8F%A3%E9%87%87%E9%9B%86%E6%A8%A1%E6%8B%9F%E9%87%8F%E5%B9%B6%E4%BB%8E%E4%B8%B2%E5%8F%A3%E6%89%93%E5%8D%B0%E6%95%B0%E5%80%BC/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.moncy.cn" target="_blank">秋意寒</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/03/Stc15-STC15W408AS-LCD1602%E8%BD%ACIIC%E6%8E%A5%E5%8F%A3%E5%B1%8F%E5%B9%95%E9%A9%B1%E5%8A%A8%E6%98%BE%E7%A4%BA/" title="STC15W408AS+ LCD1602转IIC接口屏幕驱动显示"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">STC15W408AS+ LCD1602转IIC接口屏幕驱动显示</div></div></a></div><div class="next-post pull-right"><a href="/2024/03/Stc15-STC15W408AS%E8%AF%BB%E5%8F%96DHT11%E6%B8%A9%E6%B9%BF%E5%BA%A6OLED%E6%98%BE%E7%A4%BA%E6%95%B0%E6%8D%AE%E4%B8%B2%E5%8F%A3%E6%89%93%E5%8D%B0/" title="STC15W408AS读取DHT11温湿度+OLED显示+数据串口打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">STC15W408AS读取DHT11温湿度+OLED显示+数据串口打印</div></div></a></div></nav><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/loading.gif" data-original="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">Gryphon</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">477</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" href="https://blog.moncy.cn"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://blog.csdn.net/" target="_blank" title="CSDN"><i class="fa fa-book-open"></i></a><a class="social-icon" href="https://user.qzone.qq.com/75966308" target="_blank" title="QQ"><i class="fab fa-qq"></i></a><a class="social-icon" href="mailto:75966308@qq.com" target="_blank" title="Email"><i class="fas fa-envelope-open-text"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">本站博客为本人所写或抓取自互联网资源,可联系我进行处理,下一版将会为所有抓取自互联网的blog添加创作人信息。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#STC15W408AS%E5%8D%95%E7%89%87%E6%9C%BA%E9%80%9A%E8%BF%87ADC%E7%AB%AF%E5%8F%A3%E9%87%87%E9%9B%86%E6%A8%A1%E6%8B%9F%E9%87%8F%E5%B9%B6%E4%BB%8E%E4%B8%B2%E5%8F%A3%E6%89%93%E5%8D%B0%E6%95%B0%E5%80%BC"><span class="toc-text">STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#STC15W408AS%E5%8D%95%E7%89%87%E6%9C%BA%E9%80%9A%E8%BF%87ADC%E7%AB%AF%E5%8F%A3%E9%87%87%E9%9B%86%E6%A8%A1%E6%8B%9F%E9%87%8F%E5%B9%B6%E4%BB%8E%E4%B8%B2%E5%8F%A3%E6%89%93%E5%8D%B0%E6%95%B0%E5%80%BC-1"><span class="toc-text">STC15W408AS单片机通过ADC端口采集模拟量并从串口打印数值</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8EA-D%E8%BD%AC%E6%8D%A2%E7%9B%B8%E5%85%B3%E7%9A%84%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text">与A/D转换相关的寄存器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E7%BB%93%E6%9E%84"><span class="toc-text">程序结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E7%A8%8B%E5%BA%8F%E5%AE%9E%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">主程序实例代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%93%9A%E5%B7%A5%E7%A8%8B%E8%B5%84%E6%BA%90%E4%BB%A3%E7%A0%81"><span class="toc-text">📚工程资源代码</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/mdres-51%E5%8D%95%E7%89%87%E6%9C%BA%E5%92%8C3%E4%B8%AA74HC245%E5%92%8C6%E4%B8%AA%E7%8B%AC%E7%AB%8B%E6%8C%89%E9%94%AE%E6%8E%A7%E5%88%B624%E4%B8%AA3%E7%BB%84LED%E7%A7%BB%E5%8A%A8%E4%BA%AE%E7%81%AD/" title="51单片机和3个74HC245和6个独立按键控制24个3组LED移动亮灭">51单片机和3个74HC245和6个独立按键控制24个3组LED移动亮灭</a><time datetime="2024-03-15T07:53:35.000Z" title="发表于 2024-03-15 15:53:35">2024-03-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/mdres-51%E5%8D%95%E7%89%87%E6%9C%BA%E9%80%9A%E8%BF%87%E6%8C%89%E9%92%AE%E6%8E%A7%E5%88%B6%E6%AD%A5%E8%BF%9B%E7%94%B5%E6%9C%BA%E6%AD%A3%E5%8F%8D%E8%BD%AC%E8%A7%92%E5%BA%A6/" title="51单片机通过按钮控制步进电机正反转角度">51单片机通过按钮控制步进电机正反转角度</a><time datetime="2024-03-15T07:53:35.000Z" title="发表于 2024-03-15 15:53:35">2024-03-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/mdres-89c52%E5%8D%95%E7%89%87%E6%9C%BA%E6%8E%A7%E5%88%B6%E4%B8%A4%E4%B8%AA%E6%AD%A5%E8%BF%9B%E7%94%B5%E6%9C%BA%E6%AD%A3%E5%8F%8D%E8%BD%AC%E5%8A%A0%E5%87%8F%E9%80%9F%E7%A8%8B%E5%BA%8F%E4%BB%BF%E7%9C%9F/" title="89c52单片机控制两个步进电机正反转加减速（程序+仿真）">89c52单片机控制两个步进电机正反转加减速（程序+仿真）</a><time datetime="2024-03-15T07:53:35.000Z" title="发表于 2024-03-15 15:53:35">2024-03-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/mdres-Proteus%E4%BB%BF%E7%9C%9F%E5%9F%BA%E4%BA%8E51%E5%8D%95%E7%89%87%E6%9C%BA%E7%9A%84%E6%AD%A5%E8%BF%9B%E7%94%B5%E6%9C%BA%E6%AD%A3%E5%8F%8D%E8%BD%AC%E8%B0%83%E9%80%9F%E7%B3%BB%E7%BB%9F%E6%8E%A7%E5%88%B6/" title="【Proteus仿真】基于51单片机的步进电机正反转调速系统控制">【Proteus仿真】基于51单片机的步进电机正反转调速系统控制</a><time datetime="2024-03-15T07:53:35.000Z" title="发表于 2024-03-15 15:53:35">2024-03-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/mdres-arduino-UNO%E5%88%A9%E7%94%A874hc595%E6%8E%A7%E5%88%B68%E4%B8%AALED%E7%8A%B6%E6%80%81%E6%96%B9%E5%BC%8F%E4%B8%80/" title="arduino UNO利用74hc595控制8个LED状态（方式一）">arduino UNO利用74hc595控制8个LED状态（方式一）</a><time datetime="2024-03-15T07:53:35.000Z" title="发表于 2024-03-15 15:53:35">2024-03-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 By Gryphon</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://comment-one-gray.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, {"requiredMeta":["nick","mail"],"locale":{"placeholder":"昵称和邮箱为必填项，为了您能及时收到相关回复的邮件通知，请确保邮箱的正确性！"}}))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    btf.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.1.2/dist/waline.min.css')
+      const { init } = await import('https://cdn.jsdelivr.net/npm/@waline/client@3.1.2/dist/waline.min.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/gh/xiabo2/CDN@latest/fishes.js"></script><script src="/js/custom/snow.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/metingjs/dist/Meting.min.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script><script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>
