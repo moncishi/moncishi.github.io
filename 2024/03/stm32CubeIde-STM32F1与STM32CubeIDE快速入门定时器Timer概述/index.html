@@ -1,0 +1,404 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>STM32F1与STM32CubeIDE快速入门定时器Timer概述 | 秋意寒</title><meta name="author" content="Gryphon"><meta name="copyright" content="Gryphon"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="STM32F1与STM32CubeIDE快速入门-定时器（Timer）概述定时器（Timer）概述在本文中，将介绍 STM32 微控制器中的 STM32 定时器模块。 STM32 微控制器中有不同的硬件定时器，每个定时器都可以在多种模式下运行并执行多种任务。 将了解这些不同的硬件变体及其应用用例。 本文将从计时器模式开始，其他模式将在稍后讨论。  1、定时器模块介绍最基本形式的定时器模块是一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STM32F1与STM32CubeIDE快速入门定时器Timer概述">
+<meta property="og:url" content="https://blog.moncy.cn/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8Timer%E6%A6%82%E8%BF%B0/index.html">
+<meta property="og:site_name" content="秋意寒">
+<meta property="og:description" content="STM32F1与STM32CubeIDE快速入门-定时器（Timer）概述定时器（Timer）概述在本文中，将介绍 STM32 微控制器中的 STM32 定时器模块。 STM32 微控制器中有不同的硬件定时器，每个定时器都可以在多种模式下运行并执行多种任务。 将了解这些不同的硬件变体及其应用用例。 本文将从计时器模式开始，其他模式将在稍后讨论。  1、定时器模块介绍最基本形式的定时器模块是一个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2024-03-27T06:55:20.000Z">
+<meta property="article:modified_time" content="2024-03-27T11:40:16.209Z">
+<meta property="article:author" content="Gryphon">
+<meta property="article:tag" content="stm32">
+<meta property="article:tag" content="cubeide">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.moncy.cn/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8Timer%E6%A6%82%E8%BF%B0/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'STM32F1与STM32CubeIDE快速入门定时器Timer概述',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-03-27 19:40:16'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/styles/main.css"><link rel="stylesheet" href="/css/modify.css"><meta name="generator" content="Hexo 7.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.gif" data-original="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">796</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">23</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/tags.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="秋意寒"><span class="site-name">秋意寒</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">STM32F1与STM32CubeIDE快速入门定时器Timer概述</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-03-27T06:55:20.000Z" title="发表于 2024-03-27 14:55:20">2024-03-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-03-27T11:40:16.209Z" title="更新于 2024-03-27 19:40:16">2024-03-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/stm32/">stm32</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/stm32/cubeide/">cubeide</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">5.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>15分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="STM32F1与STM32CubeIDE快速入门定时器Timer概述"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('/img/tags.jpg');"></div><article class="post-content" id="article-container"><meta name="referrer" content="no-referrer">
+
+<h1 id="STM32F1与STM32CubeIDE快速入门-定时器（Timer）概述"><a href="#STM32F1与STM32CubeIDE快速入门-定时器（Timer）概述" class="headerlink" title="STM32F1与STM32CubeIDE快速入门-定时器（Timer）概述"></a>STM32F1与STM32CubeIDE快速入门-定时器（Timer）概述</h1><h2 id="定时器（Timer）概述"><a href="#定时器（Timer）概述" class="headerlink" title="定时器（Timer）概述"></a>定时器（Timer）概述</h2><p>在本文中，将介绍 STM32 微控制器中的 STM32 定时器模块。 STM32 微控制器中有不同的硬件定时器，每个定时器都可以在多种模式下运行并执行多种任务。 将了解这些不同的硬件变体及其应用用例。 本文将从计时器模式开始，其他模式将在稍后讨论。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/f344d6ad3ba14f4681938b72016e8086.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="1、定时器模块介绍"><a href="#1、定时器模块介绍" class="headerlink" title="1、定时器模块介绍"></a>1、定时器模块介绍</h3><p>最基本形式的定时器模块是一个数字逻辑电路，它对每个时钟周期进行计数。 更多功能在硬件中实现以支持定时器模块，因此它可以向上或向下计数。 它可以有一个预分频器，将输入时钟频率除以一个可选值。 它还可以具有用于输入捕获、PWM 信号生成等的电路。</p>
+<p>比如，一个基本的 16 位定时器，如下所示。 作为一个 16 位时间，它可以从 0 计数到 65535。每个时钟周期，定时器的值递增 1。正如你所看到的，Fsys 不是递增定时器模块的频率。 但它被预分频器除以，然后它被馈送到计时器。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/b0d96a79dcc24706916552f286c7fffa.png#pic_center" alt="在这里插入图片描述"></p>
+<p>在定时器模式下，TCNT 寄存器在每个时钟周期以频率（Fsys/PSC）递增 1。 这意味着如果 Fsys 为 80MHz 且 PSC 为 1:1024，则 TCNT 每 12.8μSec 增加 1。 因此，如果您启动此计时器从 0 开始计数直到溢出（在 65535），它将每 0.839 秒给您一个中断信号。</p>
+<p>如果需要设置这个定时器每 1 秒给我一个中断信号怎么办？ 事实上，不一定想要这个 0.839 秒的时间间隔，出于这个原因，存在一种称为预加载寄存器(Preload Register )，它强制定时器从任意选择的值开始计数直到溢出。 因此，不再需要从零开始计数,从而可以使用定时器模块获得任何时间间隔。</p>
+<p>定时器模块也可以在时钟源未知的计数器模式下运行，它实际上是一个外部信号。 也许来自一个按钮，所以计数器在按钮按下时的每个上升沿或下降沿递增。 正如我们将在下文中讨论的那样，这种模式在许多应用中可能是有利的。 但是现在，请考虑下图。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/a1bcb4de92b14d8d8bedece38595c559.png#pic_center" alt="在这里插入图片描述"></p>
+<p>可以看到，时钟信号现在由按钮驱动，并通过预分频器到达定时器时钟输入。 并且可以通过简单地读取 TCNT 寄存器的值来获取按钮按下次数的信息。</p>
+<h3 id="2、STM32定时器硬件"><a href="#2、STM32定时器硬件" class="headerlink" title="2、STM32定时器硬件"></a>2、STM32定时器硬件</h3><p>STMicroelectronics 为硬件定时器模块提供了一些不同的版本或变体。 STM32 微控制器通常每种类型都有少量，但是，某些部件可能缺少一个或多个这些硬件定时器。 因此，在本节中，将重点介绍这些计时器模块及其主要功能、框图等。</p>
+<p>只是为了让概述 STM32 微控制器中不同的可用硬件定时器。 因此，可以更好地了解哪种类型适合哪种应用程序。 这反过来又可以帮助更好地为您的项目选择合适的 MCU 部件。</p>
+<h4 id="2-1-基本定时器模块"><a href="#2-1-基本定时器模块" class="headerlink" title="2.1 基本定时器模块"></a>2.1 基本定时器模块</h4><p>基本定时器由一个由可编程预分频器驱动的 16 位自动重载计数器组成。 它们可用作生成时基的通用定时器，但它们也专门用于驱动数模转换器 (DAC)。 事实上，定时器在内部连接到 DAC 并能够通过其触发输出驱动它。 定时器是完全独立的，不共享任何资源。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/602f1e659a3f448289ed42a40fdb0638.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>基本定时器功能包括：</p>
+<ul>
+<li>16 位自动重载递增计数器</li>
+<li>16 位可编程预分频器用于对计数器时钟频率进行分频（也“动态”）1 到65536之间的任何因子触发DAC的同步电路</li>
+<li>更新事件上的中断/DMA 生成：计数器溢出</li>
+</ul>
+<p>可编程定时器的主要模块是一个带有相关自动重载寄存器的16位递增计数器。 计数器时钟可由预分频器分频。 计数器、自动重载寄存器和预分频器寄存器可由软件写入或读取。 即使在计数器运行时也是如此。 时基单位包括：</p>
+<ul>
+<li>计数器寄存器 (TIMx_CNT)</li>
+<li>预分频寄存器 (TIMx_PSC)</li>
+<li>自动重载寄存器 (TIMx_ARR)</li>
+</ul>
+<p>自动重载寄存器是预加载的。 每次尝试写入或读取自动重载寄存器时，都会访问预加载寄存器。 预加载寄存器的内容永久地或在每次更新事件 UEV 时传输到影子寄存器中，具体取决于自动重加载预加载使能位 (ARPE)。</p>
+<p>在计数器模式下，计数器从 0 计数到自动重载值（TIMx_ARR 寄存器的内容），然后从 0 重新开始并产生计数器溢出事件。 可以在每次计数器溢出时或通过设置 TIMx_EGR 寄存器中的 UG 位（通过软件或使用从模式控制器）生成更新事件。</p>
+<h4 id="2-2-低功耗定时器模块"><a href="#2-2-低功耗定时器模块" class="headerlink" title="2.2 低功耗定时器模块"></a>2.2 低功耗定时器模块</h4><p>LPTIM 是一个 16 位定时器，受益于降低功耗的最终发展。 由于其时钟源的多样性，LPTIM 能够在除待机模式之外的所有功耗模式下保持运行。 鉴于即使没有内部时钟源也能运行，LPTIM 可用作“脉冲计数器”，这在某些应用中很有用。</p>
+<p>此外，LPTIM 能够将系统从低功耗模式唤醒，因此适合以极低的功耗实现“超时功能”。 LPTIM 引入了一种灵活的时钟方案，可提供所需的功能和性能，同时最大限度地降低功耗。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/ec78e64dbd044451bc09904d5dc3728b.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>低功耗定时器 (LPTIM) 的主要特点：</p>
+<ul>
+<li>16 位加计数器</li>
+<li>具有 8 个可能的分频因子 (1,2,4,8,16,32,64,128) 的 3 位预分频器</li>
+<li>可选择的时钟<ul>
+<li>– 内部时钟源：LSE、LSI、HSI16 或 APB 时钟</li>
+<li>– LPTIM 输入上的外部时钟源（在没有 LP 振荡器运行的情况下工作，由脉冲计数器应用程序使用）</li>
+</ul>
+</li>
+<li>16 位 ARR 自动重载寄存器</li>
+<li>16位比较寄存器</li>
+<li>连拍/单拍模式</li>
+<li>可选择的软件/硬件输入触发</li>
+<li>可编程数字毛刺滤波器</li>
+<li>可配置输出：脉冲、PWM</li>
+<li>可配置的 I/O 极性</li>
+<li>编码器模式</li>
+<li>重复计数器</li>
+</ul>
+<h4 id="2-3-通用定时器模块"><a href="#2-3-通用定时器模块" class="headerlink" title="2.3 通用定时器模块"></a>2.3 通用定时器模块</h4><p>通用定时器由一个由可编程预分频器驱动的 16 位自动重载计数器组成。 它们可用于多种用途，包括测量输入信号的脉冲长度（输入捕获）或生成输出波形（输出比较和 PWM）。 脉冲长度和波形周期可以使用定时器预分频器和 RCC 时钟控制器预分频器从几微秒到几毫秒进行调制。 定时器是完全独立的，不共享任何资源。 它们也可以同步在一起。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/41093584f544403f83cb29646846812b.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>通用 TIMx 定时器功能包括：</p>
+<ul>
+<li>16 位向上、向下、向上/向下自动重载计数器。</li>
+<li>16 位可编程预分频器用于对计数器时钟频率进行分频（也“动态”）1 到 65536 之间的任何因子。</li>
+<li>多达 4 个独立通道，用于：<ul>
+<li>– 输入捕获</li>
+<li>– 输出比较</li>
+<li>– PWM 生成（边沿和中心对齐模式）</li>
+<li>– 单脉冲模式输出</li>
+</ul>
+</li>
+<li>用外部信号控制定时器并互连多个定时器的同步电路。</li>
+<li>以下事件的中断/DMA 生成：<ul>
+<li>– 更新：计数器上溢/下溢、计数器初始化（通过软件或内部/外部触发）</li>
+<li>– 触发事件（计数器启动、停止、初始化或由内部/外部触发计数）</li>
+<li>– 输入捕获</li>
+<li>– 输出比较</li>
+</ul>
+</li>
+<li>支持用于定位目的的增量（正交）编码器和霍尔传感器电路</li>
+<li>外部时钟或逐周期电流管理的触发输入</li>
+</ul>
+<h3 id="2-4-高级控制定时器模块"><a href="#2-4-高级控制定时器模块" class="headerlink" title="2.4 高级控制定时器模块"></a>2.4 高级控制定时器模块</h3><p>高级控制定时器由一个由可编程预分频器驱动的 16 位自动重载计数器组成。 它可用于多种用途，包括测量输入信号的脉冲长度（输入捕获），或生成输出波形（输出比较、PWM、带死区插入的互补 PWM）。 脉冲长度和波形周期可以使用定时器预分频器和 RCC 时钟控制器预分频器从几微秒到几毫秒进行调制。 高级控制定时器和通用定时器是完全独立的，不共享任何资源。 它们也可以同步在一起。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/1bb570b6fca34523b1781885af824469.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>高级控制定时器功能：</p>
+<ul>
+<li>16 位向上、向下、向上/向下自动重载计数器。</li>
+<li>16 位可编程预分频器允许按 1 到 65536 之间的任何因子对计数器时钟频率进行分频（也可以“动态”分频）。</li>
+<li>多达 4 个独立通道，用于：<ul>
+<li>– 输入捕捉</li>
+<li>– 输出比较</li>
+<li>– PWM 生成（边沿和中心对齐模式）</li>
+<li>– 单脉冲模式输出</li>
+</ul>
+</li>
+<li>具有可编程死区时间的互补输出</li>
+<li>用外部信号控制定时器并将多个定时器互连在一起的同步电路。</li>
+<li>重复计数器仅在计数器的给定周期数后更新定时器寄存器。</li>
+<li>中断输入将定时器的输出信号置于复位状态或已知状态。</li>
+<li>以下事件的中断/DMA 生成：<ul>
+<li>– 更新：计数器上溢/下溢、计数器初始化（通过软件或内部/外部触发）</li>
+<li>– 触发事件（计数器启动、停止、初始化或由内部/外部触发计数）</li>
+<li>– 输入捕获</li>
+<li>– 输出比较</li>
+<li>– 中断输入</li>
+</ul>
+</li>
+<li>支持用于定位目的的增量（正交）编码器和霍尔传感器电路</li>
+<li>外部时钟或逐周期电流管理的触发输入</li>
+</ul>
+<h3 id="2-5-高分辨率定时器模块"><a href="#2-5-高分辨率定时器模块" class="headerlink" title="2.5 高分辨率定时器模块"></a>2.5 高分辨率定时器模块</h3><p>高分辨率定时器可以生成多达 10 个具有高精度计时的数字信号。 它主要用于驱动电源转换系统，例如开关模式电源或照明系统，但也可用于通用用途，只要需要非常精细的时序分辨率（高达 217pSec）。</p>
+<p>出于控制和监视目的，定时器还具有计时测量功能并链接到内置 ADC 和 DAC 转换器。 最后，它具有轻负载管理模式，能够处理各种故障方案以实现安全关闭。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/8dc624d241024901855fc6d3c8c2ac4e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>高分辨率定时器 (HRTIM) 功能包括：</p>
+<ul>
+<li>高分辨率计时单元<ul>
+<li>– 217 ps 分辨率，补偿电压和温度变化</li>
+<li>– 所有输出都具有高分辨率，可以在触发的单脉冲模式下调整占空比、频率和脉冲宽度</li>
+<li>– 6 个 16 位计时单元（每个都有一个独立的计数器和 4 个比较单元）</li>
+<li>– 10 个输出，可由任何计时单元控制，每个通道多达 32 个设置/复位源</li>
+<li>– 模块化架构，可处理具有 1 个或 2 个开关的多个独立转换器或少数大型多开关拓扑</li>
+</ul>
+</li>
+<li>到内置模拟外设的多个链接<ul>
+<li>– ADC 转换器的 4 个触发器</li>
+<li>– DAC 转换器的 3 个触发器</li>
+<li>– 3 个用于模拟信号调节的比较器</li>
+</ul>
+</li>
+<li>多个 HRTIM 实例可以与外部同步输入/输出同步</li>
+<li>多功能输出级<ul>
+<li>– 高分辨率死区插入（低至 868 pSec）</li>
+<li>– 可编程输出极性</li>
+<li>– 斩波模式</li>
+</ul>
+</li>
+<li>突发模式控制器可在多个转换器上同步处理轻负载操作</li>
+<li>7 个中断向量，每个中断向量最多 14 个源</li>
+<li>6 个 DMA 请求，多达 14 个源，具有用于多个寄存器更新的突发模式</li>
+</ul>
+<h3 id="3、STM32-定时器操作模式"><a href="#3、STM32-定时器操作模式" class="headerlink" title="3、STM32 定时器操作模式"></a>3、STM32 定时器操作模式</h3><p>STM32 定时器模块可以在以下任何一种模式下运行，但是，不应假设给定的定时器确实支持所有这些模式。 相反，必须查看数据表以确定哪些定时器支持哪些模式。 正如我们之前看到的，有许多组定时器，其中包括：通用、低功耗、高分辨率、高级控制定时器。 每一种都支持以下多种模式，但是，有些定时器确实支持大多数操作模式。下面将简要介绍每种操作模式。</p>
+<h4 id="3-1-定时器模式"><a href="#3-1-定时器模式" class="headerlink" title="3.1 定时器模式"></a>3.1 定时器模式</h4><p>在定时器模式下，定时器模块从具有已知频率的内部时钟源获得时钟。 因此时钟频率是已知的，溢出时间也可以由预加载寄存器计算和控制以获得任意选择的时间间隔。 每次定时器溢出时，定时器都会向 CPU 发出一个中断信号，指示指定的时间间隔结束。</p>
+<p>这种操作模式通常用于在每个特定时间间隔完成特定操作。 并实现系统中各种任务和事件之间的计时和同步。 它还可以替代各种情况下的延迟，以获得更好的系统响应。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/7587308c5532472191abd0e841076fdf.png#pic_center" alt="在这里插入图片描述"></p>
+<h4 id="3-2-计数器模式"><a href="#3-2-计数器模式" class="headerlink" title="3.2 计数器模式"></a>3.2 计数器模式</h4><p>在计数器模式下，定时器模块从外部源（定时器输入引脚）获得时钟。 因此定时器在外部输入的每个上升沿或下降沿向上或向下计数。 当需要在不轮询输入引脚或定期读取 GPIO 或连续中断 CPU（如果选择将其连接到 EXTI 引脚）的情况下实现数字计数器时，这种模式在许多情况下非常有用。</p>
+<p>实际上可以监视每个时间间隔的计数器值差异，以了解确实发生了多少个脉冲或其频率。 这种模式在很多情况下都是有利的。</p>
+<h4 id="3-3-PWM模式"><a href="#3-3-PWM模式" class="headerlink" title="3.3 ＰＷＭ模式"></a>3.3 ＰＷＭ模式</h4><p>在 PWM 模式下，定时器模块由内部时钟源提供时钟，并在输出通道引脚上产生称为 PWM 信号的数字波形。 通过使用输出比较寄存器 (OCR)，递增定时器的寄存器值不断与该 OCR 寄存器进行比较。 当匹配发生时，输出引脚状态翻转，直到周期结束，整个过程重复。</p>
+<p>PWM 模式下的定时器将以用户选择的指定频率产生 PWM 信号。 占空比也由其寄存器以编程方式控制。 PWM 分辨率受所需 FPWM 和其他因素的影响，将在后面 PWM 生成的专门实例中看到。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/8edbf89cd8aa4d6a8315be5e9549c371.gif#pic_center" alt="在这里插入图片描述"></p>
+<h4 id="3-4-高级PWM模式"><a href="#3-4-高级PWM模式" class="headerlink" title="3.4 高级PWM模式"></a>3.4 高级PWM模式</h4><p>高级 PWM 信号生成是指控制更多参数的硬件能力，并添加一些硬件电路来支持 PWM 信号生成的额外功能。 包括：</p>
+<ul>
+<li>产生互补 PWM 信号的能力，该信号通常与主通道上的 PWM 相同，但逻辑反转（高部分变为低部分，反之亦然）。</li>
+<li>能够在 PWM 信号中为电机驱动应用注入死区，以防止 PWM 信号重叠导致的直通电流。</li>
+<li>能够对 PWM 信号执行自动关闭，也称为“自动制动”，这是安全关键应用的重要功能。</li>
+<li>以及对 PWM 信号进行相位调整的能力，等等！ 所有这些都被称为高级 PWM 控制。</li>
+</ul>
+<p>以下是具有互补波形输出、插入死区和相位延迟调整的 PWM 通道示例。 半桥模式下的典型控制信号。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/628c87a66520435f88f6ffeb5df23f56.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<h4 id="3-5-输出比较模式"><a href="#3-5-输出比较模式" class="headerlink" title="3.5 输出比较模式"></a>3.5 输出比较模式</h4><p>在输出比较模式下，定时器模块控制输出波形或指示时间段何时过去。 当检测到输出比较寄存器 (OCR) 与计数器匹配时，输出比较功能会将相应的输出引脚分配给由输出定义的可编程值<br> 由程序员定义的比较模式。</p>
+<p>输出比较引脚可以被驱动为高电平、低电平、切换其状态或保持不变。 这是由程序员根据应用程序要求确定的。 这种操作模式对于在许多应用中生成时序信号和输出驱动非常有利，我们将在以后的实例中看到。</p>
+<p>以下是输出比较模式下计数定时器的示例。 注意输出状态何时改变（切换）和 OCR 中的值（比较寄存器 TIM1_CCR1）。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/2c56d39832244ad4b755081003105f4f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<h4 id="3-6-单脉冲模式"><a href="#3-6-单脉冲模式" class="headerlink" title="3.6 单脉冲模式"></a>3.6 单脉冲模式</h4><p>单脉冲模式 (OPM) 是先前模式的一种特殊情况。 它允许计数器响应激励而启动，并在可编程延迟后生成具有可编程长度的脉冲。 启动计数器可以通过从模式控制器来控制。 可以在输出比较模式或 PWM 模式下生成波形。</p>
+<p>只有当比较值与计数器初始值不同时，才能正确产生脉冲。 启动前（定时器等待触发时），配置必须是CNT&lt;CCRx ≤ ARR（特别是0&lt;CCRx）。 例如，希望在 TI2 输入引脚上检测到上升沿后立即在 OC1 上生成一个长度为 tPULSE 的正脉冲，并在 tDELAY 延迟之后生成。</p>
+<h4 id="3-7-输入捕捉模式"><a href="#3-7-输入捕捉模式" class="headerlink" title="3.7 输入捕捉模式"></a>3.7 输入捕捉模式</h4><p>在输入捕捉模式下，捕捉/比较寄存器（TIMx_CCRx）用于在相应的 ICx 信号检测到转换后锁存计数器的值。 发生捕捉时，相应的 CCXIF 标志（TIMx_SR 寄存器）被设置，如果使能，则可以发送中断或 DMA 请求。</p>
+<p>该模式对于外部信号测量或外部事件时序检测极为重要。 当外部事件发生并触发中断时，定时器计数的当前值被捕获。 因此，我们可以将此功能用于广泛的测量应用。</p>
+<p>一个典型的应用示例是超声波传感器，它测量距离并将信息作为脉冲发送到您的微控制器。 通过测量脉宽时间，可以找出距离读数。 这可以通过使用定时器模块内的输入捕捉单元 (ICU) 来实现。</p>
+<h4 id="3-8-编码器模式"><a href="#3-8-编码器模式" class="headerlink" title="3.8 编码器模式"></a>3.8 编码器模式</h4><p>在编码器接口模式下，定时器模块作为具有两个输入的数字计数器运行。计数器由两个输入引脚上的每个有效转换计时。评估两个输入的转换序列并生成计数脉冲以及方向信号。根据顺序，计数器向上或向下计数。所以你不必单独检测这些脉冲，看看哪个先检测旋转方向和这种工作。现在，由于编码器模式硬件支持，所有这些都由硬件完成。</p>
+<p>在编码器接口模式下配置的定时器提供有关传感器当前位置的信息。用户可以通过使用在捕获模式下配置的第二个定时器测量两个编码器事件之间的周期来获取动态信息（速度、加速度、减速度）。指示机械零位的编码器输出可用于此目的。根据两个事件之间的时间，也可以定期读取计数器。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/6487ba049ce3470f881b3e1ac3a759c5.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_16,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<h4 id="3-9-定时门模式"><a href="#3-9-定时门模式" class="headerlink" title="3.9 定时门模式"></a>3.9 定时门模式</h4><p>在定时器门控模式下，定时器模块也被称为在“从模式”下工作。 只要外部输入引脚保持高电平或低电平，它就会计数。 据说这个输入引脚是允许定时器计数或根本不计数的定时器门。</p>
+<p>该模式可用于广泛的应用和信号测量。 它可以帮助您以非常高的分辨率测量极短的脉冲。 并且还触发计时器以对来自传感器或其他 MCU 的外部事件进行计数。</p>
+<p>只要 TI1 为低，计数器就开始使用内部时钟计数，并在 TI1 变为高时停止。 TIMx_SR 寄存器中的 TIF 标志在计数器启动或停止时都会设置。 TI1 上的上升沿和计数器实际停止之间的延迟是由于 TI1 输入上的再同步电路造成的。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/ffb5cba44c124b7da3f440896c1b2ba6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<h4 id="3-10-定时器-DMA-突发模式"><a href="#3-10-定时器-DMA-突发模式" class="headerlink" title="3.10 定时器 DMA 突发模式"></a>3.10 定时器 DMA 突发模式</h4><p>STM32 定时器（并非所有定时器）都能够根据单个事件生成多个 DMA 请求。 主要目的是能够在没有软件开销的情况下多次重新编程定时器的一部分，但它也可以用于定期读取连续的多个寄存器。</p>
+<h4 id="3-11-IRTIM-红外模式"><a href="#3-11-IRTIM-红外模式" class="headerlink" title="3.11 IRTIM 红外模式"></a>3.11 IRTIM 红外模式</h4><p>用于远程控制的红外接口 (IRTIM) 可与红外 LED 一起使用以执行远程控制功能。 它使用与 TIM15 和 TIM16 的内部连接，如下图所示。 要生成红外遥控信号，必须启用红外接口，并且必须正确配置 TIM15 通道 1 (TIM15_OC1) 和 TIM16 通道 1 (TIM16_OC1) 以生成正确的波形。 红外接收器可以通过基本的输入捕获模式轻松实现。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/1a487ab482454f0a957b4f11c8e3ab97.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>文章来源: <a target="_blank" rel="noopener" href="https://iotsmart.blog.csdn.net/article/details/123268617">https://iotsmart.blog.csdn.net/article/details/123268617</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://blog.moncy.cn">Gryphon</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://blog.moncy.cn/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8Timer%E6%A6%82%E8%BF%B0/">https://blog.moncy.cn/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8Timer%E6%A6%82%E8%BF%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.moncy.cn" target="_blank">秋意寒</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/stm32/">stm32</a><a class="post-meta__tags" href="/tags/cubeide/">cubeide</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作！</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/loading.gif" data-original="/img/wechat.jpg"></a><div class="post-qr-code-desc"></div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8USARTUART%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1/" title="STM32F1与STM32CubeIDE快速入门USARTUART串口通信"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">STM32F1与STM32CubeIDE快速入门USARTUART串口通信</div></div></a></div><div class="next-post pull-right"><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8%E5%AE%9A%E6%97%B6%E6%A8%A1%E5%BC%8F/" title="STM32F1与STM32CubeIDE快速入门定时器定时模式"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">STM32F1与STM32CubeIDE快速入门定时器定时模式</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="STM32F1与STM32CubeIDE快速入门开发环境搭建"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门开发环境搭建</div></div></a></div><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8STM32F1%E5%BE%AE%E6%8E%A7%E5%88%B6%E5%99%A8%E6%A6%82%E8%BF%B0/" title="STM32F1与STM32CubeIDE快速入门STM32F1微控制器概述"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门STM32F1微控制器概述</div></div></a></div><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8GPIO%E6%A6%82%E8%BF%B0%E4%B8%8E%E7%82%B9%E4%BA%AELED/" title="STM32F1与STM32CubeIDE快速入门GPIO概述与点亮LED"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门GPIO概述与点亮LED</div></div></a></div><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%8C%89%E9%94%AE%E4%B8%8ELED%E6%8E%A7%E5%88%B6/" title="STM32F1与STM32CubeIDE快速入门按键与LED控制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门按键与LED控制</div></div></a></div><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E4%B8%AD%E6%96%ADNVIC%E4%B8%8EEXTI%E6%A6%82%E8%BF%B0/" title="STM32F1与STM32CubeIDE快速入门中断NVIC与EXTI概述"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门中断NVIC与EXTI概述</div></div></a></div><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD%E9%85%8D%E7%BD%AE%E4%B8%8E%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0/" title="STM32F1与STM32CubeIDE快速入门外部中断配置与功能实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门外部中断配置与功能实现</div></div></a></div></div></div><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/loading.gif" data-original="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">Gryphon</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">796</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">23</div></a></div><a id="card-info-btn" href="https://blog.moncy.cn"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://blog.csdn.net/" target="_blank" title="CSDN"><i class="fa fa-book-open"></i></a><a class="social-icon" href="https://user.qzone.qq.com/75966308" target="_blank" title="QQ"><i class="fab fa-qq"></i></a><a class="social-icon" href="mailto:75966308@qq.com" target="_blank" title="Email"><i class="fas fa-envelope-open-text"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">本站博客为本人所写或抓取自互联网资源,可联系我进行处理,下一版将会为所有抓取自互联网的blog添加创作人信息。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8-%E5%AE%9A%E6%97%B6%E5%99%A8%EF%BC%88Timer%EF%BC%89%E6%A6%82%E8%BF%B0"><span class="toc-text">STM32F1与STM32CubeIDE快速入门-定时器（Timer）概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E6%97%B6%E5%99%A8%EF%BC%88Timer%EF%BC%89%E6%A6%82%E8%BF%B0"><span class="toc-text">定时器（Timer）概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%AE%9A%E6%97%B6%E5%99%A8%E6%A8%A1%E5%9D%97%E4%BB%8B%E7%BB%8D"><span class="toc-text">1、定时器模块介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81STM32%E5%AE%9A%E6%97%B6%E5%99%A8%E7%A1%AC%E4%BB%B6"><span class="toc-text">2、STM32定时器硬件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-%E5%9F%BA%E6%9C%AC%E5%AE%9A%E6%97%B6%E5%99%A8%E6%A8%A1%E5%9D%97"><span class="toc-text">2.1 基本定时器模块</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-%E4%BD%8E%E5%8A%9F%E8%80%97%E5%AE%9A%E6%97%B6%E5%99%A8%E6%A8%A1%E5%9D%97"><span class="toc-text">2.2 低功耗定时器模块</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-%E9%80%9A%E7%94%A8%E5%AE%9A%E6%97%B6%E5%99%A8%E6%A8%A1%E5%9D%97"><span class="toc-text">2.3 通用定时器模块</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E9%AB%98%E7%BA%A7%E6%8E%A7%E5%88%B6%E5%AE%9A%E6%97%B6%E5%99%A8%E6%A8%A1%E5%9D%97"><span class="toc-text">2.4 高级控制定时器模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E9%AB%98%E5%88%86%E8%BE%A8%E7%8E%87%E5%AE%9A%E6%97%B6%E5%99%A8%E6%A8%A1%E5%9D%97"><span class="toc-text">2.5 高分辨率定时器模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81STM32-%E5%AE%9A%E6%97%B6%E5%99%A8%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="toc-text">3、STM32 定时器操作模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-%E5%AE%9A%E6%97%B6%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.1 定时器模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-%E8%AE%A1%E6%95%B0%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.2 计数器模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-PWM%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.3 ＰＷＭ模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-4-%E9%AB%98%E7%BA%A7PWM%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.4 高级PWM模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-%E8%BE%93%E5%87%BA%E6%AF%94%E8%BE%83%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.5 输出比较模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-6-%E5%8D%95%E8%84%89%E5%86%B2%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.6 单脉冲模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-7-%E8%BE%93%E5%85%A5%E6%8D%95%E6%8D%89%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.7 输入捕捉模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-8-%E7%BC%96%E7%A0%81%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.8 编码器模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-9-%E5%AE%9A%E6%97%B6%E9%97%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.9 定时门模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-10-%E5%AE%9A%E6%97%B6%E5%99%A8-DMA-%E7%AA%81%E5%8F%91%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.10 定时器 DMA 突发模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-11-IRTIM-%E7%BA%A2%E5%A4%96%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.11 IRTIM 红外模式</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B433M%E6%97%A0%E7%BA%BF%E6%A8%A1%E5%9D%97%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6/" title="Arduino开发实例433M无线模块数据发送与接收">Arduino开发实例433M无线模块数据发送与接收</a><time datetime="2024-03-27T07:01:11.000Z" title="发表于 2024-03-27 15:01:11">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-ESP32Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BWiFi%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86/" title="ESP32Arduino开发实例WiFi事件处理">ESP32Arduino开发实例WiFi事件处理</a><time datetime="2024-03-27T07:01:05.000Z" title="发表于 2024-03-27 15:01:05">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-ESP32Arduino%E7%BD%91%E7%BB%9C%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BWiFi%E8%BF%9E%E6%8E%A5%E8%AE%BE%E7%BD%AE%E9%9D%99%E6%80%81IP/" title="ESP32Arduino网络开发实例WiFi连接设置静态IP">ESP32Arduino网络开发实例WiFi连接设置静态IP</a><time datetime="2024-03-27T07:01:04.000Z" title="发表于 2024-03-27 15:01:04">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BLora-%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6/" title="Arduino开发实例Lora 数据发送与接收">Arduino开发实例Lora 数据发送与接收</a><time datetime="2024-03-27T07:01:03.000Z" title="发表于 2024-03-27 15:01:03">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B%E4%B8%A4%E4%B8%AAArduino%E4%B9%8B%E9%97%B4I2C%E9%80%9A%E4%BF%A1/" title="Arduino开发实例两个Arduino之间I2C通信">Arduino开发实例两个Arduino之间I2C通信</a><time datetime="2024-03-27T07:01:02.000Z" title="发表于 2024-03-27 15:01:02">2024-03-27</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 By Gryphon</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://comment-one-gray.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, {"requiredMeta":["nick","mail"],"locale":{"placeholder":"昵称和邮箱为必填项，为了您能及时收到相关回复的邮件通知，请确保邮箱的正确性！"}}))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    btf.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.1.2/dist/waline.min.css')
+      const { init } = await import('https://cdn.jsdelivr.net/npm/@waline/client@3.1.2/dist/waline.min.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/gh/xiabo2/CDN@latest/fishes.js"></script><script src="/js/custom/snow.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/metingjs/dist/Meting.min.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script><script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>
