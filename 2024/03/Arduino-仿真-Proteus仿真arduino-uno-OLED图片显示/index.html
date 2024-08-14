@@ -1,0 +1,270 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Proteus仿真arduino uno + OLED图片显示 | 秋意寒</title><meta name="author" content="Gryphon"><meta name="copyright" content="Gryphon"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Proteus仿真arduino uno + OLED图片显示Proteus仿真arduino uno + OLED显示  🎞Proteus仿真图：   📑所需库 🌿libraries\Adafruit_GFX_Library 🌿Adafruit_BusIO 🌿Adafruit_SSD1306  🏳‍🌈注意事项 🌴首次安装Adafruit_SSD1306并使用，需要修改Adaf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Proteus仿真arduino uno + OLED图片显示">
+<meta property="og:url" content="https://blog.moncy.cn/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Proteus%E4%BB%BF%E7%9C%9Farduino-uno-OLED%E5%9B%BE%E7%89%87%E6%98%BE%E7%A4%BA/index.html">
+<meta property="og:site_name" content="秋意寒">
+<meta property="og:description" content="Proteus仿真arduino uno + OLED图片显示Proteus仿真arduino uno + OLED显示  🎞Proteus仿真图：   📑所需库 🌿libraries\Adafruit_GFX_Library 🌿Adafruit_BusIO 🌿Adafruit_SSD1306  🏳‍🌈注意事项 🌴首次安装Adafruit_SSD1306并使用，需要修改Adaf">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.moncy.cn/img/avatar.jpg">
+<meta property="article:published_time" content="2024-03-26T10:38:13.000Z">
+<meta property="article:modified_time" content="2024-03-27T11:40:17.679Z">
+<meta property="article:author" content="Gryphon">
+<meta property="article:tag" content="proteus仿真">
+<meta property="article:tag" content="arduino">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.moncy.cn/img/avatar.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.moncy.cn/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Proteus%E4%BB%BF%E7%9C%9Farduino-uno-OLED%E5%9B%BE%E7%89%87%E6%98%BE%E7%A4%BA/index.html"><link rel="preconnect" href="//unpkg.com"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://unpkg.com/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Proteus仿真arduino uno + OLED图片显示',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-03-27 19:40:17'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/styles/main.css"><link rel="stylesheet" href="/css/modify.css"><meta name="generator" content="Hexo 7.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">796</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/blog-LeadPage/"><i class="fa-fw fa fa-gift"></i><span> 引导</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/tags.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="秋意寒"><span class="site-name">秋意寒</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/blog-LeadPage/"><i class="fa-fw fa fa-gift"></i><span> 引导</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Proteus仿真arduino uno + OLED图片显示</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-03-26T10:38:13.000Z" title="发表于 2024-03-26 18:38:13">2024-03-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-03-27T11:40:17.679Z" title="更新于 2024-03-27 19:40:17">2024-03-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/arduino/">arduino</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/arduino/proteus%E4%BB%BF%E7%9C%9F/">proteus仿真</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Proteus仿真arduino uno + OLED图片显示"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('/img/tags.jpg');"></div><article class="post-content" id="article-container"><meta name="referrer" content="no-referrer">
+
+<h1 id="Proteus仿真arduino-uno-OLED图片显示"><a href="#Proteus仿真arduino-uno-OLED图片显示" class="headerlink" title="Proteus仿真arduino uno + OLED图片显示"></a>Proteus仿真arduino uno + OLED图片显示</h1><h3 id=""><a href="#" class="headerlink" title=""></a></h3><p>Proteus仿真arduino uno + OLED显示</p>
+<ul>
+<li>🎞Proteus仿真图：</li>
+</ul>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/20210204222933112.png" alt="在这里插入图片描述"></p>
+<h4 id="📑所需库"><a href="#📑所需库" class="headerlink" title="📑所需库"></a>📑所需库</h4><ul>
+<li>🌿<code>libraries\Adafruit_GFX_Library</code></li>
+<li>🌿<code>Adafruit_BusIO</code></li>
+<li>🌿<code>Adafruit_SSD1306</code></li>
+</ul>
+<h4 id="🏳‍🌈注意事项"><a href="#🏳‍🌈注意事项" class="headerlink" title="🏳‍🌈注意事项"></a>🏳‍🌈注意事项</h4><ul>
+<li>🌴首次安装<code>Adafruit_SSD1306</code>并使用，需要修改<code>Adafruit_SSD1306.h</code>宏定义：（默认选择的是128X32）</li>
+</ul>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#define SSD1306\_128\_64 ///&lt; DEPRECTAED: old way to specify 128x64 screen</span><br><span class="line">//#define SSD1306\_128\_32 ///&lt; DEPRECATED: old way to specify 128x32 screen</span><br><span class="line">//#define SSD1306\_96\_16 ///&lt; DEPRECATED: old way to specify 96x16 screen</span><br><span class="line">// This establishes the screen dimensions in old Adafruit\_SSD1306 sketches</span><br><span class="line">// (NEW CODE SHOULD IGNORE THIS, USE THE CONSTRUCTORS THAT ACCEPT WIDTH</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>🌿仿真使用带Bootloader的Hex文件：<code>with_bootloader.standard.hex</code></li>
+<li>🌿仿真中的I2C地址为<code>0x3d</code>。</li>
+</ul>
+<h4 id="📝程序代码："><a href="#📝程序代码：" class="headerlink" title="📝程序代码："></a>📝程序代码：</h4><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#include &lt;SPI.h&gt;</span><br><span class="line">#include &lt;Wire.h&gt;</span><br><span class="line">#include &lt;Adafruit\_GFX.h&gt;</span><br><span class="line">#include &lt;Adafruit\_SSD1306.h&gt;</span><br><span class="line"> </span><br><span class="line">#define OLED\_RESET 4</span><br><span class="line">Adafruit_SSD1306 display(OLED_RESET);</span><br><span class="line"> </span><br><span class="line">static const unsigned char PROGMEM logo[] =</span><br><span class="line">{ </span><br><span class="line">0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x03,0xF8,0x00,</span><br><span class="line">0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0F,0xFF,0x00,0x00,0xFF,0x00,0x00,</span><br><span class="line">0x00,0x00,0x00,0x00,0x00,0x1F,0xFF,0x00,0x1F,0x00,0x7C,0x00,0x00,0x00,0x00,0x00,</span><br><span class="line">0x00,0x3F,0xFF,0xC3,0xF0,0x00,0x03,0x80,0x0F,0xC0,0x00,0x00,0x00,0x7F,0xFF,0xFE,</span><br><span class="line">0x00,0x00,0x00,0x70,0x3F,0xF8,0x00,0x00,0x00,0x7F,0xFF,0xF0,0x00,0x00,0x00,0x1C,</span><br><span class="line">0xFF,0xFC,0x00,0x00,0x00,0xFF,0xFF,0xE0,0x00,0x00,0x00,0x07,0xFF,0xFE,0x00,0x00,</span><br><span class="line">0x00,0xFF,0xFF,0xC0,0x00,0x00,0x00,0x01,0xFF,0xFF,0x00,0x00,0x00,0xFF,0xFF,0x80,</span><br><span class="line">0x00,0x00,0x00,0x00,0xFF,0xFF,0x00,0x00,0x00,0xFF,0xFF,0x00,0x00,0x00,0x00,0x00,</span><br><span class="line">0x7F,0xFF,0x80,0x00,0x00,0xFF,0xFF,0x00,0x00,0x00,0x00,0x00,0x3F,0xFF,0x80,0x00,</span><br><span class="line">0x00,0xFF,0xFE,0x00,0x00,0x00,0x00,0x00,0x3F,0xFF,0x80,0x00,0x00,0xFF,0xFC,0x00,</span><br><span class="line">0x00,0x00,0x00,0x00,0x1F,0xFF,0x80,0x00,0x00,0xFF,0xF8,0x00,0x00,0x00,0x00,0x00,</span><br><span class="line">0x0F,0xFF,0xC0,0x00,0x00,0xFF,0xF0,0x00,0x00,0x00,0x00,0x00,0x0F,0xFF,0xC0,0x00,</span><br><span class="line">0x00,0xFF,0xF0,0x00,0x00,0x00,0x7C,0x00,0x07,0xFF,0xC0,0x00,0x00,0xFF,0xE0,0x00,</span><br><span class="line">0x00,0x00,0x7F,0x00,0x07,0xFF,0xC0,0x00,0x00,0x7F,0xE0,0x00,0x7F,0x00,0x3F,0xC0,</span><br><span class="line">0x03,0xFF,0x80,0x00,0x00,0x3F,0xC0,0x03,0xFF,0x80,0x00,0xC0,0x03,0xFF,0x80,0x00,</span><br><span class="line">0x00,0x3F,0x80,0x0F,0xFF,0xC0,0x00,0x00,0x01,0xFF,0x00,0x00,0x00,0x1F,0x80,0x0F,</span><br><span class="line">0x03,0xE0,0x00,0x00,0x01,0xFF,0x00,0x00,0x00,0x0F,0x80,0x00,0x00,0x80,0x00,0x00,</span><br><span class="line">0x00,0xFE,0x00,0x00,0x00,0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xFC,0x00,0x00,</span><br><span class="line">0x00,0x01,0x00,0x00,0x3E,0x00,0x3F,0x00,0x00,0xF8,0x00,0x00,0x00,0x01,0x00,0x00,</span><br><span class="line">0xFE,0x00,0x0F,0x00,0x00,0x40,0x00,0x00,0x00,0x00,0x00,0x03,0xFC,0x00,0x0C,0x00,</span><br><span class="line">0x00,0x40,0x00,0x00,0x00,0x02,0x00,0x00,0x10,0x00,0x00,0x00,0x00,0x40,0x00,0x00,</span><br><span class="line">0x00,0x06,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x00,0x00,0x00,0x04,0x00,0x00,</span><br><span class="line">0x00,0x00,0x00,0x00,0x00,0x20,0x00,0x00,0x00,0x04,0x00,0x00,0x00,0x00,0x00,0x00,</span><br><span class="line">0x00,0x20,0x00,0x00,0x00,0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x00,0x00,</span><br><span class="line">0x00,0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x00,0x00,0x00,0x08,0x00,0x00,</span><br><span class="line">0x00,0x00,0x00,0x00,0x00,0x20,0x00,0x00,0x00,0x18,0x00,0x00,0x01,0x00,0x01,0x00,</span><br><span class="line">0x00,0x30,0x00,0x00,0x00,0x10,0x00,0x00,0x07,0x00,0x01,0x00,0x00,0x10,0x00,0x00,</span><br><span class="line">0x00,0x10,0x00,0x00,0x06,0x4F,0x18,0x80,0x00,0x10,0x00,0x00,0x00,0x30,0x00,0x00,</span><br><span class="line">0x00,0xFF,0xF0,0x00,0x00,0x10,0x00,0x00,0x00,0x70,0x00,0x00,0x00,0x3F,0xC0,0x00,</span><br><span class="line">0x00,0x18,0x00,0x00,0x00,0xF0,0x00,0x00,0x00,0x00,0x80,0x00,0x00,0x18,0x00,0x00,</span><br><span class="line">0x01,0xE0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x1C,0x00,0x00,0x03,0xE0,0x00,0x00,</span><br><span class="line">0x00,0x00,0x00,0x00,0x00,0x1E,0x00,0x00,0x07,0xE0,0x00,0x00,0x00,0x0F,0xFC,0x00,</span><br><span class="line">0x00,0x1E,0x00,0x00,0x07,0xF0,0x00,0x00,0x00,0x7F,0xFE,0x00,0x00,0x1F,0x00,0x00,</span><br><span class="line">0x07,0xF0,0x00,0x00,0x00,0xF8,0x0E,0x00,0x00,0x1F,0x00,0x00,0x07,0xF8,0x00,0x00,</span><br><span class="line">0x00,0xFE,0xFE,0x00,0x00,0x1F,0x80,0x00,0x07,0xF8,0x00,0x00,0x00,0xFF,0xDC,0x00,</span><br><span class="line">0x00,0x3F,0x80,0x00,0x07,0xF8,0x00,0x00,0x00,0xF0,0x00,0x00,0x00,0x3F,0xC0,0x00,</span><br><span class="line">0x07,0xFC,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0xE0,0x00,0x07,0xFE,0x00,0x00,</span><br><span class="line">0x00,0x00,0x00,0x00,0x00,0x3F,0xE0,0x00,0x07,0xFF,0x00,0x00,0x00,0x00,0x00,0x00,</span><br><span class="line">0x00,0x7F,0xE0,0x00,0x07,0xFF,0x00,0x00,0x00,0x3C,0x00,0x00,0x00,0xFF,0xF0,0x00,</span><br><span class="line">0x07,0xFF,0xC0,0x00,0x00,0x1F,0xF0,0x00,0x01,0xFF,0xF0,0x00,0x07,0xFF,0xE0,0x00,</span><br><span class="line">0x00,0x07,0xF0,0x00,0x03,0xFF,0xF0,0x00,0x07,0xFF,0xF0,0x00,0x00,0x00,0x00,0x00,</span><br><span class="line">0x07,0xFF,0xF0,0x00,0x07,0xFF,0xFC,0x00,0x00,0x00,0x00,0x00,0x0F,0xFF,0xF0,0x00,</span><br><span class="line">0x07,0xFF,0xFE,0x00,0x00,0x00,0x00,0x00,0x3F,0xFF,0xF0,0x00,0x07,0xFF,0xFF,0x00,</span><br><span class="line">0x00,0x00,0x00,0x00,0xFF,0xFF,0xF0,0x00,0x07,0xFF,0xFF,0xE0,0x00,0x00,0x00,0x07,</span><br><span class="line">0xFF,0xFF,0xF0,0x00,0x07,0xFF,0xFF,0xF8,0x00,0x00,0x00,0x3F,0xFF,0xFF,0xF0,0x00,</span><br><span class="line">0x07,0xFF,0xFF,0xFF,0x00,0x00,0x00,0xFF,0xFF,0xFF,0xF0,0x00,0x07,0xFF,0xFF,0xFF,</span><br><span class="line">0xF0,0x07,0xFF,0xFF,0xFF,0xFF,0xF0,0x00,0x07,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,</span><br><span class="line">0xFF,0xFF,0xF0,0x00</span><br><span class="line"></span><br><span class="line">};</span><br><span class="line">  </span><br><span class="line">#if (SSD1306\_LCDHEIGHT != 64)</span><br><span class="line">#error("Height incorrect, please fix Adafruit\_SSD1306.h!");</span><br><span class="line">#endif</span><br><span class="line"> </span><br><span class="line">void setup()   {                </span><br><span class="line">  Serial.begin(9600);</span><br><span class="line">  display.begin(SSD1306_SWITCHCAPVCC, 0x3D); </span><br><span class="line">  display.clearDisplay();</span><br><span class="line">}</span><br><span class="line"> </span><br><span class="line">void loop() {</span><br><span class="line">  display.drawBitmap(0, 0, logo, 89, 63, 1);  //在坐标X0，Y0的位置开始显示图片</span><br><span class="line">                                               //128是取模软件显示的宽度</span><br><span class="line">                                               //64是取模软件显示的高度</span><br><span class="line">  display.display();                           //把缓存的都显示</span><br><span class="line">  delay(1);</span><br><span class="line">  </span><br><span class="line">  display.clearDisplay();     //清除屏幕</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>🌿编译信息：</li>
+</ul>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">使用 1.0  版本的库 SPI 在文件夹： C:\Users\Administrator\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.6\libraries\SPI </span><br><span class="line">使用 1.0  版本的库 Wire 在文件夹： C:\Users\Administrator\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.6\libraries\Wire </span><br><span class="line">使用 1.11.5  版本的库 Adafruit_GFX_Library 在文件夹： C:\Users\Administrator\Documents\Arduino\libraries\Adafruit_GFX_Library </span><br><span class="line">使用 1.14.1  版本的库 Adafruit_BusIO 在文件夹： C:\Users\Administrator\Documents\Arduino\libraries\Adafruit_BusIO </span><br><span class="line">使用 2.5.7  版本的库 Adafruit_SSD1306 在文件夹： C:\Users\Administrator\Documents\Arduino\libraries\Adafruit_SSD1306 </span><br><span class="line">"C:\\Users\\Administrator\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\avr-gcc\\7.3.0-atmel3.6.1-arduino7/bin/avr-size" -A "d:\\arduino\\MyHexDir/Picture\_display.ino.elf"</span><br><span class="line">项目使用了 14638 字节，占用了 (45%) 程序存储空间。最大为 32256 字节。</span><br><span class="line">全局变量使用了519字节，(25%)的动态内存，余留1529字节局部变量。最大为2048字节。</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="📚程序源码和仿真资源"><a href="#📚程序源码和仿真资源" class="headerlink" title="📚程序源码和仿真资源"></a>📚程序源码和仿真资源</h4><blockquote>
+<ul>
+<li>🔖基于Proteus8.12平台</li>
+</ul>
+</blockquote>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">链接: https://pan.baidu.com/s/1JMhfpFPVJC-lVsVe2kdsJA</span><br><span class="line">提取码: gy6e</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://blog.moncy.cn">Gryphon</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://blog.moncy.cn/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Proteus%E4%BB%BF%E7%9C%9Farduino-uno-OLED%E5%9B%BE%E7%89%87%E6%98%BE%E7%A4%BA/">https://blog.moncy.cn/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Proteus%E4%BB%BF%E7%9C%9Farduino-uno-OLED%E5%9B%BE%E7%89%87%E6%98%BE%E7%A4%BA/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.moncy.cn" target="_blank">秋意寒</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/proteus%E4%BB%BF%E7%9C%9F/">proteus仿真</a><a class="post-meta__tags" href="/tags/arduino/">arduino</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://unpkg.com/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://unpkg.com/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作！</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/loading.gif" data-original="/img/wechat.jpg"></a><div class="post-qr-code-desc"></div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Proteus%E4%BB%BF%E7%9C%9FArduino-UNOPCF8574LCD1602%E7%9F%A9%E9%98%B5%E6%8C%89%E9%94%AE/" title="【Proteus仿真】Arduino UNO+PCF8574+LCD1602矩阵按键"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【Proteus仿真】Arduino UNO+PCF8574+LCD1602矩阵按键</div></div></a></div><div class="next-post pull-right"><a href="/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-Proteus%E4%BB%BF%E7%9C%9F51%E5%8D%95%E7%89%87%E6%9C%BA%E7%94%B5%E5%AD%90%E9%94%81%E7%BB%BC%E5%90%88%E8%AE%BE%E8%AE%A1%E6%A1%88%E4%BE%8B/" title="【Proteus仿真】51单片机电子锁综合设计案例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【Proteus仿真】51单片机电子锁综合设计案例</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-arduino-UNO%E5%88%A9%E7%94%A874hc595%E6%8E%A7%E5%88%B68%E4%B8%AALED%E7%8A%B6%E6%80%81%E6%96%B9%E5%BC%8F%E4%B8%80/" title="arduino UNO利用74hc595控制8个LED状态（方式一）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">arduino UNO利用74hc595控制8个LED状态（方式一）</div></div></a></div><div><a href="/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Arduino-UNO-DS1302-TM1638%E6%97%B6%E9%97%B4%E6%98%BE%E7%A4%BAProteus%E4%BB%BF%E7%9C%9F/" title="Arduino UNO + DS1302 + TM1638时间显示+Proteus仿真"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">Arduino UNO + DS1302 + TM1638时间显示+Proteus仿真</div></div></a></div><div><a href="/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Arduino-UNO-DS1302-TM1638%E6%97%B6%E9%97%B4%E6%98%BE%E7%A4%BAProteus%E4%BB%BF%E7%9C%9F%E4%BA%8C/" title="Arduino UNO + DS1302 + TM1638时间显示+Proteus仿真二"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">Arduino UNO + DS1302 + TM1638时间显示+Proteus仿真二</div></div></a></div><div><a href="/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Arduino-UNOLCD1602PCF8574%E8%BD%ACI2C%E9%A9%B1%E5%8A%A8%E6%98%BE%E7%A4%BAProteus%E4%BB%BF%E7%9C%9F/" title="Arduino UNO+LCD1602+PCF8574转I2C驱动显示+Proteus仿真"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">Arduino UNO+LCD1602+PCF8574转I2C驱动显示+Proteus仿真</div></div></a></div><div><a href="/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Arduino-UNO-74HC595%E6%B5%81%E6%B0%B4%E7%81%AF%E6%8C%89%E9%94%AE%E6%8E%A7%E5%88%B6Proteus%E4%BB%BF%E7%9C%9F/" title="Arduino UNO + 74HC595流水灯+按键控制+Proteus仿真"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">Arduino UNO + 74HC595流水灯+按键控制+Proteus仿真</div></div></a></div><div><a href="/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Arduino-UNODS1302-MAX7219%E9%A9%B1%E5%8A%A88%E4%BD%8D%E5%85%B1%E9%98%B4%E6%95%B0%E7%A0%81%E7%AE%A1%E6%98%BE%E7%A4%BA%E6%97%B6%E9%97%B4Proteus%E4%BB%BF%E7%9C%9F%E6%94%B9%E8%BF%9B%E7%89%88/" title="Arduino UNO+DS1302+ MAX7219驱动8位共阴数码管显示时间+Proteus仿真【改进版】"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">Arduino UNO+DS1302+ MAX7219驱动8位共阴数码管显示时间+Proteus仿真【改进版】</div></div></a></div></div></div><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">Gryphon</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">796</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><a id="card-info-btn" href="https://blog.moncy.cn"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://blog.csdn.net/" target="_blank" title="CSDN"><i class="fa fa-book-open"></i></a><a class="social-icon" href="https://user.qzone.qq.com/75966308" target="_blank" title="QQ"><i class="fab fa-qq"></i></a><a class="social-icon" href="mailto:75966308@qq.com" target="_blank" title="Email"><i class="fas fa-envelope-open-text"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">本站博客为本人所写或抓取自互联网资源,可联系我进行处理,下一版将会为所有抓取自互联网的blog添加创作人信息。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Proteus%E4%BB%BF%E7%9C%9Farduino-uno-OLED%E5%9B%BE%E7%89%87%E6%98%BE%E7%A4%BA"><span class="toc-text">Proteus仿真arduino uno + OLED图片显示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-text"></span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%93%91%E6%89%80%E9%9C%80%E5%BA%93"><span class="toc-text">📑所需库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%8F%B3%E2%80%8D%F0%9F%8C%88%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">🏳‍🌈注意事项</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%93%9D%E7%A8%8B%E5%BA%8F%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="toc-text">📝程序代码：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%93%9A%E7%A8%8B%E5%BA%8F%E6%BA%90%E7%A0%81%E5%92%8C%E4%BB%BF%E7%9C%9F%E8%B5%84%E6%BA%90"><span class="toc-text">📚程序源码和仿真资源</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/learning-cmake-001/" title="无题">无题</a><time datetime="2024-03-27T11:40:16.339Z" title="发表于 2024-03-27 19:40:16">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B433M%E6%97%A0%E7%BA%BF%E6%A8%A1%E5%9D%97%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6/" title="Arduino开发实例433M无线模块数据发送与接收">Arduino开发实例433M无线模块数据发送与接收</a><time datetime="2024-03-27T07:01:11.000Z" title="发表于 2024-03-27 15:01:11">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-ESP32Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BWiFi%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86/" title="ESP32Arduino开发实例WiFi事件处理">ESP32Arduino开发实例WiFi事件处理</a><time datetime="2024-03-27T07:01:05.000Z" title="发表于 2024-03-27 15:01:05">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-ESP32Arduino%E7%BD%91%E7%BB%9C%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BWiFi%E8%BF%9E%E6%8E%A5%E8%AE%BE%E7%BD%AE%E9%9D%99%E6%80%81IP/" title="ESP32Arduino网络开发实例WiFi连接设置静态IP">ESP32Arduino网络开发实例WiFi连接设置静态IP</a><time datetime="2024-03-27T07:01:04.000Z" title="发表于 2024-03-27 15:01:04">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BLora-%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6/" title="Arduino开发实例Lora 数据发送与接收">Arduino开发实例Lora 数据发送与接收</a><time datetime="2024-03-27T07:01:03.000Z" title="发表于 2024-03-27 15:01:03">2024-03-27</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 By Gryphon</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://unpkg.com/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://comment-one-gray.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, {"requiredMeta":["nick","mail"],"locale":{"placeholder":"昵称和邮箱为必填项，为了您能及时收到相关回复的邮件通知，请确保邮箱的正确性！"}}))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    btf.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://unpkg.com/@waline/client@3.1.2/dist/waline.css')
+      const { init } = await import('https://unpkg.com/@waline/client@3.1.2/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://unpkg.com/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://unpkg.com/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://unpkg.com/butterfly-extsrc@1.1.3/metingjs/dist/Meting.min.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script><script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>
