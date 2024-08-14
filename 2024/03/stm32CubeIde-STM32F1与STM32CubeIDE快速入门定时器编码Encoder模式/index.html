@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>STM32F1与STM32CubeIDE快速入门定时器编码Encoder模式 | 秋意寒</title><meta name="author" content="Gryphon"><meta name="copyright" content="Gryphon"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="STM32F1与STM32CubeIDE快速入门-定时器编码(Encoder)模式定时器编码(Encoder)模式1、定时器编码器模式在编码器接口模式下，定时器模块作为具有两个输入的数字计数器运行。计数器由两个输入引脚上的每个有效转换计时。评估两个输入的转换序列并生成计数脉冲以及方向信号。根据顺序，计数器向上或向下计数。所以你不必单独检测这些脉冲，看看哪个先检测旋转方向和这种工作。现在，由于编">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STM32F1与STM32CubeIDE快速入门定时器编码Encoder模式">
+<meta property="og:url" content="https://www.moncy.cn/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8%E7%BC%96%E7%A0%81Encoder%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="秋意寒">
+<meta property="og:description" content="STM32F1与STM32CubeIDE快速入门-定时器编码(Encoder)模式定时器编码(Encoder)模式1、定时器编码器模式在编码器接口模式下，定时器模块作为具有两个输入的数字计数器运行。计数器由两个输入引脚上的每个有效转换计时。评估两个输入的转换序列并生成计数脉冲以及方向信号。根据顺序，计数器向上或向下计数。所以你不必单独检测这些脉冲，看看哪个先检测旋转方向和这种工作。现在，由于编">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.moncy.cn/img/avatar.jpg">
+<meta property="article:published_time" content="2024-03-27T06:55:16.000Z">
+<meta property="article:modified_time" content="2024-03-27T11:40:16.219Z">
+<meta property="article:author" content="Gryphon">
+<meta property="article:tag" content="stm32">
+<meta property="article:tag" content="cubeide">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.moncy.cn/img/avatar.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://www.moncy.cn/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8%E7%BC%96%E7%A0%81Encoder%E6%A8%A1%E5%BC%8F/index.html"><link rel="preconnect" href="//unpkg.com"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://unpkg.com/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'STM32F1与STM32CubeIDE快速入门定时器编码Encoder模式',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-03-27 19:40:16'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/styles/main.css"><link rel="stylesheet" href="/css/modify.css"><meta name="generator" content="Hexo 7.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">796</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/blog-LeadPage/"><i class="fa-fw fa fa-gift"></i><span> 引导</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/tags.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="秋意寒"><span class="site-name">秋意寒</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/blog-LeadPage/"><i class="fa-fw fa fa-gift"></i><span> 引导</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">STM32F1与STM32CubeIDE快速入门定时器编码Encoder模式</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-03-27T06:55:16.000Z" title="发表于 2024-03-27 14:55:16">2024-03-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-03-27T11:40:16.219Z" title="更新于 2024-03-27 19:40:16">2024-03-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/stm32/">stm32</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/stm32/cubeide/">cubeide</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="STM32F1与STM32CubeIDE快速入门定时器编码Encoder模式"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('/img/tags.jpg');"></div><article class="post-content" id="article-container"><meta name="referrer" content="no-referrer">
+
+<h1 id="STM32F1与STM32CubeIDE快速入门-定时器编码-Encoder-模式"><a href="#STM32F1与STM32CubeIDE快速入门-定时器编码-Encoder-模式" class="headerlink" title="STM32F1与STM32CubeIDE快速入门-定时器编码(Encoder)模式"></a>STM32F1与STM32CubeIDE快速入门-定时器编码(Encoder)模式</h1><h2 id="定时器编码-Encoder-模式"><a href="#定时器编码-Encoder-模式" class="headerlink" title="定时器编码(Encoder)模式"></a>定时器编码(Encoder)模式</h2><h3 id="1、定时器编码器模式"><a href="#1、定时器编码器模式" class="headerlink" title="1、定时器编码器模式"></a>1、定时器编码器模式</h3><p>在编码器接口模式下，定时器模块作为具有两个输入的数字计数器运行。计数器由两个输入引脚上的每个有效转换计时。评估两个输入的转换序列并生成计数脉冲以及方向信号。根据顺序，计数器向上或向下计数。所以你不必单独检测这些脉冲，看看哪个先检测旋转方向和这种工作。现在，由于编码器模式硬件支持，所有这些都由硬件完成。</p>
+<p>在编码器接口模式下配置的定时器提供有关传感器当前位置的信息。用户可以通过使用在捕获模式下配置的第二个定时器测量两个编码器事件之间的周期来获取动态信息（速度、加速度、减速度）。指示机械零位的编码器输出可用于此目的。根据两个事件之间的时间，也可以定期读取计数器。<br> <img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/4e37682ca1644ca1b92b3d5f3b91c6a4.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>在文中，我们将讨论 STM32 定时器编码器模式。 我们还将在编码器模式下使用定时器模块进行 STM32 旋转编码器接口。 我们将使用它来控制另一个实验室中 LED 的亮度。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/c997f778383e441792d1f3d1c08bfc83.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_10,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>编码器是广泛用于众多应用中的电子设备。 编码器可用作电机速度和位置传感应用、距离和长度测量等的传感器。 与电位计不同，编码器也可以用作输入设备，用户可以不受限制地转动。</p>
+<p>编码器有不同类型，例如绝对类型和增量类型。 当编码器断电时，绝对编码器会保持位置信息。 编码器的位置在通电后立即可用。 编码器值与受控机械的物理位置之间的关系在装配时设置。 系统无需返回校准点即可保持位置精度。</p>
+<p>增量编码器将立即报告位置变化，这是某些应用程序中必不可少的功能。 但是，它不会报告或跟踪绝对位置。 因此，由增量编码器监控的机械系统可能必须移动到固定参考点以初始化绝对位置测量。</p>
+<p>我们将在本文中使用的旋转编码器是增量编码器，也称为正交编码器。 基本上，它是一个具有 2 个异相输出通道的增量编码器，用于许多需要检测运动方向的自动化应用中。 每个通道提供特定数量的每转等距脉冲 (PPR)，并且运动方向通过一个通道领先或落后于另一个通道的相位关系来检测。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/bf1ead508db448b0ad6248d1ecb95947.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>当需要更高的分辨率时，计数器可以从一个通道对正交编码器的脉冲串的前沿和后沿进行计数，这使每转的脉冲数增加一倍 (x2)。 对正交编码器的两个通道（A 和 B 通道）的前沿和后沿进行计数将使每转的脉冲数增加四倍 (x4)。</p>
+<p>正如我们在之前的文章中所讨论的，定时器模块可以运行多种模式，其中一种模式是编码器模式。 定时器从外部通道的引脚获取时钟，可以选择计数边沿极性、预分频器值和输入滤波器周期。 编码器模式下STM32定时器的硬件提供了一个完整的硬件解决方案，用于检测信号和决定向上或向下计数的方向，这大大简化了连接此类传感器的固件开发过程。</p>
+<p><strong>1）编码器模式下的 STM32 定时器</strong></p>
+<p>两个输入 TI1 和 TI2 用于连接到增量编码器。 计数器由 TI1FP1 或 TI2FP2（输入滤波器和极性选择后的 TI1 和 TI2）上的每个有效转换计时。 评估两个输入的转换序列并生成计数脉冲以及方向信号。</p>
+<p>根据计数器向上或向下计数的顺序，硬件会相应地修改 TIMx_CR1 寄存器中的 DIR 位。 DIR 位在任何输入（TI1 或 TI2）的每次转换时计算，无论计数器仅对 TI1、仅 TI2 或 TI1 和 TI2 计数。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/b79479cecc684a46833ffc4e746ced48.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>编码器接口模式仅用作具有方向选择的外部时钟。 这意味着计数器只是在 0 和 TIMx_ARR 寄存器中的自动重载值之间连续计数。</p>
+<p>在此模式下，计数器会根据增量编码器的速度和方向自动修改，因此其内容始终代表编码器的位置。 计数方向对应于所连接传感器的旋转方向。 外部增量编码器可以直接连接到 MCU，无需外部接口逻辑。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/332f0bfb07ec429ba22bf8a6609bd701.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<h3 id="2、定时器配置"><a href="#2、定时器配置" class="headerlink" title="2、定时器配置"></a>2、定时器配置</h3><p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/87546800d28b4109bb6f8e320fab9a1b.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p><strong>第二步、选择芯片</strong>：</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/433c90c108df4b6888fa1d28c61df667.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p><strong>第三步、配置系统时钟</strong></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/63134de70bfa4023b80f31c54ef83941.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/00b812780cc9460bb88d6ebd40ab8957.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p><strong>第四步、设置系统调试</strong><br> <img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/849196d433124b0bbc9dd8f32b0ed37d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p><strong>第五步、配置定时器</strong></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/3143326d560c4d33b0459672bb556632.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p><strong>第六步、配置串口通信</strong></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/b0d5c4f3b6504a269953a8aa14566813.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p><strong>第七步、配置GPIO</strong></p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/c2860ea0407940e79a527102166c1f11.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6KeG6KeJ5pm66IO9,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="在这里插入图片描述"></p>
+<p>保存工程配置，并生成代码。</p>
+<h3 id="3、代码生成与功能实现"><a href="#3、代码生成与功能实现" class="headerlink" title="3、代码生成与功能实现"></a>3、代码生成与功能实现</h3><p>STM32Cube IDE生成的主要代码如下：</p>
+<p><strong>1）定时器初始化</strong></p>
+<p>在<code>main.c</code>文件中：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">/\*\*</span><br><span class="line"> \* @brief TIM2 Initialization Function</span><br><span class="line"> \* @param None</span><br><span class="line"> \* @retval None</span><br><span class="line"> \*/</span><br><span class="line">static void MX\_TIM2\_Init(void)</span><br><span class="line">{</span><br><span class="line"></span><br><span class="line">  /\* USER CODE BEGIN TIM2\_Init 0 \*/</span><br><span class="line"></span><br><span class="line">  /\* USER CODE END TIM2\_Init 0 \*/</span><br><span class="line"></span><br><span class="line">  TIM_Encoder_InitTypeDef sConfig = {0};</span><br><span class="line">  TIM_MasterConfigTypeDef sMasterConfig = {0};</span><br><span class="line"></span><br><span class="line">  /\* USER CODE BEGIN TIM2\_Init 1 \*/</span><br><span class="line"></span><br><span class="line">  /\* USER CODE END TIM2\_Init 1 \*/</span><br><span class="line">  htim2.Instance = TIM2;</span><br><span class="line">  htim2.Init.Prescaler = 0;</span><br><span class="line">  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;</span><br><span class="line">  htim2.Init.Period = 65535;</span><br><span class="line">  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;</span><br><span class="line">  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;</span><br><span class="line">  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;</span><br><span class="line">  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;</span><br><span class="line">  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;</span><br><span class="line">  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;</span><br><span class="line">  sConfig.IC1Filter = 10;</span><br><span class="line">  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;</span><br><span class="line">  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;</span><br><span class="line">  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;</span><br><span class="line">  sConfig.IC2Filter = 0;</span><br><span class="line">  if (HAL\_TIM\_Encoder\_Init(&amp;htim2, &amp;sConfig) != HAL_OK)</span><br><span class="line">  {</span><br><span class="line">    Error\_Handler();</span><br><span class="line">  }</span><br><span class="line">  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;</span><br><span class="line">  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;</span><br><span class="line">  if (HAL\_TIMEx\_MasterConfigSynchronization(&amp;htim2, &amp;sMasterConfig) != HAL_OK)</span><br><span class="line">  {</span><br><span class="line">    Error\_Handler();</span><br><span class="line">  }</span><br><span class="line">  /\* USER CODE BEGIN TIM2\_Init 2 \*/</span><br><span class="line"></span><br><span class="line">  /\* USER CODE END TIM2\_Init 2 \*/</span><br><span class="line"></span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p><strong>2）串口初始化</strong></p>
+<p>在<code>main.c</code>文件中：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">/\*\*</span><br><span class="line"> \* @brief USART1 Initialization Function</span><br><span class="line"> \* @param None</span><br><span class="line"> \* @retval None</span><br><span class="line"> \*/</span><br><span class="line">static void MX\_USART1\_UART\_Init(void)</span><br><span class="line">{</span><br><span class="line"></span><br><span class="line">  /\* USER CODE BEGIN USART1\_Init 0 \*/</span><br><span class="line"></span><br><span class="line">  /\* USER CODE END USART1\_Init 0 \*/</span><br><span class="line"></span><br><span class="line">  /\* USER CODE BEGIN USART1\_Init 1 \*/</span><br><span class="line"></span><br><span class="line">  /\* USER CODE END USART1\_Init 1 \*/</span><br><span class="line">  huart1.Instance = USART1;</span><br><span class="line">  huart1.Init.BaudRate = 115200;</span><br><span class="line">  huart1.Init.WordLength = UART_WORDLENGTH_8B;</span><br><span class="line">  huart1.Init.StopBits = UART_STOPBITS_1;</span><br><span class="line">  huart1.Init.Parity = UART_PARITY_NONE;</span><br><span class="line">  huart1.Init.Mode = UART_MODE_TX_RX;</span><br><span class="line">  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;</span><br><span class="line">  huart1.Init.OverSampling = UART_OVERSAMPLING_16;</span><br><span class="line">  if (HAL\_UART\_Init(&amp;huart1) != HAL_OK)</span><br><span class="line">  {</span><br><span class="line">    Error\_Handler();</span><br><span class="line">  }</span><br><span class="line">  /\* USER CODE BEGIN USART1\_Init 2 \*/</span><br><span class="line"></span><br><span class="line">  /\* USER CODE END USART1\_Init 2 \*/</span><br><span class="line"></span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p><strong>3）GPIO初始化</strong></p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">/\*\*</span><br><span class="line"> \* @brief GPIO Initialization Function</span><br><span class="line"> \* @param None</span><br><span class="line"> \* @retval None</span><br><span class="line"> \*/</span><br><span class="line">static void MX\_GPIO\_Init(void)</span><br><span class="line">{</span><br><span class="line">  GPIO_InitTypeDef GPIO_InitStruct = {0};</span><br><span class="line"></span><br><span class="line">  /\* GPIO Ports Clock Enable \*/</span><br><span class="line">  \_\_HAL\_RCC\_GPIOA\_CLK\_ENABLE();</span><br><span class="line"></span><br><span class="line">  /\*Configure GPIO pin : PA2 \*/</span><br><span class="line">  GPIO_InitStruct.Pin = GPIO_PIN_2;</span><br><span class="line">  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;</span><br><span class="line">  GPIO_InitStruct.Pull = GPIO_PULLUP;</span><br><span class="line">  HAL\_GPIO\_Init(GPIOA, &amp;GPIO_InitStruct);</span><br><span class="line"></span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p><strong>4）主程序入口及功能实现</strong></p>
+<p>在<code>main.c</code>文件中添加如下代码：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">/\* USER CODE BEGIN PV \*/</span><br><span class="line">uint8_t MSG[50] = {'\0'};</span><br><span class="line">/\* USER CODE END PV \*/</span><br><span class="line">/\*\*</span><br><span class="line"> \* @brief The application entry point.</span><br><span class="line"> \* @retval int</span><br><span class="line"> \*/</span><br><span class="line">int main(void)</span><br><span class="line">{</span><br><span class="line">  /\* USER CODE BEGIN 1 \*/</span><br><span class="line"></span><br><span class="line">  /\* USER CODE END 1 \*/</span><br><span class="line"></span><br><span class="line">  /\* MCU Configuration--------------------------------------------------------\*/</span><br><span class="line"></span><br><span class="line">  /\* Reset of all peripherals, Initializes the Flash interface and the Systick. \*/</span><br><span class="line">  HAL\_Init();</span><br><span class="line"></span><br><span class="line">  /\* USER CODE BEGIN Init \*/</span><br><span class="line"></span><br><span class="line">  /\* USER CODE END Init \*/</span><br><span class="line"></span><br><span class="line">  /\* Configure the system clock \*/</span><br><span class="line">  SystemClock\_Config();</span><br><span class="line"></span><br><span class="line">  /\* USER CODE BEGIN SysInit \*/</span><br><span class="line"></span><br><span class="line">  /\* USER CODE END SysInit \*/</span><br><span class="line"></span><br><span class="line">  /\* Initialize all configured peripherals \*/</span><br><span class="line">  MX\_GPIO\_Init();</span><br><span class="line">  MX\_TIM2\_Init();</span><br><span class="line">  MX\_USART1\_UART\_Init();</span><br><span class="line">  /\* USER CODE BEGIN 2 \*/</span><br><span class="line">	HAL\_TIM\_Encoder\_Start(&amp;htim2, TIM_CHANNEL_ALL);</span><br><span class="line">  /\* USER CODE END 2 \*/</span><br><span class="line"></span><br><span class="line">  /\* Infinite loop \*/</span><br><span class="line">  /\* USER CODE BEGIN WHILE \*/</span><br><span class="line">	while (1) {</span><br><span class="line">    /\* USER CODE END WHILE \*/</span><br><span class="line"></span><br><span class="line">    /\* USER CODE BEGIN 3 \*/</span><br><span class="line">		if (HAL\_GPIO\_ReadPin(GPIOA, GPIO_PIN_2)) {</span><br><span class="line">			sprintf(MSG, "Encoder Switch Released, Encoder Ticks = %d\n\r",</span><br><span class="line">					((TIM2-&gt;CNT) &gt;&gt; 2));</span><br><span class="line">			HAL\_UART\_Transmit(&amp;huart1, MSG, sizeof(MSG), 100);</span><br><span class="line">		} else {</span><br><span class="line">			sprintf(MSG, "Encoder Switch Pressed, Encoder Ticks = %d\n\r",</span><br><span class="line">					((TIM2-&gt;CNT) &gt;&gt; 2));</span><br><span class="line">			HAL\_UART\_Transmit(&amp;huart1, MSG, sizeof(MSG), 100);</span><br><span class="line">		}</span><br><span class="line">		HAL\_Delay(100);</span><br><span class="line">	}</span><br><span class="line">  /\* USER CODE END 3 \*/</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="4、程序运行结果"><a href="#4、程序运行结果" class="headerlink" title="4、程序运行结果"></a>4、程序运行结果</h3><p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/e398d773743249698ae1473c3d265226.gif#pic_center" alt="在这里插入图片描述"></p>
+<p>文章来源: <a target="_blank" rel="noopener" href="https://iotsmart.blog.csdn.net/article/details/123362391">https://iotsmart.blog.csdn.net/article/details/123362391</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://www.moncy.cn">Gryphon</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://www.moncy.cn/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8%E7%BC%96%E7%A0%81Encoder%E6%A8%A1%E5%BC%8F/">https://www.moncy.cn/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8%E7%BC%96%E7%A0%81Encoder%E6%A8%A1%E5%BC%8F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.moncy.cn" target="_blank">秋意寒</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/stm32/">stm32</a><a class="post-meta__tags" href="/tags/cubeide/">cubeide</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://unpkg.com/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://unpkg.com/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作！</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/loading.gif" data-original="/img/wechat.jpg"></a><div class="post-qr-code-desc"></div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8PWM%E6%A8%A1%E5%BC%8F/" title="STM32F1与STM32CubeIDE快速入门定时器PWM模式"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">STM32F1与STM32CubeIDE快速入门定时器PWM模式</div></div></a></div><div class="next-post pull-right"><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%AE%9A%E6%97%B6%E5%99%A8%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7%E6%A8%A1%E5%BC%8FInput-Capture-Mode%E5%AE%9E%E7%8E%B0%E9%A2%91%E7%8E%87%E8%AE%A1%E6%95%B0/" title="STM32F1与STM32CubeIDE快速入门定时器输入捕获模式Input Capture Mode实现频率计数"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">STM32F1与STM32CubeIDE快速入门定时器输入捕获模式Input Capture Mode实现频率计数</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="STM32F1与STM32CubeIDE快速入门开发环境搭建"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门开发环境搭建</div></div></a></div><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8STM32F1%E5%BE%AE%E6%8E%A7%E5%88%B6%E5%99%A8%E6%A6%82%E8%BF%B0/" title="STM32F1与STM32CubeIDE快速入门STM32F1微控制器概述"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门STM32F1微控制器概述</div></div></a></div><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8GPIO%E6%A6%82%E8%BF%B0%E4%B8%8E%E7%82%B9%E4%BA%AELED/" title="STM32F1与STM32CubeIDE快速入门GPIO概述与点亮LED"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门GPIO概述与点亮LED</div></div></a></div><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%8C%89%E9%94%AE%E4%B8%8ELED%E6%8E%A7%E5%88%B6/" title="STM32F1与STM32CubeIDE快速入门按键与LED控制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门按键与LED控制</div></div></a></div><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E4%B8%AD%E6%96%ADNVIC%E4%B8%8EEXTI%E6%A6%82%E8%BF%B0/" title="STM32F1与STM32CubeIDE快速入门中断NVIC与EXTI概述"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门中断NVIC与EXTI概述</div></div></a></div><div><a href="/2024/03/stm32CubeIde-STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD%E9%85%8D%E7%BD%AE%E4%B8%8E%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0/" title="STM32F1与STM32CubeIDE快速入门外部中断配置与功能实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-27</div><div class="title">STM32F1与STM32CubeIDE快速入门外部中断配置与功能实现</div></div></a></div></div></div><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">Gryphon</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">796</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><a id="card-info-btn" href="https://www.moncy.cn"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://blog.csdn.net/" target="_blank" title="CSDN"><i class="fa fa-book-open"></i></a><a class="social-icon" href="https://user.qzone.qq.com/75966308" target="_blank" title="QQ"><i class="fab fa-qq"></i></a><a class="social-icon" href="mailto:75966308@qq.com" target="_blank" title="Email"><i class="fas fa-envelope-open-text"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">本站博客为本人所写或抓取自互联网资源,可联系我进行处理,下一版将会为所有抓取自互联网的blog添加创作人信息。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#STM32F1%E4%B8%8ESTM32CubeIDE%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8-%E5%AE%9A%E6%97%B6%E5%99%A8%E7%BC%96%E7%A0%81-Encoder-%E6%A8%A1%E5%BC%8F"><span class="toc-text">STM32F1与STM32CubeIDE快速入门-定时器编码(Encoder)模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E6%97%B6%E5%99%A8%E7%BC%96%E7%A0%81-Encoder-%E6%A8%A1%E5%BC%8F"><span class="toc-text">定时器编码(Encoder)模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%AE%9A%E6%97%B6%E5%99%A8%E7%BC%96%E7%A0%81%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">1、定时器编码器模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E5%AE%9A%E6%97%B6%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="toc-text">2、定时器配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E4%B8%8E%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0"><span class="toc-text">3、代码生成与功能实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E7%A8%8B%E5%BA%8F%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C"><span class="toc-text">4、程序运行结果</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/learning-cmake-001/" title="无题">无题</a><time datetime="2024-03-27T11:40:16.339Z" title="发表于 2024-03-27 19:40:16">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B433M%E6%97%A0%E7%BA%BF%E6%A8%A1%E5%9D%97%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6/" title="Arduino开发实例433M无线模块数据发送与接收">Arduino开发实例433M无线模块数据发送与接收</a><time datetime="2024-03-27T07:01:11.000Z" title="发表于 2024-03-27 15:01:11">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-ESP32Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BWiFi%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86/" title="ESP32Arduino开发实例WiFi事件处理">ESP32Arduino开发实例WiFi事件处理</a><time datetime="2024-03-27T07:01:05.000Z" title="发表于 2024-03-27 15:01:05">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-ESP32Arduino%E7%BD%91%E7%BB%9C%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BWiFi%E8%BF%9E%E6%8E%A5%E8%AE%BE%E7%BD%AE%E9%9D%99%E6%80%81IP/" title="ESP32Arduino网络开发实例WiFi连接设置静态IP">ESP32Arduino网络开发实例WiFi连接设置静态IP</a><time datetime="2024-03-27T07:01:04.000Z" title="发表于 2024-03-27 15:01:04">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BLora-%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6/" title="Arduino开发实例Lora 数据发送与接收">Arduino开发实例Lora 数据发送与接收</a><time datetime="2024-03-27T07:01:03.000Z" title="发表于 2024-03-27 15:01:03">2024-03-27</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 By Gryphon</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://unpkg.com/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://comment-one-gray.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, {"requiredMeta":["nick","mail"],"locale":{"placeholder":"昵称和邮箱为必填项，为了您能及时收到相关回复的邮件通知，请确保邮箱的正确性！"}}))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    btf.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://unpkg.com/@waline/client@3.1.2/dist/waline.css')
+      const { init } = await import('https://unpkg.com/@waline/client@3.1.2/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script><script src="/js/custom/snow.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://unpkg.com/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://unpkg.com/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://unpkg.com/butterfly-extsrc@1.1.3/metingjs/dist/Meting.min.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script><script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

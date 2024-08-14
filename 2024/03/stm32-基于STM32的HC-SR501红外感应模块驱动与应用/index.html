@@ -1,0 +1,258 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>基于STM32的HC-SR501红外感应模块驱动与应用 | 秋意寒</title><meta name="author" content="Gryphon"><meta name="copyright" content="Gryphon"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="一、 简介HC-SR501红外感应模块是一种常用的人体红外感应模块，常用于安防监控、智能家居等领域。本文将介绍如何在STM32单片机上驱动和应用HC-SR501红外感应模块，实现基本的人体检测功能。 二、 模块原理HC-SR501红外感应模块基于红外热释电传感器（PIR sensor）原理，当检测到人体或其他热源时，输出高电平信号。该模块有延迟时间和重复触发时间两个可调节的螺旋调节器，可根据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于STM32的HC-SR501红外感应模块驱动与应用">
+<meta property="og:url" content="https://www.moncy.cn/2024/03/stm32-%E5%9F%BA%E4%BA%8ESTM32%E7%9A%84HC-SR501%E7%BA%A2%E5%A4%96%E6%84%9F%E5%BA%94%E6%A8%A1%E5%9D%97%E9%A9%B1%E5%8A%A8%E4%B8%8E%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="秋意寒">
+<meta property="og:description" content="一、 简介HC-SR501红外感应模块是一种常用的人体红外感应模块，常用于安防监控、智能家居等领域。本文将介绍如何在STM32单片机上驱动和应用HC-SR501红外感应模块，实现基本的人体检测功能。 二、 模块原理HC-SR501红外感应模块基于红外热释电传感器（PIR sensor）原理，当检测到人体或其他热源时，输出高电平信号。该模块有延迟时间和重复触发时间两个可调节的螺旋调节器，可根据">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.moncy.cn/img/avatar.jpg">
+<meta property="article:published_time" content="2024-03-12T14:32:31.000Z">
+<meta property="article:modified_time" content="2024-03-27T11:40:16.199Z">
+<meta property="article:author" content="Gryphon">
+<meta property="article:tag" content="stm32">
+<meta property="article:tag" content="外设">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.moncy.cn/img/avatar.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://www.moncy.cn/2024/03/stm32-%E5%9F%BA%E4%BA%8ESTM32%E7%9A%84HC-SR501%E7%BA%A2%E5%A4%96%E6%84%9F%E5%BA%94%E6%A8%A1%E5%9D%97%E9%A9%B1%E5%8A%A8%E4%B8%8E%E5%BA%94%E7%94%A8/index.html"><link rel="preconnect" href="//unpkg.com"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://unpkg.com/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '基于STM32的HC-SR501红外感应模块驱动与应用',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2024-03-27 19:40:16'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/styles/main.css"><link rel="stylesheet" href="/css/modify.css"><meta name="generator" content="Hexo 7.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">796</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/blog-LeadPage/"><i class="fa-fw fa fa-gift"></i><span> 引导</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/tags.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="秋意寒"><span class="site-name">秋意寒</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/blog-LeadPage/"><i class="fa-fw fa fa-gift"></i><span> 引导</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">基于STM32的HC-SR501红外感应模块驱动与应用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-03-12T14:32:31.000Z" title="发表于 2024-03-12 22:32:31">2024-03-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-03-27T11:40:16.199Z" title="更新于 2024-03-27 19:40:16">2024-03-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/stm32/">stm32</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/stm32/stm32hal%E5%BA%93%E5%BC%80%E5%8F%91/">stm32hal库开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">830</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>3分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="基于STM32的HC-SR501红外感应模块驱动与应用"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('/img/tags.jpg');"></div><article class="post-content" id="article-container"><meta name="referrer" content="no-referrer">
+
+
+<p><strong>一、 简介<br>HC-SR501红外感应模块是一种常用的人体红外感应模块，常用于安防监控、智能家居等领域。本文将介绍如何在STM32单片机上驱动和应用HC-SR501红外感应模块，实现基本的人体检测功能。</strong></p>
+<p><strong>二、 模块原理</strong><br>HC-SR501红外感应模块基于红外热释电传感器（PIR sensor）原理，当检测到人体或其他热源时，输出高电平信号。该模块有延迟时间和重复触发时间两个可调节的螺旋调节器，可根据需求调节模块的灵敏度和触发后的输出信号时长。</p>
+<p><strong>三、 连接与驱动<br>1. 连接</strong><br>连接HC-SR501模块至STM32单片机，将模块的OUT引脚连接至STM32的GPIO引脚，以接收感应模块的输出信号。同时，通过电源模块连接模块至单片机的供电引脚。</p>
+<p><img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/direct/12a9a768aaa04891b1c9bfc0d758aae5.png"></p>
+<p><strong>2. 驱动</strong><br>在STM32的开发环境中，编写对HC-SR501模块的驱动程序。以下是一个简单的示例代码：</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">```c</span><br><span class="line">#include "stm32f4xx.h"</span><br><span class="line"></span><br><span class="line">#define HC_SR501_PIN GPIO_PIN_0</span><br><span class="line">#define HC_SR501_PORT GPIOA</span><br><span class="line"></span><br><span class="line">void HC_SR501_Init(void) {</span><br><span class="line">&amp;#xA0; GPIO_InitTypeDef GPIO_InitStruct;</span><br><span class="line"></span><br><span class="line">&amp;#xA0; __HAL_RCC_GPIOA_CLK_ENABLE();</span><br><span class="line"></span><br><span class="line">&amp;#xA0; GPIO_InitStruct.Pin = HC_SR501_PIN;</span><br><span class="line">&amp;#xA0; GPIO_InitStruct.Mode = GPIO_MODE_INPUT;</span><br><span class="line">&amp;#xA0; GPIO_InitStruct.Pull = GPIO_NOPULL;</span><br><span class="line">&amp;#xA0; HAL_GPIO_Init(HC_SR501_PORT, &amp;GPIO_InitStruct);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">int HC_SR501_Read(void) {</span><br><span class="line">&amp;#xA0; return HAL_GPIO_ReadPin(HC_SR501_PORT, HC_SR501_PIN);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">void HC_SR501_Application(void) {</span><br><span class="line">&amp;#xA0; while (1) {</span><br><span class="line">&amp;#xA0; &amp;#xA0; if (HC_SR501_Read()) {</span><br><span class="line">&amp;#xA0; &amp;#xA0; &amp;#xA0; // &amp;#x68C0;&amp;#x6D4B;&amp;#x5230;&amp;#x4EBA;&amp;#x4F53;&amp;#xFF0C;&amp;#x6267;&amp;#x884C;&amp;#x76F8;&amp;#x5E94;&amp;#x64CD;&amp;#x4F5C;</span><br><span class="line">&amp;#xA0; &amp;#xA0; } else {</span><br><span class="line">&amp;#xA0; &amp;#xA0; &amp;#xA0; // &amp;#x672A;&amp;#x68C0;&amp;#x6D4B;&amp;#x5230;&amp;#x4EBA;&amp;#x4F53;&amp;#xFF0C;&amp;#x6267;&amp;#x884C;&amp;#x76F8;&amp;#x5E94;&amp;#x64CD;&amp;#x4F5C;</span><br><span class="line">&amp;#xA0; &amp;#xA0; }</span><br><span class="line">&amp;#xA0; }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">int main(void) {</span><br><span class="line">&amp;#xA0; HC_SR501_Init();</span><br><span class="line">&amp;#xA0; HC_SR501_Application();</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<pre><code>
+以上代码中，首先初始化了GPIO引脚，然后在应用函数中不断读取感应模块的输出信号，根据输出信号执行不同的操作。
+
+**四、 应用示例&lt;br&gt;1. 基于HC-SR501红外感应模块的人体检测报警系统**
+通过连接HC-SR501模块至STM32单片机，并配合蜂鸣器或其他报警装置，可以实现一个简单的人体检测报警系统。当检测到人体时，系统触发报警装置，实现安防监控。
+
+**2. 基于HC-SR501红外感应模块的智能照明控制系统**
+将HC-SR501模块连接至STM32单片机，再连接至LED灯或其他照明设备，可以实现智能照明控制系统。当检测到人体时，系统自动开启照明设备，当未检测到人体时则关闭照明设备，实现智能节能控制。
+
+**以上是基于STM32的HC-SR501红外感应模块的驱动与应用的基本介绍，通过上述方法，可以实现针对不同场景的人体感应控制系统。**
+
+&gt; ✅作者简介：热爱科研的嵌入式开发者，修心和技术同步精进
+代码获取、问题探讨及文章转载可私信。
+☁ 愿你的生命中有够多的云翳,来造就一个美丽的黄昏。
+🍎获取更多嵌入式资料可点击链接进群领取，谢谢支持！👇
+[点击领取更多详细资料](https://fss.mpay8.cn/article/dmrjinh2C6fjejm "点击领取更多详细资料")
+</code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://www.moncy.cn">Gryphon</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://www.moncy.cn/2024/03/stm32-%E5%9F%BA%E4%BA%8ESTM32%E7%9A%84HC-SR501%E7%BA%A2%E5%A4%96%E6%84%9F%E5%BA%94%E6%A8%A1%E5%9D%97%E9%A9%B1%E5%8A%A8%E4%B8%8E%E5%BA%94%E7%94%A8/">https://www.moncy.cn/2024/03/stm32-%E5%9F%BA%E4%BA%8ESTM32%E7%9A%84HC-SR501%E7%BA%A2%E5%A4%96%E6%84%9F%E5%BA%94%E6%A8%A1%E5%9D%97%E9%A9%B1%E5%8A%A8%E4%B8%8E%E5%BA%94%E7%94%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.moncy.cn" target="_blank">秋意寒</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/stm32/">stm32</a><a class="post-meta__tags" href="/tags/%E5%A4%96%E8%AE%BE/">外设</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://unpkg.com/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://unpkg.com/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作！</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/loading.gif" data-original="/img/wechat.jpg"></a><div class="post-qr-code-desc"></div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/03/stm32-%E5%9F%BA%E4%BA%8ESTM32F103C8T6%EF%BC%88HAL%E5%BA%93%EF%BC%89%E7%9A%84HC-SR501%E7%BA%A2%E5%A4%96%E4%BA%BA%E4%BD%93%E4%BC%A0%E6%84%9F%E5%8F%8AHC-SR04%E8%B6%85%E5%A3%B0%E6%B3%A2%E6%B5%8B%E8%B7%9D/" title="基于STM32F103C8T6（HAL库）的HC-SR501红外人体传感及HC-SR04超声波测距"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">基于STM32F103C8T6（HAL库）的HC-SR501红外人体传感及HC-SR04超声波测距</div></div></a></div><div class="next-post pull-right"><a href="/2024/03/stm32-%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%EF%BC%8C%E9%80%9A%E8%BF%87HAL%E5%BA%93%E5%AE%9E%E7%8E%B0STM32%E7%9A%84%E8%B6%85%E5%A3%B0%E6%B3%A2%E6%B5%8B%E8%B7%9D-%E4%BB%A5SR-04%E4%B8%BA%E4%BE%8B/" title="手把手教你，通过HAL库实现STM32的超声波测距--以SR-04为例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">手把手教你，通过HAL库实现STM32的超声波测距--以SR-04为例</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/03/stm32-STM32-%E5%AE%9E%E7%8E%B0-44-%E7%9F%A9%E9%98%B5%E9%94%AE%E7%9B%98%E6%89%AB%E6%8F%8F%EF%BC%88HAL%E5%BA%93%E3%80%81%E6%A0%87%E5%87%86%E5%BA%93-%E9%83%BD%E9%80%82%E7%94%A8%EF%BC%89-%E7%99%BD%E8%8F%9C%E6%B2%A1%E6%88%91%E7%99%BD-%E5%8D%9A%E5%AE%A2%E5%9B%AD/" title="STM32 实现 44 矩阵键盘扫描（HAL库、标准库 都适用） - 白菜没我白 - 博客园"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-12</div><div class="title">STM32 实现 44 矩阵键盘扫描（HAL库、标准库 都适用） - 白菜没我白 - 博客园</div></div></a></div><div><a href="/2024/03/stm32-STM32CubeMX-HAL%E5%BA%93%E7%9A%84ADC%E5%A4%9A%E9%80%9A%E9%81%93%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86%EF%BC%88%E8%BD%AE%E8%AE%AD%E3%80%81DMA%E3%80%81DMA-TIM-%E3%80%81%E8%AF%BB%E5%8F%96%E5%86%85%E9%83%A8%E4%BC%A0%E6%84%9F%E5%99%A8%E6%B8%A9%E5%BA%A6/" title="STM32CubeMX  HAL库的ADC多通道数据采集（轮训、DMA、DMA+TIM)、读取内部传感器温度"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-12</div><div class="title">STM32CubeMX  HAL库的ADC多通道数据采集（轮训、DMA、DMA+TIM)、读取内部传感器温度</div></div></a></div><div><a href="/2024/03/stm32-%E3%80%90HAL%E5%BA%93%E3%80%91STM32-ESP8266-Onenet-MQTT%EF%BC%8C%E6%9E%81%E7%AE%80%E5%B7%A5%E7%A8%8B%EF%BC%8Chal%E5%BA%93%E7%A7%BB%E6%A4%8D%E3%80%82/" title="【HAL库】STM32+ESP8266+Onenet+MQTT，极简工程，hal库移植。"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-12</div><div class="title">【HAL库】STM32+ESP8266+Onenet+MQTT，极简工程，hal库移植。</div></div></a></div><div><a href="/2024/03/stm32-%E5%9F%BA%E4%BA%8ESTM32F103C8T6%EF%BC%88HAL%E5%BA%93%EF%BC%89%E7%9A%84HC-SR501%E7%BA%A2%E5%A4%96%E4%BA%BA%E4%BD%93%E4%BC%A0%E6%84%9F%E5%8F%8AHC-SR04%E8%B6%85%E5%A3%B0%E6%B3%A2%E6%B5%8B%E8%B7%9D/" title="基于STM32F103C8T6（HAL库）的HC-SR501红外人体传感及HC-SR04超声波测距"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-12</div><div class="title">基于STM32F103C8T6（HAL库）的HC-SR501红外人体传感及HC-SR04超声波测距</div></div></a></div><div><a href="/2024/03/stm32-%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%EF%BC%8C%E9%80%9A%E8%BF%87HAL%E5%BA%93%E5%AE%9E%E7%8E%B0STM32%E7%9A%84%E8%B6%85%E5%A3%B0%E6%B3%A2%E6%B5%8B%E8%B7%9D-%E4%BB%A5SR-04%E4%B8%BA%E4%BE%8B/" title="手把手教你，通过HAL库实现STM32的超声波测距--以SR-04为例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-12</div><div class="title">手把手教你，通过HAL库实现STM32的超声波测距--以SR-04为例</div></div></a></div><div><a href="/2024/03/stm32-STM32F407%E4%BD%BF%E7%94%A8Helix%E5%BA%93%E8%BD%AF%E8%A7%A3MP3%E5%B9%B6%E9%80%9A%E8%BF%87DAC%E8%BE%93%E5%87%BA%EF%BC%8C%E6%9C%80%E7%B2%BE%E7%AE%80%E7%9A%84STM32-SD%E5%8D%A1%E5%AE%9E%E7%8E%B0MP3%E6%92%AD%E6%94%BE%E5%99%A8/" title="STM32F407使用Helix库软解MP3并通过DAC输出，最精简的STM32+SD卡实现MP3播放器"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-12</div><div class="title">STM32F407使用Helix库软解MP3并通过DAC输出，最精简的STM32+SD卡实现MP3播放器</div></div></a></div></div></div><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">Gryphon</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">796</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><a id="card-info-btn" href="https://www.moncy.cn"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://blog.csdn.net/" target="_blank" title="CSDN"><i class="fa fa-book-open"></i></a><a class="social-icon" href="https://user.qzone.qq.com/75966308" target="_blank" title="QQ"><i class="fab fa-qq"></i></a><a class="social-icon" href="mailto:75966308@qq.com" target="_blank" title="Email"><i class="fas fa-envelope-open-text"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">本站博客为本人所写或抓取自互联网资源,可联系我进行处理,下一版将会为所有抓取自互联网的blog添加创作人信息。</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/learning-cmake-001/" title="无题">无题</a><time datetime="2024-03-27T11:40:16.339Z" title="发表于 2024-03-27 19:40:16">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B433M%E6%97%A0%E7%BA%BF%E6%A8%A1%E5%9D%97%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6/" title="Arduino开发实例433M无线模块数据发送与接收">Arduino开发实例433M无线模块数据发送与接收</a><time datetime="2024-03-27T07:01:11.000Z" title="发表于 2024-03-27 15:01:11">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-ESP32Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BWiFi%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86/" title="ESP32Arduino开发实例WiFi事件处理">ESP32Arduino开发实例WiFi事件处理</a><time datetime="2024-03-27T07:01:05.000Z" title="发表于 2024-03-27 15:01:05">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-ESP32Arduino%E7%BD%91%E7%BB%9C%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BWiFi%E8%BF%9E%E6%8E%A5%E8%AE%BE%E7%BD%AE%E9%9D%99%E6%80%81IP/" title="ESP32Arduino网络开发实例WiFi连接设置静态IP">ESP32Arduino网络开发实例WiFi连接设置静态IP</a><time datetime="2024-03-27T07:01:04.000Z" title="发表于 2024-03-27 15:01:04">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BLora-%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6/" title="Arduino开发实例Lora 数据发送与接收">Arduino开发实例Lora 数据发送与接收</a><time datetime="2024-03-27T07:01:03.000Z" title="发表于 2024-03-27 15:01:03">2024-03-27</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 By Gryphon</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://unpkg.com/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://comment-one-gray.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, {"requiredMeta":["nick","mail"],"locale":{"placeholder":"昵称和邮箱为必填项，为了您能及时收到相关回复的邮件通知，请确保邮箱的正确性！"}}))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    btf.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://unpkg.com/@waline/client@3.1.2/dist/waline.css')
+      const { init } = await import('https://unpkg.com/@waline/client@3.1.2/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script><script src="/js/custom/snow.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://unpkg.com/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://unpkg.com/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://unpkg.com/butterfly-extsrc@1.1.3/metingjs/dist/Meting.min.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script><script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

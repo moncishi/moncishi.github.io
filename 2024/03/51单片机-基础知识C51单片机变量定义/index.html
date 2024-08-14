@@ -1,0 +1,312 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【基础知识】C51单片机变量定义 | 秋意寒</title><meta name="author" content="Gryphon"><meta name="copyright" content="Gryphon"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【基础知识】C51单片机变量定义【基础知识】C51单片机变量定义   摘自《IAP15W4K58S4单片机的存储器与应用编程》主编：丁向荣；主审：姚永平；   在使用一个变量或常量之前，必须先定义该变量或常量，指出其数据类型和存储器类型，以便编译系统为其分配相应的存储单元。 在C51中定义变量的格式为：[存储种类]数据类型[存储器类型]变量名表  1231. auto int data x;2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【基础知识】C51单片机变量定义">
+<meta property="og:url" content="https://www.moncy.cn/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86C51%E5%8D%95%E7%89%87%E6%9C%BA%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89/index.html">
+<meta property="og:site_name" content="秋意寒">
+<meta property="og:description" content="【基础知识】C51单片机变量定义【基础知识】C51单片机变量定义   摘自《IAP15W4K58S4单片机的存储器与应用编程》主编：丁向荣；主审：姚永平；   在使用一个变量或常量之前，必须先定义该变量或常量，指出其数据类型和存储器类型，以便编译系统为其分配相应的存储单元。 在C51中定义变量的格式为：[存储种类]数据类型[存储器类型]变量名表  1231. auto int data x;2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.moncy.cn/img/avatar.jpg">
+<meta property="article:published_time" content="2024-03-26T10:38:16.000Z">
+<meta property="article:modified_time" content="2024-03-27T11:40:16.089Z">
+<meta property="article:author" content="Gryphon">
+<meta property="article:tag" content="51单片机">
+<meta property="article:tag" content="proteus仿真">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.moncy.cn/img/avatar.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://www.moncy.cn/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86C51%E5%8D%95%E7%89%87%E6%9C%BA%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89/index.html"><link rel="preconnect" href="//unpkg.com"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":false,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://unpkg.com/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【基础知识】C51单片机变量定义',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-03-27 19:40:16'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/styles/main.css"><link rel="stylesheet" href="/css/modify.css"><meta name="generator" content="Hexo 7.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">796</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><hr class="custom-hr"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/blog-LeadPage/"><i class="fa-fw fa fa-gift"></i><span> 引导</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/tags.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="秋意寒"><span class="site-name">秋意寒</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/blog-LeadPage/"><i class="fa-fw fa fa-gift"></i><span> 引导</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【基础知识】C51单片机变量定义</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-03-26T10:38:16.000Z" title="发表于 2024-03-26 18:38:16">2024-03-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-03-27T11:40:16.089Z" title="更新于 2024-03-27 19:40:16">2024-03-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/51%E5%8D%95%E7%89%87%E6%9C%BA/">51单片机</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/51%E5%8D%95%E7%89%87%E6%9C%BA/proteus%E4%BB%BF%E7%9C%9F/">proteus仿真</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【基础知识】C51单片机变量定义"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><div class="top-img" style="background-image: url('/img/tags.jpg');"></div><article class="post-content" id="article-container"><meta name="referrer" content="no-referrer">
+
+<h1 id="【基础知识】C51单片机变量定义"><a href="#【基础知识】C51单片机变量定义" class="headerlink" title="【基础知识】C51单片机变量定义"></a>【基础知识】C51单片机变量定义</h1><h3 id=""><a href="#" class="headerlink" title=""></a></h3><p>【基础知识】C51单片机变量定义</p>
+<hr>
+<ul>
+<li>摘自《IAP15W4K58S4单片机的存储器与应用编程》主编：丁向荣；主审：姚永平；</li>
+</ul>
+<blockquote>
+<p>在使用一个变量或常量之前，必须先定义该变量或常量，指出其数据类型和存储器类型，以便编译系统为其分配相应的存储单元。<br> 在C51中定义变量的格式为：[<code>存储种类</code>]数据类型[<code>存储器类型</code>]变量名表</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. auto int data x;</span><br><span class="line">2. char code y=0x22;</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+
+<blockquote>
+<p>行号1中，变量x的存储种类、数据类型、存储器类型分别为auto、int、data。行号2中，变量y只定义了数据类型和存储器类型，未直接给出存储种类。在实际应用中，“存储种类”和“存储器类型”是可选项，默认的存储种类是auto（自动）；如果省略存储器类型，则按Keil C编译器编译模式SMALL、COMPACT、LARGE所规定的默认存储器类型确定存储器的存储区域。C语言允许在定义变量的同时给变量赋初值，如行号2中对变量的赋值。</p>
+</blockquote>
+<ul>
+<li>（1）变量的存储种类<br> 变量的存储种类有4种，分别为auto（自动）、extern（外部）、static（静态）和register（寄存器）。默认设置时，变量的存储种类为auto。</li>
+<li>（2）变量的存储器类型<br> KeilC编译器完全支持8051系列单片机的硬件结构，可以访问其硬件系统的各个部分。对于各个变量，可以准确地赋予其存储器类型，使之能够在单片机内准确定位。KeilC编译器支持的存储器类型如表4-1-3所示。<br> <img src="/img/loading.gif" data-original="https://img-blog.csdnimg.cn/522ba9c7e96b49c29a44e1fc45ab3087.png" alt="在这里插入图片描述"></li>
+<li>（3）KeilC编译器的编译模式与默认存储器类型<br> ① <code>SMALL</code>：变量被定义在8051单片机的内部数据存储器（<code>data</code>）区中，因此对这种变量的访问速度最快。另外，所有的对象，包括堆栈，都必须嵌入内部数据存储器。<br> ② <code>COMPACT</code>：变量被定义在外部数据存储器（<code>pdata</code>）区中，外部数据段长度可达256字节。这时对变量的访问是通过寄存器间接寻址（MOVX @Ri）实现的。采用这种模式编译时，变量的高8位地址由P2口确定。因此，在采用这种模式的同时，必须适当改变启动程序STARTUP.A51中的参数：PDATASTART和PDATALEN。用L51连接时，还必须采用控制命令PDATA对P2口地址定位，以确保P2口为所需要的高8位地址。<br> ③ <code>LARGE</code>：变量被定义在外部数据存储器（xdata）区中，使用数据指针DPTR访问。<br> 这种访问数据的方法效率不高，尤其是对于2个或多个字节的变量，采用这种数据访问方法对程序的代码长度影响非常大。另外，一个不便之处是数据指针不能对称操作。</li>
+</ul>
+<h4 id="2）算术运算符"><a href="#2）算术运算符" class="headerlink" title="2）算术运算符"></a>2）算术运算符</h4><ul>
+<li>（1）算术运算符与表达式C语言有以下算术运算符。<br> ① <code>+</code>：加法或取正值运算符。②一：减法或取负值运算符。<br> ③ <code>*</code>：乘法运算符。<br> ④ <code>/</code>：除法运算符（取高值）。<br> ⑤ <code>%</code>：取余运算符。</li>
+<li>（2）自增和自减运算符与表达式<br> ① <code>++</code>：自增运算符。<br> ② <code>--</code>：自减运算符。</li>
+</ul>
+<blockquote>
+<p>自增和自减运算符是C语言中特有的，其作用分别是对运算对象做加1和减1运算。<br> 自增和自减运算符只能用于变量，不能用于常数和表达式。自增和自减运算符可以位于变量前面，也可位于变量的后面，但其功能不完全相同。<br> ① <code>a++</code>：先使用a的值，再执行a+1操作。<br> ② <code>++a</code>：先执行a+1操作，再使用a的值。</p>
+</blockquote>
+<ul>
+<li>（3）复合赋值运算符<br> 在赋值运算符“=”的前面加上其他运算符，就构成了复合赋值运算符。复合赋值运算符首先对变量进行某种运算，然后将运算结果赋值给该变量。复合运算的一般形式为：</li>
+</ul>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">变量 复合赋值运算符 表达式；</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>C语言中有以下几种复合赋值运算符。<br> ① <code>+=</code>：加法赋值运算符。例如，x +=3；等效于x =x+3；。<br> ② <code>-=</code>：减法赋值运算符。例如，x -=3；等效于x =x-3；。<br> ③ <code>*=</code>：乘法赋值运算符。例如，x <em>=3；等效于x =x</em>3；。<br> ④ <code>/=</code>：除法赋值运算符。例如，x/=3；等效于x =x/3；。<br> ⑤ <code>%=</code>：取模（余）赋值运算符。例如，x %=3；等效于x =x%3；。<br> ⑥ <code>&gt;&gt;=</code>：右移位赋值运算符。例如，x &gt;&gt;=3；等效于x =x&gt;&gt;3；。<br> ⑦ <code>&lt;&lt;=</code>：左移位赋值运算符。例如，x &lt;&lt;=3；等效于x =x&lt;&lt;3；。<br> ⑧ <code>&amp;=</code>：逻辑与赋值运算符。例如，a &amp;=b；等效于a =a&amp;b；。<br> ⑨ <code>|=</code>：逻辑或赋值运算符。例如，a l=b；等效于a =a l b；。<br> ⑩ <code>^ =</code>：逻辑异或赋值运算。例如，a ^=b；等效于a =a ^ b；。<br> 11 <code>~=</code>：逻辑非赋值运算符。例如，a ~=b；等效于a =～b；。</p>
+<ul>
+<li>3）指定工作寄存器区<br> 当需要指定函数中使用的工作寄存器区时，使用关键字using后跟一个0 ~ 3的数，对应工作寄存器组0~3区。例如：</li>
+</ul>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">unsigned char GetKey（void）using 2</span><br><span class="line">{</span><br><span class="line">/∥用户代码区</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+
+<blockquote>
+<p><code>using</code>后面的数字是2，说明使用工作寄存器组 <code>2</code>，RO~R7对应地址为10H ~17H。</p>
+</blockquote>
+<ul>
+<li>4）函数的定义与调用<br> 函数是C语言程序的基本模块，所有的函数在定义时是相互独立的，它们之间是平衡关系，所以不能在一个函数中定义另外一个函数，即不能嵌套定义。函数之间可以相互调用，但不能调用主函数。<br> C语言系统提供功能强大、资源丰富的标准函数库，用户在进行程序设计时，应善于利用这些资源，以提高效率，节省开发时间。</li>
+</ul>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;REG51.h&gt;</span><br><span class="line">#define x P1</span><br><span class="line">void delay（void）;//语句3，声明延时子函数</span><br><span class="line">/x----LED灯驱动函数--—-\*/</span><br><span class="line">void light（void）</span><br><span class="line">x =~x；</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">void main（void）{</span><br><span class="line">	while（1）{</span><br><span class="line">	light();//1ight（）在主函数前面定义，因此可直接调用</span><br><span class="line">	delay();//delay（）在主函数后面定义，故调用前必须先声明，见语句3</span><br><span class="line">}</span><br><span class="line">void delay（void）{</span><br><span class="line">	unsigned int i,j;</span><br><span class="line">	for（i=0;i&lt;500;i++）{</span><br><span class="line">	for（j=0;j&lt;121;j++）</span><br><span class="line">		{;}</span><br><span class="line">	}</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>·函数的连接：当程序中的子函数与主函数不在同一个程序文件时，要通过连接的方法实现有效的调用。一般有两种方法，即<strong>外部声明</strong>与<strong>文件包含</strong>。</li>
+</ul>
+<blockquote>
+<p>对于外部声明，定义的<code>delay()</code>和<code>ligh()</code>两个子函数与调用主函数不在一个程序文件中，则当主函数要调用<code>delay()</code>和<code>ligh()</code>时，可在调用前做外部声明。例如：</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;REG51.H&gt;</span><br><span class="line">extern void delay(void);//声明该函数在其他文件中</span><br><span class="line">extern void light(void);∥声明该函数在其他文件中</span><br><span class="line"></span><br><span class="line">void main（void）</span><br><span class="line">{</span><br><span class="line">while（1）</span><br><span class="line">{</span><br><span class="line">	1ight();</span><br><span class="line">	delay();</span><br><span class="line">}</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+
+<blockquote>
+<p>对于文件包含，当主函数需要调用分属在其他程序文件中的子函数时，也可用包含语句将含有该子函数的程序文件包含进来。包含可以理解为：将包含文件的内容放在包含语句位置处。<br> 设<code>delay()</code>和<code>light()</code>两个子函数在test.c程序文件中定义，主函数要调用<code>delay()</code>和<code>light()</code>时，可用包含语句将<code>test.c</code>程序文件包含进来，类似包含头文件的意义。例如：</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;reg51.h&gt;</span><br><span class="line">#include"test.c"</span><br><span class="line">void main(void)</span><br><span class="line">{</span><br><span class="line">while(1)</span><br><span class="line">{</span><br><span class="line">	light();</span><br><span class="line">	delay();</span><br><span class="line">}</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>5）局部变量与全局变量</li>
+<li>（1）局部变量</li>
+</ul>
+<blockquote>
+<p>局部变量是指在函数内部定义的变量，只在该函数内部有效。</p>
+</blockquote>
+<ul>
+<li>（2）全局变量</li>
+</ul>
+<blockquote>
+<p>全局变量是指在程序开始处或各个功能函数的外面定义的变量。在程序开始处定义的变量在整个程序中有效，可供程序中所有的函数共同使用；在各功能函数外面定义的全局变量只对定义处开始往后的各个函数有效，只有从定义处往后的各个功能函数可以使用该变量。</p>
+</blockquote>
+<h4 id="书籍资源"><a href="#书籍资源" class="headerlink" title="书籍资源"></a>书籍资源</h4><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">「单片机原理与应用项目教程...列单片机 丁向荣.pdf」</span><br><span class="line">链接：https://www.aliyundrive.com/s/kWjiDD2ZwvR</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://www.moncy.cn">Gryphon</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://www.moncy.cn/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86C51%E5%8D%95%E7%89%87%E6%9C%BA%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89/">https://www.moncy.cn/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86C51%E5%8D%95%E7%89%87%E6%9C%BA%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.moncy.cn" target="_blank">秋意寒</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/51%E5%8D%95%E7%89%87%E6%9C%BA/">51单片机</a><a class="post-meta__tags" href="/tags/proteus%E4%BB%BF%E7%9C%9F/">proteus仿真</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://unpkg.com/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://unpkg.com/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer=""></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作！</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/loading.gif" data-original="/img/wechat.jpg"></a><div class="post-qr-code-desc"></div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-Proteus%E4%BB%BF%E7%9C%9F%E7%AE%80%E6%98%9351%E5%8D%95%E7%89%87%E6%9C%BA%E6%97%B6%E9%92%9F%E5%B8%A6%E9%97%B9%E9%92%9F%E5%8A%9F%E8%83%BD%E5%8F%AF%E8%B0%83%E6%95%B4%E6%97%B6%E9%97%B4/" title="【Proteus仿真】简易51单片机时钟，带闹钟功能，可调整时间"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【Proteus仿真】简易51单片机时钟，带闹钟功能，可调整时间</div></div></a></div><div class="next-post pull-right"><a href="/2024/03/Arduino-%E4%BB%BF%E7%9C%9F-Arduino-UNO-74HC595%E6%B5%81%E6%B0%B4%E7%81%AF%E6%8C%89%E9%94%AE%E6%8E%A7%E5%88%B6Proteus%E4%BB%BF%E7%9C%9F/" title="Arduino UNO + 74HC595流水灯+按键控制+Proteus仿真"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Arduino UNO + 74HC595流水灯+按键控制+Proteus仿真</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-51%E5%8D%95%E7%89%87%E6%9C%BA%E5%92%8C3%E4%B8%AA74HC245%E5%92%8C6%E4%B8%AA%E7%8B%AC%E7%AB%8B%E6%8C%89%E9%94%AE%E6%8E%A7%E5%88%B624%E4%B8%AA3%E7%BB%84LED%E7%A7%BB%E5%8A%A8%E4%BA%AE%E7%81%AD/" title="51单片机和3个74HC245和6个独立按键控制24个3组LED移动亮灭"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">51单片机和3个74HC245和6个独立按键控制24个3组LED移动亮灭</div></div></a></div><div><a href="/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-51%E5%8D%95%E7%89%87%E6%9C%BA%E9%80%9A%E8%BF%87%E6%8C%89%E9%92%AE%E6%8E%A7%E5%88%B6%E6%AD%A5%E8%BF%9B%E7%94%B5%E6%9C%BA%E6%AD%A3%E5%8F%8D%E8%BD%AC%E8%A7%92%E5%BA%A6/" title="51单片机通过按钮控制步进电机正反转角度"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">51单片机通过按钮控制步进电机正反转角度</div></div></a></div><div><a href="/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-Proteus%E4%BB%BF%E7%9C%9F%E5%9F%BA%E4%BA%8E51%E5%8D%95%E7%89%87%E6%9C%BA%E7%9A%84%E6%AD%A5%E8%BF%9B%E7%94%B5%E6%9C%BA%E6%AD%A3%E5%8F%8D%E8%BD%AC%E8%B0%83%E9%80%9F%E7%B3%BB%E7%BB%9F%E6%8E%A7%E5%88%B6/" title="【Proteus仿真】基于51单片机的步进电机正反转调速系统控制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">【Proteus仿真】基于51单片机的步进电机正反转调速系统控制</div></div></a></div><div><a href="/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-51%E5%8D%95%E7%89%87%E6%9C%BA4x4%E7%9F%A9%E9%98%B5%E9%94%AE%E7%9B%98%E6%89%AB%E6%8F%8F%E6%95%B0%E7%A0%81%E7%AE%A1%E6%98%BE%E7%A4%BA/" title="51单片机4x4矩阵键盘扫描+数码管显示"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">51单片机4x4矩阵键盘扫描+数码管显示</div></div></a></div><div><a href="/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-51%E5%8D%95%E7%89%87%E6%9C%BA4x4%E7%9F%A9%E9%98%B5%E9%94%AE%E7%9B%98%E6%89%AB%E6%8F%8F%E6%95%B0%E7%A0%81%E7%AE%A1%E6%98%BE%E7%A4%BA%E4%B8%89/" title="51单片机4x4矩阵键盘扫描+数码管显示(三)"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">51单片机4x4矩阵键盘扫描+数码管显示(三)</div></div></a></div><div><a href="/2024/03/51%E5%8D%95%E7%89%87%E6%9C%BA-51%E5%8D%95%E7%89%87%E6%9C%BA4x4%E7%9F%A9%E9%98%B5%E9%94%AE%E7%9B%98%E6%89%AB%E6%8F%8F%E6%95%B0%E7%A0%81%E7%AE%A1%E6%98%BE%E7%A4%BA%E4%BA%8C%E4%BF%AEbug%E7%AF%87/" title="51单片机4x4矩阵键盘扫描+数码管显示(二)（修bug篇）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-26</div><div class="title">51单片机4x4矩阵键盘扫描+数码管显示(二)（修bug篇）</div></div></a></div></div></div><hr class="custom-hr"><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">Gryphon</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">796</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><a id="card-info-btn" href="https://www.moncy.cn"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://blog.csdn.net/" target="_blank" title="CSDN"><i class="fa fa-book-open"></i></a><a class="social-icon" href="https://user.qzone.qq.com/75966308" target="_blank" title="QQ"><i class="fab fa-qq"></i></a><a class="social-icon" href="mailto:75966308@qq.com" target="_blank" title="Email"><i class="fas fa-envelope-open-text"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">本站博客为本人所写或抓取自互联网资源,可联系我进行处理,下一版将会为所有抓取自互联网的blog添加创作人信息。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E3%80%91C51%E5%8D%95%E7%89%87%E6%9C%BA%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89"><span class="toc-text">【基础知识】C51单片机变量定义</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-text"></span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2%EF%BC%89%E7%AE%97%E6%9C%AF%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="toc-text">2）算术运算符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%A6%E7%B1%8D%E8%B5%84%E6%BA%90"><span class="toc-text">书籍资源</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/learning-cmake-001/" title="无题">无题</a><time datetime="2024-03-27T11:40:16.339Z" title="发表于 2024-03-27 19:40:16">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B433M%E6%97%A0%E7%BA%BF%E6%A8%A1%E5%9D%97%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6/" title="Arduino开发实例433M无线模块数据发送与接收">Arduino开发实例433M无线模块数据发送与接收</a><time datetime="2024-03-27T07:01:11.000Z" title="发表于 2024-03-27 15:01:11">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-ESP32Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BWiFi%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86/" title="ESP32Arduino开发实例WiFi事件处理">ESP32Arduino开发实例WiFi事件处理</a><time datetime="2024-03-27T07:01:05.000Z" title="发表于 2024-03-27 15:01:05">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-ESP32Arduino%E7%BD%91%E7%BB%9C%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BWiFi%E8%BF%9E%E6%8E%A5%E8%AE%BE%E7%BD%AE%E9%9D%99%E6%80%81IP/" title="ESP32Arduino网络开发实例WiFi连接设置静态IP">ESP32Arduino网络开发实例WiFi连接设置静态IP</a><time datetime="2024-03-27T07:01:04.000Z" title="发表于 2024-03-27 15:01:04">2024-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/03/Arduino-%E5%AE%9E%E4%BE%8B-Arduino%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8BLora-%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6/" title="Arduino开发实例Lora 数据发送与接收">Arduino开发实例Lora 数据发送与接收</a><time datetime="2024-03-27T07:01:03.000Z" title="发表于 2024-03-27 15:01:03">2024-03-27</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">©2024 By Gryphon</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://unpkg.com/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'https://comment-one-gray.vercel.app/',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, {"requiredMeta":["nick","mail"],"locale":{"placeholder":"昵称和邮箱为必填项，为了您能及时收到相关回复的邮件通知，请确保邮箱的正确性！"}}))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    btf.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://unpkg.com/@waline/client@3.1.2/dist/waline.css')
+      const { init } = await import('https://unpkg.com/@waline/client@3.1.2/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script><script src="/js/custom/snow.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://unpkg.com/butterfly-extsrc@1.1.3/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://unpkg.com/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://unpkg.com/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://unpkg.com/butterfly-extsrc@1.1.3/metingjs/dist/Meting.min.js"></script><script async="" data-pjax="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div>
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var e=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,c=a();function a(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(){e&&(c=a());for(var t,o=0;o<c.length;o++)0<=(t=(t=c[o]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,n,a,i=c[o];e=function(){c=c.filter(function(t){return i!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(i)},(t=i).hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(n=new Image,a=t.getAttribute("data-original"),n.onload=function(){t.src=a,t.removeAttribute("data-original"),e&&e()},t.src!==a&&(n.src=a))}()}function i(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",i),r.addEventListener("resize",i),r.addEventListener("orientationchange",i)}(this);</script><script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>
