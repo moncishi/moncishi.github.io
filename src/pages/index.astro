@@ -80,8 +80,9 @@ const blogPosts = (await getCollection('blog'))
 	}));
 ---
 
-<!-- ============================== Hero =================================== -->
-<section class="home-hero">
+<Layout title="AI 订阅套餐性价比对比" activeNav="home" description="同一模型，比遍所有订阅渠道的实际成本">
+	<!-- ============================== Hero =================================== -->
+	<section class="home-hero">
 	<h1 class="hero-title">AI 订阅套餐性价比对比</h1>
 	<p class="hero-subtitle">同一模型，比遍所有订阅渠道的实际成本</p>
 
@@ -140,6 +141,7 @@ const blogPosts = (await getCollection('blog'))
 		<BlogList heading="博客" posts={blogPosts} />
 	</div>
 </div>
+</Layout>
 
 <style>
 	/* ---- Hero ----------------------------------------------------------- */
