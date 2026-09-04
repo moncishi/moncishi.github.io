@@ -61,22 +61,37 @@ export async function getStaticPaths(): Promise<
 const { modelId, modelName, official } = Astro.props;
 const currencySymbol = official.currency === 'CNY' ? '¥' : '$';
 
-const channels = await getModelChannels(modelId, DEFAULT_MIX, 'USD');
+// Channel metrics in both display currencies so RankTable can tag every money
+// cell with the canonical data-usd / data-cny pair (the currency toggle swaps
+// text client-side — see CurrencyToggle.astro). getModelChannels re-expresses
+// the SAME pool at a fixed site FX (7.2 CNY/USD), so ranking is monotonic:
+// USD order == CNY order → we keep the USD-sorted array and rank that.
+const [usdChannels, cnyChannels] = await Promise.all([
+	getModelChannels(modelId, DEFAULT_MIX, 'USD'),
+	getModelChannels(modelId, DEFAULT_MIX, 'CNY'),
+]);
+const cnyByProvider = new Map(cnyChannels.map((c) => [c.providerId, c]));
 
-// Channels arrive pre-sorted by raw curPerM ascending (best first, 按量 last);
-// rank = position in that order. Numeric fields stay RAW — RankTable does its
-// own 1-dp / grouping / fee trimming internally.
-const rows = channels.map((c, i) => ({
-	providerId: c.providerId,
-	providerName: c.providerName,
-	kind: c.kind,
-	providerHref: `/providers/${c.providerId}`,
-	monthlyFee: c.monthlyFee,
-	quotaM: c.quotaM,
-	mPerCur: c.mPerCur,
-	curPerM: c.curPerM,
-	rank: i + 1,
-}));
+// USD channels arrive pre-sorted by raw curPerM ascending (best first, 按量
+// last); rank = position in that order. Numeric fields stay RAW — RankTable
+// does its own 1-dp / grouping / fee trimming internally.
+const rows = usdChannels.map((c, i) => {
+	const cny = cnyByProvider.get(c.providerId);
+	return {
+		providerId: c.providerId,
+		providerName: c.providerName,
+		kind: c.kind,
+		providerHref: `/providers/${c.providerId}`,
+		monthlyFeeUsd: c.monthlyFee,
+		monthlyFeeCny: cny?.monthlyFee ?? null,
+		quotaM: c.quotaM,
+		mPerCurUsd: c.mPerCur,
+		mPerCurCny: cny?.mPerCur ?? null,
+		curPerMUsd: c.curPerM,
+		curPerMCny: cny?.curPerM ?? null,
+		rank: i + 1,
+	};
+});
 
 /** Compact price for the subtitle: 1 dp, trailing ".0" trimmed ("15", "1.2"). */
 function fmtRef(n: number): string {
@@ -112,7 +127,7 @@ const pageDescription = `${modelName} 在各订阅商与官方 API 之间的月�
 			</p>
 		</div>
 
-		<RankTable modelName={modelName} rows={rows} currencySymbol="$" />
+		<RankTable modelName={modelName} rows={rows} />
 	</div>
 </Layout>
 

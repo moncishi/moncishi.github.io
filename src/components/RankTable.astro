@@ -10,8 +10,12 @@
  * Props:
  *  - modelName: e.g. "GLM-5.2". Used for the table's accessible caption only;
  *    the page owns the visible model header.
- *  - rows: ChannelRow[] pre-sorted by curPerM ascending (rank 1 = best).
- *  - currencySymbol: '$' | '¥' — display currency the numeric values are in.
+ *  - rows: ChannelRow[] pre-sorted by curPerM ascending (rank 1 = best). Every
+ *    money row carries BOTH the USD and the CNY raw values so the page can flip
+ *    currency client-side (data-price contract — see CurrencyToggle.astro).
+ *    Money cells render the USD default server-side and tag the element with
+ *    canonical data-usd / data-cny attrs; CurrencyToggle swaps the text on
+ *    toggle. quotaM is currency-free and stays static.
  *
  * Behaviour:
  *  - Every row is genuinely clickable: the provider cell holds an <a> whose
@@ -22,8 +26,8 @@
  *    next to its bold blue currency/M value).
  *  - Rank cells render circular number badges (#1 filled accent, #2/#3 soft,
  *    the rest neutral).
- *  - 月费 renders "$10.7"; a null/zero monthlyFee means 按量付费 for official
- *    channels and shows "按量".
+ *  - 月费 renders "$10.7" by default; a null/zero monthlyFeeUsd means 按量付费
+ *    for official channels and shows "按量" (no data-price node).
  *  - Numeric cells are right-aligned and use tabular-nums.
  *
  * Null-safety: any missing metric renders "—"; rows with no providerHref are
@@ -37,24 +41,50 @@ interface ChannelRow {
 	providerName: string;
 	kind: 'official' | 'subscription';
 	providerHref: string;
-	monthlyFee: number | null;
+	/** Monthly bill in USD. null / ≤ 0 → 按量付费 (pay-as-you-go). */
+	monthlyFeeUsd: number | null;
+	/** Monthly bill in CNY (FX-converted, same pool), or null for pay-as-you-go. */
+	monthlyFeeCny: number | null;
 	quotaM: number | null;
-	mPerCur: number | null;
-	curPerM: number | null;
+	/** M tokens per USD — higher is better. */
+	mPerCurUsd: number | null;
+	/** M tokens per CNY — higher is better. */
+	mPerCurCny: number | null;
+	/** USD cost per M token — lower is better. */
+	curPerMUsd: number | null;
+	/** CNY cost per M token — lower is better. */
+	curPerMCny: number | null;
 	rank: number;
 }
 
 interface Props {
 	modelName: string;
 	rows?: ChannelRow[];
-	currencySymbol?: '$' | '¥';
 }
 
-const { modelName, rows = [], currencySymbol = '$' } = Astro.props;
+const { modelName, rows = [] } = Astro.props;
 
 /** Treat null / undefined / NaN as absent. */
 function normNum(v: number | null | undefined): number | null {
 	return typeof v === 'number' && Number.isFinite(v) ? v : null;
+}
+
+/**
+ * Canonical attribute form for the data-price contract: `String(parseFloat(x))`
+ * must round-trip exactly (no "$"/"¥", no commas, no trailing ".0"). For the
+ * 1-dp ratio columns (mPerCur / curPerM). null → null (no attr emitted).
+ */
+function canon(v: number | null | undefined): string | null {
+	const n = normNum(v);
+	if (n === null) return null;
+	return String(Number(n.toFixed(1)));
+}
+
+/** 2-dp variant for the monthly fee (values may need cent precision). */
+function canon2(v: number | null | undefined): string | null {
+	const n = normNum(v);
+	if (n === null) return null;
+	return String(Number(n.toFixed(2)));
 }
 
 /**
@@ -112,7 +142,7 @@ const colSpan = 7;
 		<div class="rt-titles">
 			<h2 class="rt-title">订阅商对比</h2>
 			<p class="rt-sub">
-				按 {currencySymbol}/M 升序，最佳值置顶 · 点击行查看订阅商详情
+				按 货币/M 升序，最佳值置顶 · 点击行查看订阅商详情
 			</p>
 		</div>
 		{hasRows && <span class="rt-count">共 {rows.length} 家</span>}
@@ -121,7 +151,7 @@ const colSpan = 7;
 	<div class="rt-scroll">
 		<table class="rt-table">
 			<caption class="rt-sr-only">
-				{modelName} 在各订阅商的月费与月度额度对比，按 {currencySymbol}/M
+				{modelName} 在各订阅商的月费与月度额度对比，按 货币/M
 				由低到高排序
 			</caption>
 
@@ -131,8 +161,8 @@ const colSpan = 7;
 					<th scope="col" class="rt-th rt-th--provider">供应商</th>
 					<th scope="col" class="rt-th rt-th--fee">月费</th>
 					<th scope="col" class="rt-th rt-th--quota">月额度 M</th>
-					<th scope="col" class="rt-th rt-th--mper">M/{currencySymbol}</th>
-					<th scope="col" class="rt-th rt-th--curper">{currencySymbol}/M</th>
+					<th scope="col" class="rt-th rt-th--mper">M/货币</th>
+					<th scope="col" class="rt-th rt-th--curper">货币/M</th>
 					<th scope="col" class="rt-th rt-th--action">
 						<span class="rt-sr-only">操作</span>
 					</th>
@@ -152,11 +182,17 @@ const colSpan = 7;
 					rows.map((row, index) => {
 						const best = isBest(row, index);
 						const href = row.providerHref && row.providerHref.trim() ? row.providerHref : null;
-						const fee = feeText(row.monthlyFee);
+						// Fee: present only when a real monthly bill exists (USD and
+						// CNY go together — both derive from the same pool). SSR text
+						// stays the USD default; attrs carry both canonical numbers.
+						const feeUsd = normNum(row.monthlyFeeUsd);
+						const hasFee = feeUsd !== null && feeUsd > 0;
+						const feeUsdText = hasFee ? `$${feeText(row.monthlyFeeUsd)}` : null;
 						const quota = fmt1(row.quotaM);
-						const mPerCur = fmt1(row.mPerCur);
-						const curPerM = fmt1(row.curPerM);
-						const curPerMText = curPerM !== null ? `${currencySymbol}${curPerM}` : null;
+						const mPerCurUsdText = fmt1(row.mPerCurUsd);
+						const curPerMUsdText = fmt1(row.curPerMUsd);
+						const curPerMUsdDisp =
+							curPerMUsdText !== null ? `$${curPerMUsdText}` : null;
 						const kind = safeKind(row.kind);
 
 						return (
@@ -195,8 +231,15 @@ const colSpan = 7;
 								</td>
 
 								<td class="rt-cell rt-cell--num rt-cell--fee">
-									{fee !== null ? (
-										<span class="rt-money">{currencySymbol}{fee}</span>
+									{hasFee ? (
+										<span
+											class="rt-money"
+											data-price
+											data-usd={canon2(row.monthlyFeeUsd)}
+											data-cny={canon2(row.monthlyFeeCny)}
+										>
+											{feeUsdText}
+										</span>
 									) : (
 										<span class="rt-payg">按量</span>
 									)}
@@ -207,15 +250,30 @@ const colSpan = 7;
 								</td>
 
 								<td class="rt-cell rt-cell--num rt-cell--mper">
-									{mPerCur ?? <span class="rt-null">—</span>}
+									{mPerCurUsdText !== null ? (
+										<span
+											data-price
+											data-usd={canon(row.mPerCurUsd)}
+											data-cny={canon(row.mPerCurCny)}
+										>
+											{mPerCurUsdText}
+										</span>
+									) : (
+										<span class="rt-null">—</span>
+									)}
 								</td>
 
 								<td class="rt-cell rt-cell--num rt-cell--curper">
 									<span class="rt-numwrap">
 										{best && <span class="rt-best">最佳值</span>}
-										{curPerMText !== null ? (
-											<span class:list={['rt-money', best && 'rt-money--best']}>
-												{curPerMText}
+										{curPerMUsdDisp !== null ? (
+											<span
+												class:list={['rt-money', best && 'rt-money--best']}
+												data-price
+												data-usd={canon(row.curPerMUsd)}
+												data-cny={canon(row.curPerMCny)}
+											>
+												{curPerMUsdDisp}
 											</span>
 										) : (
 											<span class="rt-null">—</span>

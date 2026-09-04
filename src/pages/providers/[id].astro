@@ -4,9 +4,11 @@
  *
  * For ONE provider, lists every model it carries in the wide 10-column
  * ProviderTable. Derived value metrics (月额度 M、M/货币、货币/M) are computed
- * against DEFAULT_MIX (90/9/1) in USD — see src/lib/data.ts — at build time;
- * the rows are then sorted by RAW 货币/M ascending so the best value is #1 and
- * gets ProviderTable's 最佳值 highlight.
+ * against DEFAULT_MIX (90/9/1) in USD — see src/lib/data.ts — at build time,
+ * plus a CNY twin (same FX as the rest of the site); the rows are then sorted
+ * by RAW 货币/M ascending so the best value is #1 and gets ProviderTable's 最佳值
+ * highlight. Per-1M price columns stay in the provider's NATIVE currency and
+ * ProviderTable converts to USD/CNY for the currency toggle.
  *
  * Structure (top → bottom):
  *   1. Breadcrumb: 订阅商 / {provider name}.
@@ -104,37 +106,44 @@ if (isOfficial) {
 }
 
 // --- ProviderTable rows ----------------------------------------------------
-// Metrics: computed per modelRow via computeRowMetrics(…, DEFAULT_MIX, 'USD').
-// computeRowMetrics returns RAW ratios; rows are sorted on raw curPerM so ties
-// behave predictably, then the display values are rounded to 1 dp (the
-// ProviderTable contract). Official rows → every pool metric null → they sort
-// last (stable) and render "—".
+// Metrics: computed per modelRow via computeRowMetrics(…, DEFAULT_MIX, 'USD')
+// plus a CNY twin; rows are sorted on raw curPerM so ties behave predictably,
+// then the display values are rounded to 1 dp (the ProviderTable contract).
+// Official rows → every pool metric null → they sort last (stable) and render
+// "—".
 type SortableRow = {
 	modelId: string;
 	modelName: string;
 	modelHref: string;
 	price: ProviderWithModels['modelRows'][number]['price'];
+	nativeCurrency: Currency;
 	credits: number | null;
 	quota90: number | null;
 	quota95: number | null;
 	mPerCur: number | null;
+	mPerCurCny: number | null;
 	curPerM: number | null;
-	_sort: number; // raw curPerM, Infinity when null
+	curPerMCny: number | null;
+	_sort: number; // raw curPerM (USD), Infinity when null
 };
 
 const sortable: SortableRow[] = provider.modelRows.map((row) => {
-	const m = computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'USD');
+	const mUsd = computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'USD');
+	const mCny = computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'CNY');
 	return {
 		modelId: row.modelId,
 		modelName: row.modelName,
 		modelHref: `/models/${row.modelId}`,
 		price: row.price,
+		nativeCurrency: provider.currency,
 		credits: row.credits,
 		quota90: row.quota90,
 		quota95: row.quota95,
-		mPerCur: m.mPerCur === null ? null : round1(m.mPerCur),
-		curPerM: m.curPerM === null ? null : round1(m.curPerM),
-		_sort: m.curPerM === null ? Number.POSITIVE_INFINITY : m.curPerM,
+		mPerCur: mUsd.mPerCur === null ? null : round1(mUsd.mPerCur),
+		mPerCurCny: mCny.mPerCur === null ? null : round1(mCny.mPerCur),
+		curPerM: mUsd.curPerM === null ? null : round1(mUsd.curPerM),
+		curPerMCny: mCny.curPerM === null ? null : round1(mCny.curPerM),
+		_sort: mUsd.curPerM === null ? Number.POSITIVE_INFINITY : mUsd.curPerM,
 	};
 });
 
@@ -202,7 +211,7 @@ const sectionSub = isOfficial
 			</div>
 
 			{rows.length > 0 ? (
-				<ProviderTable rows={rows} currencySymbol={currencySymbol} mixLabel={mixLabel} />
+				<ProviderTable rows={rows} mixLabel={mixLabel} />
 			) : (
 				<p class="pt-empty">该订阅商暂无模型数据</p>
 			)}

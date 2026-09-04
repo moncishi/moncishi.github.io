@@ -17,8 +17,13 @@
  *   body    — description clamped to 2 lines + 排行最佳 mini-list (≤3 rows)
  *   footer  — 查看详情 →
  *
- * Prices are rendered server-side as static text (the given currencyPerM is a
- * pre-computed display value), so no data-price/currency machinery here.
+ * Money contract (see CurrencyToggle.astro): each row's per-M value carries
+ * BOTH canonical data-usd / data-cny numbers (1 dp, no symbol/comma/trailing
+ * ".0") plus the [data-price] marker, so the client can flip the text between
+ * $ / ¥ without a round-trip. SSR text stays the USD default; the toggle's
+ * load-time sync() re-renders every [data-price] node, so the server must
+ * emit exactly what the toggle would produce (canonical USD + "$").
+ * Null/absent currencyPerM renders the muted dash with NO data-price attrs.
  */
 import Badge from './Badge.astro';
 
@@ -26,7 +31,11 @@ interface ProviderTopModel {
 	modelId: string;
 	modelName: string;
 	rank: number; // global rank of this model by $/M among ALL provider-model combos
-	currencyPerM: number | null; // display value (1 decimal)
+	currencyPerM: number | null; // USD cost per M token (RAW, unrounded)
+	/** CNY cost per M token for the same pool (fixed site FX), or null when the
+	 *  CNY leaderboard lacks the combo. Pairs with currencyPerM on the
+	 *  [data-price] CNY payload. */
+	currencyPerMCny: number | null;
 	modelHref: string; // /models/[id]
 }
 
@@ -46,9 +55,31 @@ const { provider, topModels = [], detailHref } = Astro.props;
 // Defensive: never show more than the top 3 of THIS provider.
 const models = topModels.slice(0, 3);
 
-// 1-decimal display; null/absent value renders as a muted dash.
-function formatPrice(value: number | null): string {
-	return value === null || value === undefined ? '—' : `$${value.toFixed(1)}`;
+/** Treat null / undefined / NaN as absent. */
+function normNum(v: number | null | undefined): number | null {
+	return typeof v === 'number' && Number.isFinite(v) ? v : null;
+}
+
+/**
+ * Canonical attribute value for the data-price contract: 1-dp rounding then
+ * `String(parseFloat(x))` so the value round-trips exactly through
+ * CurrencyToggle's parser (no trailing ".0"). null → null (attr not emitted).
+ */
+function canon(v: number | null | undefined): string | null {
+	const n = normNum(v);
+	if (n === null) return null;
+	return String(Number(n.toFixed(1)));
+}
+
+/**
+ * USD-default SSR text for a per-M value: canonical 1-dp number prefixed with
+ * "$" (matches what CurrencyToggle's load-time sync() would render for USD, so
+ * the SSR text never flips on hydration). Absent → muted dash.
+ */
+function priceText(v: number | null | undefined): string | null {
+	const n = normNum(v);
+	if (n === null) return null;
+	return `$${canon(n)}`;
 }
 ---
 
@@ -70,31 +101,41 @@ function formatPrice(value: number | null): string {
 				<span class="pc-section-label">排行最佳</span>
 				<ul class="pc-model-list">
 					{
-						models.map((model) => (
-							<li class="pc-model-row">
-								<span
-									class="pc-rank"
-									title={`全球 $/M 第 ${model.rank} 名`}
-									aria-hidden="true"
-								>
-									{model.rank}
-								</span>
-								<a class="pc-model-name" href={model.modelHref}>
-									{model.modelName}
-								</a>
-								<span class="pc-price">
+						models.map((model) => {
+							const usdText = priceText(model.currencyPerM);
+							const usdAttr = canon(model.currencyPerM);
+							const cnyAttr = canon(model.currencyPerMCny);
+							const hasPrice = usdText !== null && usdAttr !== null && cnyAttr !== null;
+							return (
+								<li class="pc-model-row">
 									<span
-										class:list={{
-											'pc-price-value': true,
-											'is-null': model.currencyPerM === null || model.currencyPerM === undefined,
-										}}
+										class="pc-rank"
+										title={`全球 $/M 第 ${model.rank} 名`}
+										aria-hidden="true"
 									>
-										{formatPrice(model.currencyPerM)}
+										{model.rank}
 									</span>
-									<span class="pc-price-unit">/M</span>
-								</span>
-							</li>
-						))
+									<a class="pc-model-name" href={model.modelHref}>
+										{model.modelName}
+									</a>
+									<span class="pc-price">
+										{hasPrice ? (
+											<span
+												class="pc-price-value"
+												data-price
+												data-usd={usdAttr}
+												data-cny={cnyAttr}
+											>
+												{usdText}
+											</span>
+										) : (
+											<span class="pc-price-value is-null">—</span>
+										)}
+										<span class="pc-price-unit">/M</span>
+									</span>
+								</li>
+							);
+						})
 					}
 				</ul>
 			</section>

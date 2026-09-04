@@ -9,8 +9,9 @@
  *   4. Footer 由 Layout 提供（此处不重复）。
  *
  * 数据约定：
- *   - Leaderboard 用 DEFAULT_MIX 按 USD 服务端渲染。ValueLeaderboard 不走
- *     [data-price] 机制，因此货币切换不会重渲染此榜（T26 统一处理）。
+ *   - Leaderboard 用 DEFAULT_MIX 同时拉 USD + CNY 两份（同一 FX 下排名一致），
+ *     USD 行按 rank 与服务端默认文案渲染；每行数值同时携带 data-usd /
+ *     data-cny 走 [data-price] 机制，货币切换会重渲染本榜数值。
  *   - 博客详情路由 /blog/[slug] 由后续 worker 提供，当前链接可能 404，可接受。
  */
 import Layout from '../layouts/Layout.astro';
@@ -22,18 +23,33 @@ import { getGlobalLeaderboard } from '../lib/data';
 import { DEFAULT_MIX, round1 } from '../lib/pricing';
 
 // --- 性价比速览榜：Top 5 组合，按 $/M 升序（getGlobalLeaderboard 已排好）----
-const leaderboard = await getGlobalLeaderboard(DEFAULT_MIX, 'USD', 5);
+// 同一 (mix, FX) 下 USD/CNY 的 rank 顺序一致，两份按 rank 一一配对。
+const [usdBoard, cnyBoard] = await Promise.all([
+	getGlobalLeaderboard(DEFAULT_MIX, 'USD', 5),
+	getGlobalLeaderboard(DEFAULT_MIX, 'CNY', 5),
+]);
 
-const leaderboardRows = leaderboard.map((entry) => ({
-	rank: entry.rank,
-	modelName: entry.modelName,
-	providerName: entry.providerName,
-	providerKind: entry.providerKind,
-	providerHref: `/providers/${entry.providerId}`,
-	modelHref: `/models/${entry.modelId}`,
-	currencyPerM: entry.curPerM === null ? null : round1(entry.curPerM),
-	mPerCurrency: entry.mPerCur === null ? null : round1(entry.mPerCur),
-}));
+const leaderboardRows = usdBoard.map((entry) => {
+	const cnyEntry = cnyBoard.find((c) => c.rank === entry.rank);
+	return {
+		rank: entry.rank,
+		modelName: entry.modelName,
+		providerName: entry.providerName,
+		providerKind: entry.providerKind,
+		providerHref: `/providers/${entry.providerId}`,
+		modelHref: `/models/${entry.modelId}`,
+		currencyPerM: entry.curPerM === null ? null : round1(entry.curPerM),
+		mPerCurrency: entry.mPerCur === null ? null : round1(entry.mPerCur),
+		currencyPerMCny:
+			cnyEntry === undefined || cnyEntry.curPerM === null
+				? null
+				: round1(cnyEntry.curPerM),
+		mPerCurrencyCny:
+			cnyEntry === undefined || cnyEntry.mPerCur === null
+				? null
+				: round1(cnyEntry.mPerCur),
+	};
+});
 
 // --- 热门模型 chips：id 必须命中 models 集合（路由 /models/[id]）------------
 const HOT_MODEL_IDS = [

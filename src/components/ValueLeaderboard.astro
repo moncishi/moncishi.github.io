@@ -8,9 +8,11 @@
  *
  * Props:
  *  - rows: LeaderboardRow[] — best-value (lowest currency-per-M) rows first.
- *    `currencyPerM` / `mPerCurrency` are display values already rounded to
- *    1 decimal; null renders as '—'.
- *  - currencyLabel: '$' or '¥' prefix shown on the metric.
+ *    `currencyPerM` / `mPerCurrency` are USD display values already rounded to
+ *    1 decimal, with the matching `…Cny` fields holding the CNY display
+ *    values; null renders as '—'. The number cells carry the [data-price]
+ *    contract (data-usd + data-cny) so CurrencyToggle can flip them live.
+ *  - currencyLabel: '$' or '¥' prefix shown on the (USD-default) SSR metric.
  *  - title: card heading, defaults to 性价比速览.
  *  - allHref: target of the footer 查看全部 link, defaults to '/'.
  *
@@ -30,6 +32,10 @@ interface LeaderboardRow {
 	modelHref: string;
 	currencyPerM: number | null;
 	mPerCurrency: number | null;
+	/** CNY display values for the same metrics (leaderboard FX: both follow the
+	 *  identical USD rank order, so rows pair up 1:1). */
+	currencyPerMCny: number | null;
+	mPerCurrencyCny: number | null;
 }
 
 interface Props {
@@ -68,6 +74,13 @@ const rankClass = (rank: number): string | undefined => {
 					rows.map((row) => {
 						const perM = fmt(row.currencyPerM);
 						const perUnit = fmt(row.mPerCurrency);
+						const perMCny = fmt(row.currencyPerMCny);
+						const perUnitCny = fmt(row.mPerCurrencyCny);
+						// Canonical number strings for the [data-price] attrs:
+						// String(parseFloat(x)) === x — no symbol, no commas, no
+						// trailing ".0".
+						const num = (v: string | null): string | null =>
+							v === null ? null : String(Number(v));
 						return (
 							<li
 								class:list={['value-row', { highlight: row.rank === 1 }]}
@@ -95,19 +108,30 @@ const rankClass = (rank: number): string | undefined => {
 								</div>
 
 								<div class="value-price">
-									{perM !== null ? (
+									{perM !== null && perMCny !== null ? (
 										<span class="value-price-main">
-											{currencyLabel}{perM}
-											<span class="value-price-unit">/M</span>
+											<span
+												data-price
+												data-usd={num(perM)!}
+												data-cny={num(perMCny)!}
+												>{currencyLabel}{perM}</span
+											><span class="value-price-unit">/M</span>
 										</span>
 									) : (
 										<span class="value-price-main value-price-na">—</span>
 									)}
-									{perUnit !== null && (
-										<span class="value-price-alt">
-											≈ {perUnit} M/{currencyLabel}
-										</span>
-									)}
+									{perUnit !== null &&
+										perUnitCny !== null && (
+											<span class="value-price-alt">
+												≈{' '}
+												<span
+													data-price
+													data-usd={num(perUnit)!}
+													data-cny={num(perUnitCny)!}
+													>{perUnit}</span
+												>{' '}M/货币
+											</span>
+										)}
 								</div>
 							</li>
 						);

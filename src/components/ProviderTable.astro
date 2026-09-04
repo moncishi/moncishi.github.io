@@ -7,26 +7,33 @@
  *
  * Columns (exactly ten):
  *   1. 模型 Model          — name links to the model page (modelHref).
- *   2. 输入 Input          — per-1M price, currencySymbol-denominated.
+ *   2. 输入 Input          — per-1M price (nativeCurrency), dual USD/CNY.
  *   3. 输出 Output
  *   4. 缓存读 Cache Read
  *   5. 缓存写 Cache Write  — "—" when null (not separately charged).
  *   6. 月度积分 Monthly credits — "—" for official plans (null).
  *   7. 月额度M(90,9,1) quota90 — fmtM (millions, 1 dp, thousands separators).
  *   8. 月额度M(95,4,1) quota95 — fmtM.
- *   9. M/货币   M per currency  — already-rounded 1 dp display value.
- *  10. 货币/M   currency per M — already-rounded 1 dp display value.
+ *   9. M/货币   M per currency  — already-rounded 1 dp display value, dual USD/CNY.
+ *  10. 货币/M   currency per M — already-rounded 1 dp display value, dual USD/CNY.
  *
- * Rows arrive PRE-SORTED by 货币/M ascending (best value first). rank 1 (or
- * isBest) is highlighted: soft accent row + left accent bar + 最佳值 pill.
+ * Rows arrive PRE-SORTED by 货币/M (USD) ascending (best value first). rank 1
+ * (or isBest) is highlighted: soft accent row + left accent bar + 最佳值 pill.
  * Numeric columns are right-aligned tabular; the model column is sticky so
  * names stay readable while the table scrolls horizontally.
+ *
+ * Money columns render as currency-toggle nodes (data-price + data-usd /
+ * data-cny canonical attrs) so CurrencyToggle can flip $ / ¥ at runtime. The
+ * per-1M price cells hold the provider's NATIVE prices and are converted to
+ * both display currencies here via nativeCurrency + toDisplayCurrency. The
+ * M/货币 · 货币/M cells arrive pre-converted (page computes both metrics); their
+ * USD value doubles as the SSR default text.
  *
  * mixLabel (e.g. "缓存90/输入9/输出1") renders as a small muted note above the
  * table — it is the mix the page used (and recomputes on slider drag) for the
  * M/货币 · 货币/M columns.
  */
-import { fmtM } from '../lib/pricing';
+import { fmtM, toDisplayCurrency, type Currency } from '../lib/pricing';
 
 interface Row {
 	modelId: string;
@@ -38,26 +45,42 @@ interface Row {
 		cacheRead: number | null;
 		cacheWrite: number | null;
 	};
+	nativeCurrency: Currency; // provider's own listing currency (prices above are in it)
 	credits: number | null; // monthly credits (null for official)
 	quota90: number | null; // millions, published, M(90,9,1)
 	quota95: number | null; // millions, published, M(95,4,1)
-	mPerCur: number | null; // already rounded 1 dp display value
-	curPerM: number | null;
+	mPerCur: number | null; // USD, already rounded 1 dp display value
+	mPerCurCny: number | null; // CNY equivalent of mPerCur
+	curPerM: number | null; // USD, already rounded 1 dp display value
+	curPerMCny: number | null; // CNY equivalent of curPerM
 	rank: number; // position by curPerM ascending (page pre-sorts + ranks)
 	isBest?: boolean; // rank-1 flag for highlight
 }
 
 interface Props {
 	rows: Row[]; // pre-sorted ascending by curPerM (best first)
-	currencySymbol: '$' | '¥'; // display currency for per-1M / per-M column hints
 	mixLabel: string; // e.g. "缓存90/输入9/输出1"
 }
 
-const { rows, currencySymbol, mixLabel } = Astro.props;
+const { rows, mixLabel } = Astro.props;
 
 /** Price cell — up to 3 decimals, trailing zeros trimmed: 15 / 1.25 / 0.088. */
 function fmtPrice(n: number): string {
 	return n.toFixed(3).replace(/(\.\d*[1-9])0+$|\.0+$/, '$1');
+}
+
+/**
+ * Canonical number string for a data-usd / data-cny attr (the CurrencyToggle
+ * contract): String(parseFloat(attr)) === attr. fmtPrice already strips
+ * trailing ".0", so this guard is near-identity — kept per the contract.
+ */
+function canon3(fmt: string): string {
+	return String(parseFloat(fmt)) === fmt ? fmt : String(Number(fmt));
+}
+
+/** Convert a native per-1M price to a display currency, canonical ≤3-dp string. */
+function displayPrice(native: number, nativeCurrency: Currency, to: Currency): string {
+	return canon3(fmtPrice(toDisplayCurrency(native, nativeCurrency, to)));
 }
 
 /** Monthly credits — integer, thousands separators, no forced decimals. */
@@ -90,15 +113,15 @@ function fmtCredits(n: number): string {
 					</th>
 					<th scope="col" class="head head-num">
 						<span class="th-zh">输入</span>
-						<span class="th-en">Input · {currencySymbol}/1M</span>
+						<span class="th-en">Input · /1M</span>
 					</th>
 					<th scope="col" class="head head-num">
 						<span class="th-zh">输出</span>
-						<span class="th-en">Output · {currencySymbol}/1M</span>
+						<span class="th-en">Output · /1M</span>
 					</th>
 					<th scope="col" class="head head-num">
 						<span class="th-zh">缓存读</span>
-						<span class="th-en">Cache Read · {currencySymbol}/1M</span>
+						<span class="th-en">Cache Read · /1M</span>
 					</th>
 					<th scope="col" class="head head-num">
 						<span class="th-zh">缓存写</span>
@@ -118,11 +141,11 @@ function fmtCredits(n: number): string {
 					</th>
 					<th scope="col" class="head head-num">
 						<span class="th-zh">M/货币</span>
-						<span class="th-en">M / {currencySymbol}</span>
+						<span class="th-en">M / currency</span>
 					</th>
 					<th scope="col" class="head head-num">
 						<span class="th-zh">货币/M</span>
-						<span class="th-en">{currencySymbol} / M</span>
+						<span class="th-en">currency / M</span>
 					</th>
 				</tr>
 			</thead>
@@ -138,6 +161,16 @@ function fmtCredits(n: number): string {
 							) : (
 								<span class="val">{fmt(v)}</span>
 							);
+						// Canonical 1-dp attr for a pre-rounded USD/CNY ratio value.
+						const canon1d = (n: number): string => String(Number(n.toFixed(1)));
+						const pInput = displayPrice(row.price.input, row.nativeCurrency, 'USD');
+						const pInputCny = displayPrice(row.price.input, row.nativeCurrency, 'CNY');
+						const pOutput = displayPrice(row.price.output, row.nativeCurrency, 'USD');
+						const pOutputCny = displayPrice(row.price.output, row.nativeCurrency, 'CNY');
+						const mpUsd = row.mPerCur === null ? null : canon1d(row.mPerCur);
+						const mpCny = row.mPerCurCny === null ? null : canon1d(row.mPerCurCny);
+						const cpUsd = row.curPerM === null ? null : canon1d(row.curPerM);
+						const cpCny = row.curPerMCny === null ? null : canon1d(row.curPerMCny);
 						return (
 							<tr class:list={{ best }} data-rank={rank}>
 								<td class="cell model">
@@ -149,17 +182,43 @@ function fmtCredits(n: number): string {
 									{best && <span class="best-pill">最佳值</span>}
 								</td>
 								<td class="cell num">
-									<span class="val">{fmtPrice(row.price.input)}</span>
+									<span
+										data-price
+										data-usd={pInput}
+										data-cny={pInputCny}
+										class="val"
+									>{`$${pInput}`}</span>
 								</td>
 								<td class="cell num">
-									<span class="val">{fmtPrice(row.price.output)}</span>
+									<span
+										data-price
+										data-usd={pOutput}
+										data-cny={pOutputCny}
+										class="val"
+									>{`$${pOutput}`}</span>
 								</td>
-								<td class="cell num">{numCell(row.price.cacheRead, fmtPrice)}</td>
+								<td class="cell num">
+									{row.price.cacheRead === null ? (
+										<span class="nil">—</span>
+									) : (
+										<span
+											data-price
+											data-usd={displayPrice(row.price.cacheRead, row.nativeCurrency, 'USD')}
+											data-cny={displayPrice(row.price.cacheRead, row.nativeCurrency, 'CNY')}
+											class="val"
+										>{`$${displayPrice(row.price.cacheRead, row.nativeCurrency, 'USD')}`}</span>
+									)}
+								</td>
 								<td class="cell num">
 									{row.price.cacheWrite === null ? (
 										<span class="nil" title="缓存写未单独计费">—</span>
 									) : (
-										<span class="val">{fmtPrice(row.price.cacheWrite)}</span>
+										<span
+											data-price
+											data-usd={displayPrice(row.price.cacheWrite, row.nativeCurrency, 'USD')}
+											data-cny={displayPrice(row.price.cacheWrite, row.nativeCurrency, 'CNY')}
+											class="val"
+										>{`$${displayPrice(row.price.cacheWrite, row.nativeCurrency, 'USD')}`}</span>
 									)}
 								</td>
 								<td class="cell num">
@@ -172,17 +231,27 @@ function fmtCredits(n: number): string {
 								<td class="cell num">{numCell(row.quota90, fmtM)}</td>
 								<td class="cell num">{numCell(row.quota95, fmtM)}</td>
 								<td class="cell num">
-									{row.mPerCur === null ? (
+									{mpUsd === null ? (
 										<span class="nil">—</span>
 									) : (
-										<span class="val m-per-cur">{row.mPerCur.toFixed(1)}</span>
+										<span
+											data-price
+											data-usd={mpUsd}
+											data-cny={mpCny}
+											class="val m-per-cur"
+										>{`$${mpUsd}`}</span>
 									)}
 								</td>
 								<td class="cell num">
-									{row.curPerM === null ? (
+									{cpUsd === null ? (
 										<span class="nil">—</span>
 									) : (
-										<span class="val cur-per-m">{row.curPerM.toFixed(1)}</span>
+										<span
+											data-price
+											data-usd={cpUsd}
+											data-cny={cpCny}
+											class="val cur-per-m"
+										>{`$${cpUsd}`}</span>
 									)}
 								</td>
 							</tr>

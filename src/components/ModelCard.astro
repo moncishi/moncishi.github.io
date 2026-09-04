@@ -14,21 +14,25 @@
  *                    visible chips; the remainder collapses into one "+N".
  *  - detailHref:     /models/[id] — the WHOLE card links there.
  *
- * Renders:
+ *  Renders:
  *   title      — model name (h3 inside the card-wide link)
  *   2×2 prices — grid labeled 输入 / 输出 / 缓存读 / 缓存写. Top two cells are
  *                prominent (label above a large price), bottom two compact
- *                (inline label + price, thinner). All prices get the ¥ / $
- *                prefix from official.currency.
- *   cacheWrite — special-cased: 0 reads as 免费 and null reads as —; both are
- *                styled muted. Input / output / cacheRead fall back to — for
- *                null (fmtMoney already does this).
+ *                (inline label + price, thinner).
+ *   cacheWrite — special-cased: 0 reads as 免费 (static, no toggle) and null
+ *                reads as —; both are styled muted. Input / output / cacheRead
+ *                fall back to — for null.
  *   chips      — provider availability pills (muted), cap ~4 with +N.
  *
- * Prices render server-side as static text; this card is a pure display leaf
- * like ProviderCard, so it carries no data-price / currency machinery.
+ *  Currency machinery: every money cell carries the [data-price] contract (see
+ *  CurrencyToggle.astro) with canonical data-usd / data-cny attrs so the page's
+ *  USD/CNY toggle can flip it client-side. The official four-tier price is ¥ CNY
+ *  native (official.currency === 'CNY'); the USD view is the FX conversion
+ *  (site rate 7.2). SSR text stays the site default (USD); attrs carry both
+ *  canonical numbers (data-usd native when official.currency is USD, converted
+ *  otherwise).
  */
-import { fmtMoney, type Currency } from '../lib/pricing';
+import { toDisplayCurrency, type Currency } from '../lib/pricing';
 
 interface ModelProps {
 	id: string;
@@ -58,26 +62,86 @@ const moreCount =
 	providerNames.length > MAX_CHIPS ? providerNames.length - (MAX_CHIPS - 1) : 0;
 const shownNames = moreCount > 0 ? providerNames.slice(0, MAX_CHIPS - 1) : providerNames;
 
-/** Two prominent cells: label stacked above a large price. */
-const primaryCells = [
-	{ label: '输入', value: fmtMoney(official.input, currency) },
-	{ label: '输出', value: fmtMoney(official.output, currency) },
-] as const;
+/** Treat null / undefined / NaN as absent. */
+function normNum(v: number | null | undefined): number | null {
+	return typeof v === 'number' && Number.isFinite(v) ? v : null;
+}
+
+/** Price cell — up to 3 decimals, trailing zeros trimmed: 15 / 1.25 / 0.088. */
+function fmtPrice(n: number): string {
+	return n.toFixed(3).replace(/(\.\d*[1-9])0+$|\.0+$/, '$1');
+}
 
 /**
- * cacheWrite cell text: 0 means no separate write fee → 免费; null means the
- * fee is not itemized → —; anything else renders as a normal price.
+ * Canonical number string for a data-usd / data-cny attr (the CurrencyToggle
+ * contract): String(parseFloat(attr)) === attr. fmtPrice already strips
+ * trailing ".0", so this guard is near-identity — kept per the contract.
  */
-function cacheWriteText(value: number | null): string {
-	if (value === null) return '—';
-	if (value === 0) return '免费';
-	return fmtMoney(value, currency);
+function canon3(fmt: string): string {
+	return String(parseFloat(fmt)) === fmt ? fmt : String(Number(fmt));
 }
+
+/** Convert a native per-1M price to a display currency, canonical ≤3-dp string. */
+function displayPrice(native: number, nativeCurrency: Currency, to: Currency): string {
+	return canon3(fmtPrice(toDisplayCurrency(native, nativeCurrency, to)));
+}
+
+/** One money cell's [data-price] payload (see CurrencyToggle.astro). */
+interface Money {
+	/** Canonical USD number (the SSR / site-default view). */
+	usd: string;
+	/** Canonical CNY number (native when official.currency is CNY). */
+	cny: string;
+	/** USD text to render server-side — `$` + data-usd. */
+	ssr: string;
+}
+
+/**
+ * [data-price] payload for a numeric official price: BOTH canonical views
+ * derive from the same native value re-expressed at the site FX (7.2), so
+ * data-usd is native when official.currency is USD and the FX conversion when
+ * it is CNY. null native → no toggle cell (caller renders —).
+ */
+function money(native: number | null): Money | null {
+	if (normNum(native) === null) return null;
+	const usd = displayPrice(native as number, currency, 'USD');
+	const cny = displayPrice(native as number, currency, 'CNY');
+	return { usd, cny, ssr: `$${usd}` };
+}
+
+interface CellContent {
+	/** Present → toggleable money cell; absent → static placeholder text. */
+	price: Money | null;
+	/** Static placeholder when price is absent (— / 免费), muted. */
+	text: string;
+	muted: boolean;
+}
+
+/**
+ * One tier cell's content. kind 'money': numeric → toggle cell, null → muted —.
+ * kind 'free-or-dash' (缓存写): 0 → static 免费 (never a money cell), null → —,
+ * anything else → toggle cell.
+ */
+function cellContent(
+	native: number | null,
+	kind: 'money' | 'free-or-dash',
+): CellContent {
+	if (native === null) return { price: null, text: '—', muted: true };
+	if (kind === 'free-or-dash' && native === 0)
+		return { price: null, text: '免费', muted: true };
+	return { price: money(native), text: '', muted: false };
+}
+
+/** Two prominent cells: label stacked above a large price. */
+const primaryCells = [
+	{ label: '输入', ...cellContent(official.input, 'money') },
+	{ label: '输出', ...cellContent(official.output, 'money') },
+] as const;
 
 /** Two compact cells: inline label + price on one line. */
 const secondaryCells = [
-	{ label: '缓存读', value: fmtMoney(official.cacheRead, currency), muted: official.cacheRead === null },
-	{ label: '缓存写', value: cacheWriteText(official.cacheWrite), muted: official.cacheWrite === null || official.cacheWrite === 0 },
+	{ label: '缓存读', ...cellContent(official.cacheRead, 'money') },
+	{ label: '缓存写', ...cellContent(official.cacheWrite, 'free-or-dash') },
 ] as const;
 ---
 
@@ -90,7 +154,18 @@ const secondaryCells = [
 				primaryCells.map((cell) => (
 					<div class="mc-cell mc-cell--primary">
 						<dt class="mc-label">{cell.label}</dt>
-						<dd class="mc-value">{cell.value}</dd>
+						{cell.price ? (
+							<dd
+								class="mc-value"
+								data-price
+								data-usd={cell.price.usd}
+								data-cny={cell.price.cny}
+							>
+								{cell.price.ssr}
+							</dd>
+						) : (
+							<dd class="mc-value is-muted">{cell.text}</dd>
+						)}
 					</div>
 				))
 			}
@@ -98,7 +173,20 @@ const secondaryCells = [
 				secondaryCells.map((cell) => (
 					<div class="mc-cell mc-cell--compact">
 						<dt class="mc-label">{cell.label}</dt>
-						<dd class:list={{ 'mc-value': true, 'is-muted': cell.muted }}>{cell.value}</dd>
+						{cell.price ? (
+							<dd
+								class="mc-value"
+								data-price
+								data-usd={cell.price.usd}
+								data-cny={cell.price.cny}
+							>
+								{cell.price.ssr}
+							</dd>
+						) : (
+							<dd class:list={{ 'mc-value': true, 'is-muted': cell.muted }}>
+								{cell.text}
+							</dd>
+						)}
 					</div>
 				))
 			}

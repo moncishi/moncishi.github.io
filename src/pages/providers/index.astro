@@ -9,6 +9,9 @@
  * 排名来源：全局价值榜 getGlobalLeaderboard(DEFAULT_MIX, 'USD') —— 每个
  * (provider, model) 组合按 RAW curPerM 升序得到一个 1-based 全球名次。只把
  * 「本 provider 自己的组合」在榜上的名次取出来，升序取前 3。
+ * 同时拉 CNY 榜：同一 (mix, 固定 FX 7.2) 下 USD/CNY 的 rank 顺序一致，两份按
+ * providerId::modelId 一一配对，给每行同时喂 USD / CNY 的 curPerM，卡片按
+ * [data-price] 契约（见 CurrencyToggle.astro）标注两种货币。
  * 官方（按量）无池子组合，榜上无名 → topModels 为空数组，ProviderCard 内部
  * 自动不渲染「排行最佳」区块。
  *
@@ -20,18 +23,24 @@ import SearchBox from '../../components/SearchBox.astro';
 import { DEFAULT_MIX } from '../../lib/pricing';
 import { getGlobalLeaderboard, getProvidersWithModels } from '../../lib/data';
 
-const [leaderboard, providers] = await Promise.all([
+const [usdBoard, cnyBoard, providers] = await Promise.all([
 	getGlobalLeaderboard(DEFAULT_MIX, 'USD'),
+	getGlobalLeaderboard(DEFAULT_MIX, 'CNY'),
 	getProvidersWithModels(),
 ]);
 
 // providerId::modelId → { 全球名次, RAW curPerM }（低 curPerM = 第 1 名）。
+// USD 榜定名次；CNY 榜只在名次相同时携带等值对（rank 顺序一致，1:1 配对）。
 const rankByCombo = new Map<string, { rank: number; currencyPerM: number }>();
-for (const entry of leaderboard) {
+const cnyPerMByCombo = new Map<string, number>();
+for (const entry of usdBoard) {
 	rankByCombo.set(`${entry.providerId}::${entry.modelId}`, {
 		rank: entry.rank,
 		currencyPerM: entry.curPerM,
 	});
+}
+for (const entry of cnyBoard) {
+	cnyPerMByCombo.set(`${entry.providerId}::${entry.modelId}`, entry.curPerM);
 }
 
 const KIND_LABEL = { official: '官方', subscription: '订阅聚合' } as const;
@@ -41,6 +50,9 @@ interface CardModel {
 	modelName: string;
 	rank: number;
 	currencyPerM: number;
+	/** CNY equivalent of the same pool's curPerM (fixed site FX), for the
+	 *  [data-price] CNY payload. */
+	currencyPerMCny: number | null;
 	modelHref: string;
 }
 
@@ -55,6 +67,7 @@ const cards = providers.map((p) => {
 						modelName: row.modelName,
 						rank: g.rank,
 						currencyPerM: g.currencyPerM,
+						currencyPerMCny: cnyPerMByCombo.get(`${p.id}::${row.modelId}`) ?? null,
 						modelHref: `/models/${row.modelId}`,
 					}
 				: null;
