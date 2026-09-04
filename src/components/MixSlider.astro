@@ -65,6 +65,7 @@ const rowIdCacheRead = `${instanceId}-cacheread`;
 
 <div
 	class="mix-slider"
+	data-mix-root=""
 	data-mix-cacheread={initCacheRead}
 	data-mix-input={initInput}
 	data-mix-output={initOutput}
@@ -134,7 +135,9 @@ const rowIdCacheRead = `${instanceId}-cacheread`;
 
 <script>
 	(function () {
-		var root = document.currentScript && document.currentScript.parentElement;
+		var root =
+			document.currentScript && document.currentScript.closest('[data-mix-root]');
+		if (!root) root = document.querySelector('[data-mix-root]');
 		if (!root) return;
 
 		// Read the integer mix straight off the server-rendered dataset.
