@@ -1,0 +1,435 @@
+---
+/**
+ * ProviderTable — the wide 10-column pricing table used on a provider detail
+ * page. Rows are the provider's own models. Pure display: the calling page
+ * computes every derived value and pre-sorts the rows (no data fetching, no
+ * content-collection access, no client JS).
+ *
+ * Columns (exactly ten):
+ *   1. 模型 Model          — name links to the model page (modelHref).
+ *   2. 输入 Input          — per-1M price, currencySymbol-denominated.
+ *   3. 输出 Output
+ *   4. 缓存读 Cache Read
+ *   5. 缓存写 Cache Write  — "—" when null (not separately charged).
+ *   6. 月度积分 Monthly credits — "—" for official plans (null).
+ *   7. 月额度M(90,9,1) quota90 — fmtM (millions, 1 dp, thousands separators).
+ *   8. 月额度M(95,4,1) quota95 — fmtM.
+ *   9. M/货币   M per currency  — already-rounded 1 dp display value.
+ *  10. 货币/M   currency per M — already-rounded 1 dp display value.
+ *
+ * Rows arrive PRE-SORTED by 货币/M ascending (best value first). rank 1 (or
+ * isBest) is highlighted: soft accent row + left accent bar + 最佳值 pill.
+ * Numeric columns are right-aligned tabular; the model column is sticky so
+ * names stay readable while the table scrolls horizontally.
+ *
+ * mixLabel (e.g. "缓存90/输入9/输出1") renders as a small muted note above the
+ * table — it is the mix the page used (and recomputes on slider drag) for the
+ * M/货币 · 货币/M columns.
+ */
+import { fmtM } from '../lib/pricing';
+
+interface Row {
+	modelId: string;
+	modelName: string;
+	modelHref: string;
+	price: {
+		input: number;
+		output: number;
+		cacheRead: number | null;
+		cacheWrite: number | null;
+	};
+	credits: number | null; // monthly credits (null for official)
+	quota90: number | null; // millions, published, M(90,9,1)
+	quota95: number | null; // millions, published, M(95,4,1)
+	mPerCur: number | null; // already rounded 1 dp display value
+	curPerM: number | null;
+	rank: number; // position by curPerM ascending (page pre-sorts + ranks)
+	isBest?: boolean; // rank-1 flag for highlight
+}
+
+interface Props {
+	rows: Row[]; // pre-sorted ascending by curPerM (best first)
+	currencySymbol: '$' | '¥'; // display currency for per-1M / per-M column hints
+	mixLabel: string; // e.g. "缓存90/输入9/输出1"
+}
+
+const { rows, currencySymbol, mixLabel } = Astro.props;
+
+/** Price cell — up to 3 decimals, trailing zeros trimmed: 15 / 1.25 / 0.088. */
+function fmtPrice(n: number): string {
+	return n.toFixed(3).replace(/(\.\d*[1-9])0+$|\.0+$/, '$1');
+}
+
+/** Monthly credits — integer, thousands separators, no forced decimals. */
+function fmtCredits(n: number): string {
+	return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+---
+
+<div class="pt-scroll">
+	<div class="pt-inner">
+		{mixLabel && (
+			<div class="pt-meta">
+				<span class="pt-meta-key">折算配比</span>
+				<span class="pt-meta-mix" data-pt-mix>{mixLabel}</span>
+				<span class="pt-meta-note">用于 M/货币 · 货币/M</span>
+			</div>
+		)}
+
+		<table class="provider-table">
+			<caption class="pt-vh">
+				各模型价格与月配额明细，按「货币/M」由低到高排序（越低越优，第 1 行为最佳值）；
+				点击模型名跳转该模型的对比页。
+			</caption>
+
+			<thead>
+				<tr>
+					<th scope="col" class="head head-model">
+						<span class="th-zh">模型</span>
+						<span class="th-en">Model</span>
+					</th>
+					<th scope="col" class="head head-num">
+						<span class="th-zh">输入</span>
+						<span class="th-en">Input · {currencySymbol}/1M</span>
+					</th>
+					<th scope="col" class="head head-num">
+						<span class="th-zh">输出</span>
+						<span class="th-en">Output · {currencySymbol}/1M</span>
+					</th>
+					<th scope="col" class="head head-num">
+						<span class="th-zh">缓存读</span>
+						<span class="th-en">Cache Read · {currencySymbol}/1M</span>
+					</th>
+					<th scope="col" class="head head-num">
+						<span class="th-zh">缓存写</span>
+						<span class="th-en">Cache Write</span>
+					</th>
+					<th scope="col" class="head head-num">
+						<span class="th-zh">月度积分</span>
+						<span class="th-en">Credits</span>
+					</th>
+					<th scope="col" class="head head-num">
+						<span class="th-zh">月额度M(90,9,1)</span>
+						<span class="th-en">Quota M 90/9/1</span>
+					</th>
+					<th scope="col" class="head head-num">
+						<span class="th-zh">月额度M(95,4,1)</span>
+						<span class="th-en">Quota M 95/4/1</span>
+					</th>
+					<th scope="col" class="head head-num">
+						<span class="th-zh">M/货币</span>
+						<span class="th-en">M / {currencySymbol}</span>
+					</th>
+					<th scope="col" class="head head-num">
+						<span class="th-zh">货币/M</span>
+						<span class="th-en">{currencySymbol} / M</span>
+					</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{
+					rows.map((row, i) => {
+						const rank = row.rank ?? i + 1;
+						const best = (row.isBest ?? false) || rank === 1;
+						const numCell = (v: number | null, fmt: (n: number) => string) =>
+							v === null ? (
+								<span class="nil">—</span>
+							) : (
+								<span class="val">{fmt(v)}</span>
+							);
+						return (
+							<tr class:list={{ best }} data-rank={rank}>
+								<td class="cell model">
+									<span class="rank" aria-hidden="true">{rank}</span>
+									<a class="model-link" href={row.modelHref}>
+										<span class="model-name">{row.modelName}</span>
+										<span class="go" aria-hidden="true">详情 →</span>
+									</a>
+									{best && <span class="best-pill">最佳值</span>}
+								</td>
+								<td class="cell num">
+									<span class="val">{fmtPrice(row.price.input)}</span>
+								</td>
+								<td class="cell num">
+									<span class="val">{fmtPrice(row.price.output)}</span>
+								</td>
+								<td class="cell num">{numCell(row.price.cacheRead, fmtPrice)}</td>
+								<td class="cell num">
+									{row.price.cacheWrite === null ? (
+										<span class="nil" title="缓存写未单独计费">—</span>
+									) : (
+										<span class="val">{fmtPrice(row.price.cacheWrite)}</span>
+									)}
+								</td>
+								<td class="cell num">
+									{row.credits === null ? (
+										<span class="nil" title="官方按量计费，无月度积分">—</span>
+									) : (
+										<span class="val">{fmtCredits(row.credits)}</span>
+									)}
+								</td>
+								<td class="cell num">{numCell(row.quota90, fmtM)}</td>
+								<td class="cell num">{numCell(row.quota95, fmtM)}</td>
+								<td class="cell num">
+									{row.mPerCur === null ? (
+										<span class="nil">—</span>
+									) : (
+										<span class="val m-per-cur">{row.mPerCur.toFixed(1)}</span>
+									)}
+								</td>
+								<td class="cell num">
+									{row.curPerM === null ? (
+										<span class="nil">—</span>
+									) : (
+										<span class="val cur-per-m">{row.curPerM.toFixed(1)}</span>
+									)}
+								</td>
+							</tr>
+						);
+					})
+				}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<style>
+	/* Wide-table chrome: bordered, rounded, horizontally scrollable card. */
+	.pt-scroll {
+		overflow-x: auto;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		scrollbar-width: thin;
+	}
+
+	.pt-inner {
+		min-width: 100%;
+		width: max-content;
+	}
+
+	/* Mix note above the table — scrolls along with the columns it explains. */
+	.pt-meta {
+		display: flex;
+		align-items: baseline;
+		justify-content: flex-end;
+		gap: 0.375rem;
+		padding: 0.4375rem 0.875rem 0.3125rem;
+		border-bottom: 1px solid var(--color-border);
+		font-size: 0.75rem;
+		line-height: 1.4;
+		color: var(--color-text-muted);
+		white-space: nowrap;
+	}
+
+	.pt-meta-mix {
+		color: var(--color-text);
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* Visually hidden accessible caption. */
+	.pt-vh {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	.provider-table {
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0;
+		font-size: 0.8125rem;
+		line-height: 1.45;
+		color: var(--color-text);
+	}
+
+	.provider-table th,
+	.provider-table td {
+		padding: 0.4375rem 0.75rem;
+		text-align: left;
+	}
+
+	/* Sticky header row (scrolls vertically never; sticks under page header). */
+	.provider-table thead th {
+		position: sticky;
+		top: 0;
+		z-index: 2;
+		background: var(--color-surface);
+		vertical-align: bottom;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	/* Numeric headers align over their right-aligned columns. */
+	.provider-table th.head-num {
+		text-align: right;
+	}
+
+	.th-zh {
+		display: block;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: var(--color-text);
+		white-space: nowrap;
+	}
+
+	.th-en {
+		display: block;
+		font-size: 0.65625rem;
+		font-weight: 500;
+		letter-spacing: 0.01em;
+		color: var(--color-text-muted);
+		white-space: nowrap;
+	}
+
+	/* Sticky first column: name survives horizontal scroll. */
+	.provider-table th.head-model,
+	.provider-table td.model {
+		position: sticky;
+		left: 0;
+		z-index: 1;
+		border-right: 1px solid var(--color-border);
+	}
+
+	.provider-table thead th.head-model {
+		z-index: 3;
+		background: var(--color-surface);
+	}
+
+	.provider-table tbody td {
+		border-top: 1px solid var(--color-border);
+		white-space: nowrap;
+		background: var(--color-surface);
+		transition: background 150ms ease;
+	}
+
+	.provider-table tbody tr:first-child td {
+		border-top: 0;
+	}
+
+	/* Row hover affordance (sticky cell needs its own hover background). */
+	.provider-table tbody tr:hover td {
+		background: color-mix(in srgb, var(--color-accent-soft) 30%, var(--color-surface));
+	}
+
+	/* — Best value row: soft accent wash across the row. */
+	.provider-table tbody tr.best td {
+		background: color-mix(in srgb, var(--color-accent-soft) 45%, var(--color-surface));
+	}
+
+	.provider-table tbody tr.best td.model {
+		box-shadow: inset 3px 0 0 0 var(--color-accent);
+	}
+
+	.provider-table tbody tr.best:hover td {
+		background: color-mix(in srgb, var(--color-accent-soft) 58%, var(--color-surface));
+	}
+
+	td.cell {
+		vertical-align: middle;
+	}
+
+	td.num {
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.val {
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* Emphasis for the two value columns driven by the mix. */
+	.m-per-cur,
+	.cur-per-m {
+		color: var(--color-text);
+		font-weight: 600;
+	}
+
+	.nil {
+		color: var(--color-text-muted);
+	}
+
+	/* Model cell: rank number + linked name + trailing affordance + pill. */
+	td.model {
+		min-width: 14rem;
+	}
+
+	.rank {
+		display: inline-block;
+		min-width: 1.125rem;
+		margin-right: 0.5rem;
+		color: var(--color-text-muted);
+		font-variant-numeric: tabular-nums;
+		font-weight: 500;
+		text-align: right;
+	}
+
+	tr.best .rank {
+		color: var(--color-accent);
+		font-weight: 700;
+	}
+
+	.model-link {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.3125rem;
+		color: var(--color-text);
+		text-decoration: none;
+		font-weight: 500;
+	}
+
+	.model-name {
+		display: inline-block;
+		max-width: 14rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		vertical-align: bottom;
+	}
+
+	.model-link:hover {
+		color: var(--color-accent);
+	}
+
+	.go {
+		color: var(--color-text-muted);
+		font-size: 0.75rem;
+		white-space: nowrap;
+		opacity: 0;
+		transform: translateX(-0.1875rem);
+		transition:
+			opacity 150ms ease,
+			transform 150ms ease;
+	}
+
+	tr:hover .go {
+		opacity: 1;
+		transform: translateX(0);
+	}
+
+	.model-link:hover .go {
+		color: var(--color-accent);
+	}
+
+	.best-pill {
+		margin-left: 0.5rem;
+		display: inline-flex;
+		align-items: center;
+		padding: 0 0.4375rem;
+		border-radius: 9999px;
+		border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+		background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+		color: var(--color-accent);
+		font-size: 0.625rem;
+		line-height: 1.5;
+		font-weight: 600;
+		white-space: nowrap;
+		vertical-align: middle;
+	}
+</style>

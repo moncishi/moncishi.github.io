@@ -1,0 +1,308 @@
+---
+/**
+ * ProviderCard — one card per subscription provider in the provider grid.
+ *
+ * PURE display leaf: the page layer computes every value. No data fetching.
+ *
+ * Props:
+ *  - provider:   { id, name, kind, description? } — kind drives the Badge.
+ *  - topModels:  the provider's TOP-3 models by global $/M ranking, already
+ *                sorted ascending $/M. Only up to 3 are shown (slice is
+ *                defensive). Each row = circular global-rank badge + model
+ *                name (links to modelHref) + $/M right-aligned.
+ *  - detailHref: link target for the title and the 查看详情 footer.
+ *
+ * Renders:
+ *   header  — provider name + kind <Badge>
+ *   body    — description clamped to 2 lines + 排行最佳 mini-list (≤3 rows)
+ *   footer  — 查看详情 →
+ *
+ * Prices are rendered server-side as static text (the given currencyPerM is a
+ * pre-computed display value), so no data-price/currency machinery here.
+ */
+import Badge from './Badge.astro';
+
+interface ProviderTopModel {
+	modelId: string;
+	modelName: string;
+	rank: number; // global rank of this model by $/M among ALL provider-model combos
+	currencyPerM: number | null; // display value (1 decimal)
+	modelHref: string; // /models/[id]
+}
+
+interface Props {
+	provider: {
+		id: string;
+		name: string;
+		kind: 'official' | 'subscription';
+		description?: string;
+	};
+	topModels: ProviderTopModel[]; // already the top 3, sorted ascending $/M
+	detailHref: string; // /providers/[id]
+}
+
+const { provider, topModels = [], detailHref } = Astro.props;
+
+// Defensive: never show more than the top 3 of THIS provider.
+const models = topModels.slice(0, 3);
+
+// 1-decimal display; null/absent value renders as a muted dash.
+function formatPrice(value: number | null): string {
+	return value === null || value === undefined ? '—' : `$${value.toFixed(1)}`;
+}
+---
+
+<article class="provider-card">
+	<header class="pc-head">
+		<h3 class="pc-title">
+			<a href={detailHref} class="pc-title-link">{provider.name}</a>
+		</h3>
+		<Badge kind={provider.kind} />
+	</header>
+
+	{
+		provider.description && <p class="pc-desc">{provider.description}</p>
+	}
+
+	{
+		models.length > 0 && (
+			<section class="pc-models" aria-label="排行最佳">
+				<span class="pc-section-label">排行最佳</span>
+				<ul class="pc-model-list">
+					{
+						models.map((model) => (
+							<li class="pc-model-row">
+								<span
+									class="pc-rank"
+									title={`全球 $/M 第 ${model.rank} 名`}
+									aria-hidden="true"
+								>
+									{model.rank}
+								</span>
+								<a class="pc-model-name" href={model.modelHref}>
+									{model.modelName}
+								</a>
+								<span class="pc-price">
+									<span
+										class:list={{
+											'pc-price-value': true,
+											'is-null': model.currencyPerM === null || model.currencyPerM === undefined,
+										}}
+									>
+										{formatPrice(model.currencyPerM)}
+									</span>
+									<span class="pc-price-unit">/M</span>
+								</span>
+							</li>
+						))
+					}
+				</ul>
+			</section>
+		)
+	}
+
+	<footer class="pc-footer">
+		<a class="pc-detail" href={detailHref}>
+			查看详情
+			<span class="pc-detail-arrow" aria-hidden="true">→</span>
+		</a>
+	</footer>
+</article>
+
+<style>
+	.provider-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		height: 100%;
+		padding: 1rem 1.125rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		box-shadow: var(--shadow-card);
+		transition:
+			border-color 150ms ease,
+			box-shadow 150ms ease;
+	}
+
+	.provider-card:hover {
+		border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+		box-shadow:
+			0 4px 14px rgb(0 0 0 / 0.08),
+			0 2px 4px rgb(0 0 0 / 0.04);
+	}
+
+	.pc-head {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.pc-title {
+		margin: 0;
+		font-size: 1rem;
+		line-height: 1.4;
+		font-weight: 700;
+		min-width: 0;
+	}
+
+	.pc-title-link {
+		color: var(--color-text);
+		text-decoration: none;
+		transition: color 150ms ease;
+	}
+
+	.provider-card:hover .pc-title-link,
+	.pc-title-link:hover {
+		color: var(--color-accent);
+	}
+
+	.pc-desc {
+		margin: 0;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: var(--color-text-muted);
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+
+	.pc-models {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4375rem;
+	}
+
+	.pc-section-label {
+		font-size: 0.6875rem;
+		line-height: 1.4;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		color: var(--color-text-muted);
+	}
+
+	.pc-model-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.3125rem;
+	}
+
+	.pc-model-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		min-width: 0;
+		padding: 0.1875rem 0.25rem;
+		margin: -0.1875rem -0.25rem;
+		border-radius: 0.375rem;
+		transition: background 150ms ease;
+	}
+
+	.pc-model-row:hover {
+		background: color-mix(in srgb, var(--color-accent-soft) 45%, transparent);
+	}
+
+	/* Circular global-rank badge — small circle holding the number. */
+	.pc-rank {
+		flex: none;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.25rem;
+		height: 1.25rem;
+		border-radius: 50%;
+		background: var(--color-accent-soft);
+		color: var(--color-accent);
+		font-size: 0.6875rem;
+		font-weight: 600;
+		line-height: 1;
+		font-variant-numeric: tabular-nums;
+		user-select: none;
+	}
+
+	.pc-model-name {
+		flex: 1 1 auto;
+		min-width: 0;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		font-weight: 500;
+		color: var(--color-text);
+		text-decoration: none;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		transition: color 150ms ease;
+	}
+
+	.pc-model-row:hover .pc-model-name,
+	.pc-model-name:hover {
+		color: var(--color-accent);
+	}
+
+	.pc-price {
+		flex: none;
+		margin-left: auto;
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.0625rem;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+		color: var(--color-text);
+		white-space: nowrap;
+	}
+
+	.pc-price-value {
+		color: var(--color-text);
+	}
+
+	.pc-price-value.is-null {
+		color: var(--color-text-muted);
+	}
+
+	.pc-price-unit {
+		font-size: 0.6875rem;
+		font-weight: 500;
+		color: var(--color-text-muted);
+	}
+
+	.pc-footer {
+		margin-top: auto;
+		display: flex;
+		align-items: center;
+		padding-top: 0.625rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.pc-detail {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3125rem;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		font-weight: 600;
+		color: var(--color-accent);
+		text-decoration: none;
+		transition: gap 150ms ease;
+	}
+
+	.pc-detail-arrow {
+		font-size: 0.875rem;
+		line-height: 1;
+		transition: transform 150ms ease;
+	}
+
+	.pc-detail:hover {
+		gap: 0.5rem;
+	}
+
+	.pc-detail:hover .pc-detail-arrow {
+		transform: translateX(0.1875rem);
+	}
+</style>

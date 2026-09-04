@@ -1,0 +1,140 @@
+---
+/**
+ * PostCard — one clickable blog-post row.
+ *
+ * Props:
+ *  - post: either a plain shaped object { title, description, pubDate, slug }
+ *    OR a blog content-collection entry (id + data). Both are normalized.
+ *
+ * Renders a stacked row: muted date (YYYY-MM-DD) on the left, bold title
+ * with one-line description underneath, trailing "→". The whole row links
+ * to `/blog/{slug}`.
+ */
+
+interface PostShape {
+	title: string;
+	description: string;
+	pubDate: Date;
+	slug: string;
+}
+
+interface CollectionEntryShape {
+	id: string;
+	data: Omit<PostShape, 'slug'>;
+}
+
+interface Props {
+	post: PostShape | CollectionEntryShape;
+}
+
+const { post } = Astro.props;
+
+const isEntry = 'data' in post && typeof post.data === 'object';
+
+const title = isEntry ? post.data.title : post.title;
+const description = isEntry ? post.data.description : post.description;
+const pubDate = isEntry ? post.data.pubDate : post.pubDate;
+const slug = isEntry ? post.id : post.slug;
+
+// zh-friendly fixed-width date (no locale drift)
+const y = pubDate.getFullYear();
+const m = String(pubDate.getMonth() + 1).padStart(2, '0');
+const d = String(pubDate.getDate()).padStart(2, '0');
+const dateStr = `${y}-${m}-${d}`;
+
+const href = `/blog/${slug}`;
+---
+
+<li>
+	<a class="post-row" href={href}>
+		<time class="post-date" datetime={dateStr}>{dateStr}</time>
+
+		<span class="post-main">
+			<span class="post-title">{title}</span>
+			<span class="post-desc">{description}</span>
+		</span>
+
+		<span class="post-arrow" aria-hidden="true">→</span>
+	</a>
+</li>
+
+<style>
+	li {
+		list-style: none;
+	}
+
+	.post-row {
+		display: flex;
+		align-items: center;
+		gap: 1.25rem;
+		width: 100%;
+		padding: 0.875rem 0.75rem;
+		border-radius: 0.5rem;
+		border-bottom: 1px solid var(--color-border);
+		text-decoration: none;
+		transition:
+			background 150ms ease,
+			border-color 150ms ease;
+	}
+
+	/* Hairline between rows; drop the trailing one when this row is last. */
+	.post-row:last-child {
+		border-bottom-color: transparent;
+	}
+
+	.post-row:hover {
+		background: color-mix(in srgb, var(--color-accent-soft) 45%, transparent);
+	}
+
+	.post-row:hover .post-date {
+		color: var(--color-accent);
+	}
+
+	.post-row:hover .post-arrow {
+		transform: translateX(0.1875rem);
+		color: var(--color-accent);
+	}
+
+	.post-date {
+		flex: none;
+		min-width: 6.5rem;
+		font-size: 0.8125rem;
+		font-variant-numeric: tabular-nums;
+		color: var(--color-text-muted);
+		transition: color 150ms ease;
+	}
+
+	.post-main {
+		flex: 1 1 auto;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.1875rem;
+	}
+
+	.post-title {
+		font-weight: 600;
+		font-size: 0.9375rem;
+		color: var(--color-text);
+		line-height: 1.45;
+	}
+
+	.post-desc {
+		font-size: 0.8125rem;
+		color: var(--color-text-muted);
+		line-height: 1.5;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.post-arrow {
+		flex: none;
+		margin-left: auto;
+		font-size: 0.9375rem;
+		color: var(--color-text-muted);
+		transition:
+			transform 150ms ease,
+			color 150ms ease;
+	}
+</style>

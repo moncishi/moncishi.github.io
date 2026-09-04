@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+/* Design tokens — light theme */
+:root {
+	--color-bg: #f5f7fa;
+	--color-surface: #ffffff;
+	--color-accent: #2563eb;
+	--color-accent-soft: #dbeafe;
+	--color-border: #e5e7eb;
+	--color-text: #111827;
+	--color-text-muted: #6b7280;
+	--color-official: #16a34a;
+	--color-subscription: #2563eb;
+
+	--radius-card: 0.75rem;
+	--shadow-card: 0 1px 3px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+/* Dark-mode placeholder: set data-theme="dark" on <html> to flip.
+   No switching logic here — overrides only. */
+[data-theme="dark"] {
+	--color-bg: #0f172a;
+	--color-surface: #1e293b;
+	--color-accent: #3b82f6;
+	--color-accent-soft: #1e3a8a;
+	--color-border: #334155;
+	--color-text: #f1f5f9;
+	--color-text-muted: #94a3b8;
+	--color-official: #22c55e;
+	--color-subscription: #3b82f6;
+
+	--radius-card: 0.75rem;
+	--shadow-card: 0 1px 3px rgb(0 0 0 / 0.4), 0 1px 2px rgb(0 0 0 / 0.2);
+}
+
+/* Tiny shared component classes */
+.card {
+	background: var(--color-surface);
+	border-radius: var(--radius-card);
+	box-shadow: var(--shadow-card);
+}

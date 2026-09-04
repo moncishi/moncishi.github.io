@@ -1,0 +1,115 @@
+---
+/**
+ * Site-wide layout shell.
+ *
+ * Props:
+ *  - title: required page title, rendered in <title> as "title · 模型聚合".
+ *  - description: optional meta description.
+ *  - activeNav: which Nav link is active: 'home' | 'providers' | 'models' | 'blog'.
+ */
+import Nav from '../components/Nav.astro';
+import '../styles/global.css';
+
+interface Props {
+	title: string;
+	description?: string;
+	activeNav?: 'home' | 'providers' | 'models' | 'blog';
+}
+
+const { title, description = '模型聚合 · 订阅方案对比', activeNav } = Astro.props;
+const siteTitle = `${title} · 模型聚合`;
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{siteTitle}</title>
+		{description && <meta name="description" content={description} />}
+	</head>
+	<body>
+		<Nav active={activeNav} />
+		<main>
+			<slot />
+		</main>
+		<footer>
+			<slot name="footer" />
+			<nav aria-label="页脚">
+				<a href="#">价格说明</a>
+				<span aria-hidden="true">·</span>
+				<a href="#">排行方法</a>
+				<span aria-hidden="true">·</span>
+				<a href="#">数据来源</a>
+			</nav>
+			<p class="footer-note">数据仅供参考，请以各家官网为准。</p>
+		</footer>
+		<script is:inline>
+			// Mount point for currency & theme switching (CurrencyToggle.astro owns
+			// the controls; here we only drive the <html> data-attributes from
+			// localStorage before first paint to avoid theme/currency flashes).
+			(function () {
+				var root = document.documentElement;
+				try {
+					var currency = localStorage.getItem('currency');
+					root.dataset.currency = currency === 'CNY' ? 'CNY' : 'USD';
+
+					var theme = localStorage.getItem('theme');
+					root.dataset.theme = theme === 'dark' ? 'dark' : 'light';
+				} catch (e) {
+					root.dataset.currency = 'USD';
+					root.dataset.theme = 'light';
+				}
+			})();
+		</script>
+		<style>
+			:global(body) {
+				display: flex;
+				flex-direction: column;
+				min-height: 100vh;
+				margin: 0;
+				background: var(--color-bg);
+				color: var(--color-text);
+			}
+
+			:global(main) {
+				flex: 1;
+				width: 100%;
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 2rem 1.5rem 3rem;
+				box-sizing: border-box;
+			}
+
+			:global(footer) {
+				padding: 1.5rem;
+				font-size: 0.875rem;
+				color: var(--color-text-muted);
+			}
+
+			footer nav {
+				display: flex;
+				justify-content: center;
+				gap: 0.5rem;
+				align-items: center;
+			}
+
+			footer a {
+				color: var(--color-text-muted);
+				text-decoration: none;
+			}
+
+			footer a:hover {
+				color: var(--color-accent);
+				text-decoration: underline;
+			}
+
+			.footer-note {
+				text-align: center;
+				margin: 0.75rem 0 0;
+				font-size: 0.75rem;
+			}
+		</style>
+	</body>
+</html>

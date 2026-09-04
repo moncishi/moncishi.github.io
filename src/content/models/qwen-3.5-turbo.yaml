@@ -1,0 +1,9 @@
+id: qwen-3.5-turbo
+name: Qwen-3.5-Turbo
+official:
+  input: 0.7       # mock 官方价（¥/1M，CNY）
+  output: 2.8
+  cacheRead: 0.07
+  cacheWrite: 0
+  currency: CNY
+providers: [opencode-go, qwen-official]

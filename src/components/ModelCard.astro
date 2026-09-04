@@ -1,0 +1,285 @@
+---
+/**
+ * ModelCard — one card per model in the model-list grid (T17).
+ *
+ * PURE display leaf: the page layer computes every value. No data fetching.
+ *
+ * Props:
+ *  - model:          { id, name, official } where official is the FOUR-tier
+ *                    official API price per 1M tokens (¥ CNY official in the
+ *                    models yaml; currency may still be USD for some models).
+ *                    cacheRead / cacheWrite are nullable — null = 不单列/未提供.
+ *  - providerNames:  human labels of the providers carrying this model
+ *                    (e.g. ['Command Code Goat', '智谱官方']). Capped at ~4
+ *                    visible chips; the remainder collapses into one "+N".
+ *  - detailHref:     /models/[id] — the WHOLE card links there.
+ *
+ * Renders:
+ *   title      — model name (h3 inside the card-wide link)
+ *   2×2 prices — grid labeled 输入 / 输出 / 缓存读 / 缓存写. Top two cells are
+ *                prominent (label above a large price), bottom two compact
+ *                (inline label + price, thinner). All prices get the ¥ / $
+ *                prefix from official.currency.
+ *   cacheWrite — special-cased: 0 reads as 免费 and null reads as —; both are
+ *                styled muted. Input / output / cacheRead fall back to — for
+ *                null (fmtMoney already does this).
+ *   chips      — provider availability pills (muted), cap ~4 with +N.
+ *
+ * Prices render server-side as static text; this card is a pure display leaf
+ * like ProviderCard, so it carries no data-price / currency machinery.
+ */
+import { fmtMoney, type Currency } from '../lib/pricing';
+
+interface ModelProps {
+	id: string;
+	name: string;
+	official: {
+		input: number;
+		output: number;
+		cacheRead: number | null;
+		cacheWrite: number | null;
+		currency: Currency;
+	};
+}
+
+interface Props {
+	model: ModelProps;
+	providerNames: string[];
+	detailHref: string;
+}
+
+const { model, providerNames = [], detailHref } = Astro.props;
+const { official } = model;
+const currency = official.currency;
+
+/** Visible chip cap including the trailing "+N" pill when truncated. */
+const MAX_CHIPS = 4;
+const moreCount =
+	providerNames.length > MAX_CHIPS ? providerNames.length - (MAX_CHIPS - 1) : 0;
+const shownNames = moreCount > 0 ? providerNames.slice(0, MAX_CHIPS - 1) : providerNames;
+
+/** Two prominent cells: label stacked above a large price. */
+const primaryCells = [
+	{ label: '输入', value: fmtMoney(official.input, currency) },
+	{ label: '输出', value: fmtMoney(official.output, currency) },
+] as const;
+
+/**
+ * cacheWrite cell text: 0 means no separate write fee → 免费; null means the
+ * fee is not itemized → —; anything else renders as a normal price.
+ */
+function cacheWriteText(value: number | null): string {
+	if (value === null) return '—';
+	if (value === 0) return '免费';
+	return fmtMoney(value, currency);
+}
+
+/** Two compact cells: inline label + price on one line. */
+const secondaryCells = [
+	{ label: '缓存读', value: fmtMoney(official.cacheRead, currency), muted: official.cacheRead === null },
+	{ label: '缓存写', value: cacheWriteText(official.cacheWrite), muted: official.cacheWrite === null || official.cacheWrite === 0 },
+] as const;
+---
+
+<article>
+	<a class="model-card" href={detailHref}>
+		<h3 class="mc-title">{model.name}</h3>
+
+		<dl class="mc-prices" aria-label="官方价格">
+			{
+				primaryCells.map((cell) => (
+					<div class="mc-cell mc-cell--primary">
+						<dt class="mc-label">{cell.label}</dt>
+						<dd class="mc-value">{cell.value}</dd>
+					</div>
+				))
+			}
+			{
+				secondaryCells.map((cell) => (
+					<div class="mc-cell mc-cell--compact">
+						<dt class="mc-label">{cell.label}</dt>
+						<dd class:list={{ 'mc-value': true, 'is-muted': cell.muted }}>{cell.value}</dd>
+					</div>
+				))
+			}
+		</dl>
+
+		{
+			providerNames.length > 0 && (
+				<footer class="mc-foot">
+					<ul class="mc-chips">
+						{
+							shownNames.map((name) => (
+								<li class="mc-chip">{name}</li>
+							))
+						}
+						{
+							moreCount > 0 && (
+								<li class="mc-chip mc-chip--more" title={`另有 ${moreCount} 个提供商`}>
+									+{moreCount}
+								</li>
+							)
+						}
+					</ul>
+				</footer>
+			)
+		}
+	</a>
+</article>
+
+<style>
+	.model-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+		height: 100%;
+		padding: 0.875rem 0.875rem 0.75rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		box-shadow: var(--shadow-card);
+		color: inherit;
+		text-decoration: none;
+		transition:
+			border-color 150ms ease,
+			box-shadow 150ms ease;
+	}
+
+	.model-card:hover {
+		border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+		box-shadow:
+			0 4px 14px rgb(0 0 0 / 0.08),
+			0 2px 4px rgb(0 0 0 / 0.04);
+	}
+
+	.mc-title {
+		margin: 0;
+		font-size: 0.9375rem;
+		line-height: 1.4;
+		font-weight: 700;
+		color: var(--color-text);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		transition: color 150ms ease;
+	}
+
+	.model-card:hover .mc-title {
+		color: var(--color-accent);
+	}
+
+	/* 2×2 price grid — hairlines drawn as per-cell borders so the outer
+	   ring (grid border) and the inner dividers never double up. */
+	.mc-prices {
+		margin: 0;
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		border: 1px solid var(--color-border);
+		border-radius: 0.5rem;
+		overflow: hidden;
+	}
+
+	/* Column divider (input | output, 缓存读 | 缓存写). */
+	.mc-cell:nth-child(odd) {
+		border-right: 1px solid var(--color-border);
+	}
+
+	/* Row divider under 输入 / 输出. */
+	.mc-cell:nth-child(n + 3) {
+		border-top: 1px solid var(--color-border);
+	}
+
+	.mc-cell {
+		display: flex;
+		min-width: 0;
+		background: color-mix(in srgb, var(--color-text-muted) 3%, var(--color-surface));
+	}
+
+	/* Prominent top cells: label above a large price. */
+	.mc-cell--primary {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.125rem;
+		padding: 0.5rem 0.75rem 0.625rem;
+	}
+
+	/* Compact bottom cells: label and price inline on one baseline. */
+	.mc-cell--compact {
+		flex-direction: row;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.5rem;
+		padding: 0.375rem 0.75rem;
+	}
+
+	.mc-label {
+		font-size: 0.6875rem;
+		line-height: 1.4;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		color: var(--color-text-muted);
+		white-space: nowrap;
+	}
+
+	.mc-value {
+		margin: 0;
+		font-variant-numeric: tabular-nums;
+		color: var(--color-text);
+		white-space: nowrap;
+	}
+
+	.mc-cell--primary .mc-value {
+		font-size: 1rem;
+		line-height: 1.4;
+		font-weight: 700;
+	}
+
+	.mc-cell--compact .mc-value {
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		font-weight: 600;
+	}
+
+	/* null → — and cacheWrite 0 → 免费 read as muted placeholders. */
+	.mc-value.is-muted {
+		color: var(--color-text-muted);
+		font-weight: 500;
+	}
+
+	.mc-foot {
+		margin-top: auto;
+	}
+
+	.mc-chips {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3125rem;
+	}
+
+	.mc-chip {
+		display: inline-flex;
+		align-items: center;
+		max-width: 100%;
+		padding: 0.0625rem 0.5rem;
+		border-radius: 9999px;
+		border: 1px solid var(--color-border);
+		background: color-mix(in srgb, var(--color-text-muted) 6%, transparent);
+		font-size: 0.6875rem;
+		line-height: 1.6;
+		font-weight: 500;
+		color: var(--color-text-muted);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		user-select: none;
+	}
+
+	.mc-chip--more {
+		background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+		border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+		color: var(--color-accent);
+	}
+</style>

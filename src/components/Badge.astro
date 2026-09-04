@@ -1,0 +1,54 @@
+---
+/**
+ * Badge — small pill tagging a provider kind.
+ *
+ * Props:
+ *  - kind: 'official' | 'subscription' — maps to the design tokens
+ *    --color-official (green) / --color-subscription (blue).
+ *  - label: optional override for the pill text. Defaults to 官方 for
+ *    'official' and 订阅聚合 for 'subscription'.
+ *
+ * Unknown kinds render nothing (null), so callers never see a stray gray pill.
+ */
+interface Props {
+	kind?: 'official' | 'subscription';
+	label?: string;
+}
+
+const { kind, label } = Astro.props;
+
+const KIND_META = {
+	official: { text: '官方', color: 'var(--color-official)' },
+	subscription: { text: '订阅聚合', color: 'var(--color-subscription)' },
+} as const;
+
+const meta = kind ? KIND_META[kind] : undefined;
+---
+
+{
+	meta && (
+		<span
+			class="badge"
+			style={`--badge-color: ${meta.color}; color: ${meta.color};`}
+		>
+			{label ?? meta.text}
+		</span>
+	)
+}
+
+<style>
+	.badge {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.0625rem 0.4375rem;
+		border-radius: 9999px;
+		border: 1px solid color-mix(in srgb, var(--badge-color) 35%, transparent);
+		background: color-mix(in srgb, var(--badge-color) 12%, transparent);
+		font-size: 0.75rem;
+		line-height: 1.4;
+		font-weight: 500;
+		letter-spacing: 0.01em;
+		white-space: nowrap;
+		user-select: none;
+	}
+</style>

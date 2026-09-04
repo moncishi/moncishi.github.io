@@ -1,0 +1,9 @@
+id: glm-5.2
+name: GLM-5.2
+official:
+  input: 15        # mock 官方价（¥/1M，CNY）
+  output: 55
+  cacheRead: 1.5
+  cacheWrite: 0
+  currency: CNY
+providers: [command-code-goat, nvidia-aggregator, glm-official]

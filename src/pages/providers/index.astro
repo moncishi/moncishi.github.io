@@ -1,0 +1,179 @@
+---
+/**
+ * /providers — 订阅商列表页（concept 02-provider-list-desktop-v2）。
+ *
+ * One card per provider: 名称 + kind 徽标 + 简介 + 「排行最佳」TOP-3 模型
+ * （全球 $/M 排名徽标 + 模型名 + $/M）+ 查看详情。卡片上方的 SearchBox 按
+ * 关键词实时过滤网格（data-search 命中即显示）。
+ *
+ * 排名来源：全局价值榜 getGlobalLeaderboard(DEFAULT_MIX, 'USD') —— 每个
+ * (provider, model) 组合按 RAW curPerM 升序得到一个 1-based 全球名次。只把
+ * 「本 provider 自己的组合」在榜上的名次取出来，升序取前 3。
+ * 官方（按量）无池子组合，榜上无名 → topModels 为空数组，ProviderCard 内部
+ * 自动不渲染「排行最佳」区块。
+ *
+ * 页面只做数据装配；ProviderCard / SearchBox / Badge 均为纯展示叶子。
+ */
+import Layout from '../../layouts/Layout.astro';
+import ProviderCard from '../../components/ProviderCard.astro';
+import SearchBox from '../../components/SearchBox.astro';
+import { DEFAULT_MIX } from '../../lib/pricing';
+import { getGlobalLeaderboard, getProvidersWithModels } from '../../lib/data';
+
+const [leaderboard, providers] = await Promise.all([
+	getGlobalLeaderboard(DEFAULT_MIX, 'USD'),
+	getProvidersWithModels(),
+]);
+
+// providerId::modelId → { 全球名次, RAW curPerM }（低 curPerM = 第 1 名）。
+const rankByCombo = new Map<string, { rank: number; currencyPerM: number }>();
+for (const entry of leaderboard) {
+	rankByCombo.set(`${entry.providerId}::${entry.modelId}`, {
+		rank: entry.rank,
+		currencyPerM: entry.curPerM,
+	});
+}
+
+const KIND_LABEL = { official: '官方', subscription: '订阅聚合' } as const;
+
+interface CardModel {
+	modelId: string;
+	modelName: string;
+	rank: number;
+	currencyPerM: number;
+	modelHref: string;
+}
+
+const cards = providers.map((p) => {
+	// 该 provider 在榜上的模型行 → 按其全球名次升序，取前 3。
+	const topModels = p.modelRows
+		.map((row): CardModel | null => {
+			const g = rankByCombo.get(`${p.id}::${row.modelId}`);
+			return g
+				? {
+						modelId: row.modelId,
+						modelName: row.modelName,
+						rank: g.rank,
+						currencyPerM: g.currencyPerM,
+						modelHref: `/models/${row.modelId}`,
+					}
+				: null;
+		})
+		.filter((m): m is CardModel => m !== null)
+		.sort((a, b) => a.rank - b.rank)
+		.slice(0, 3);
+
+	// 检索词：名称（中英）+ kind 文案 + 简介 + 该 provider 的“全部”模型名
+	// （不限于 TOP-3 —— 用任意模型名都能把这张卡筛出来）。
+	const searchParts = [
+		p.name,
+		p.nameZh,
+		KIND_LABEL[p.kind],
+		p.description,
+		...p.modelRows.map((row) => row.modelName),
+	].filter((s): s is string => typeof s === 'string' && s.length > 0);
+
+	return {
+		provider: {
+			id: p.id,
+			name: p.name,
+			kind: p.kind,
+			...(p.description !== undefined ? { description: p.description } : {}),
+		},
+		topModels,
+		detailHref: `/providers/${p.id}`,
+		search: searchParts.join(' '),
+	};
+});
+
+const pageTitle = '订阅商';
+const pageDescription = '对比各订阅聚合与官方 API 的模型池、月费与每 M 成本，按全球 $/M 排行查看每家最佳模型';
+---
+
+<Layout title={pageTitle} description={pageDescription} activeNav="providers">
+	<div class="providers-page">
+		<header class="page-head">
+			<h1 class="page-title">订阅商</h1>
+			<p class="page-sub">
+				共 {cards.length} 家服务商 · 按全球 $/M 性价比展示每家排行最佳的模型
+			</p>
+		</header>
+
+		<div class="search-row">
+			<SearchBox targetSelector="#provider-grid" />
+		</div>
+
+		<section id="provider-grid" class="provider-grid" aria-label="订阅商列表">
+			{
+				cards.map((card) => (
+					<div class="grid-item" data-search={card.search}>
+						<ProviderCard
+							provider={card.provider}
+							topModels={card.topModels}
+							detailHref={card.detailHref}
+						/>
+					</div>
+				))
+			}
+		</section>
+	</div>
+</Layout>
+
+<style>
+	.providers-page {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+
+	/* --- Page header ------------------------------------------------------ */
+	.page-head {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+	}
+
+	.page-title {
+		margin: 0;
+		font-size: 1.875rem;
+		font-weight: 800;
+		line-height: 1.25;
+		letter-spacing: -0.01em;
+		color: var(--color-text);
+	}
+
+	.page-sub {
+		margin: 0;
+		font-size: 0.875rem;
+		line-height: 1.6;
+		color: var(--color-text-muted);
+	}
+
+	/* --- Search ----------------------------------------------------------- */
+	.search-row {
+		width: 100%;
+		max-width: 26rem;
+	}
+
+	/* --- Card grid --------------------------------------------------------- */
+	.provider-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+		gap: 1rem;
+		align-items: stretch;
+	}
+
+	/* Grid child that owns data-search; hides wholesale when filtered out.
+	   The ProviderCard inside stretches to full height (card footer aligns). */
+	.grid-item {
+		min-width: 0;
+	}
+
+	.grid-item[data-search] .provider-card {
+		height: 100%;
+	}
+
+	.provider-grid > .grid-item {
+		height: 100%;
+	}
+</style>

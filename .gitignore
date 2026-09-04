@@ -28,3 +28,7 @@ pnpm-debug.log*
 .codegraph
 .skills/
 .vscode/
+
+# AI concept images (never commit generated images)
+.ui-concepts/
+.sensenova_cache/

@@ -1,0 +1,155 @@
+---
+/**
+ * Nav — sticky site header / navigation bar.
+ *
+ * Props:
+ *  - active: which link is highlighted: 'home' | 'providers' | 'models' | 'blog'.
+ *
+ * Rendered exactly once per page by Layout. Imports CurrencyToggle, whose
+ * hoisted script installs the single delegated `[data-price]` currency
+ * updater — so this header being present once guarantees the global
+ * currency mechanism is wired page-wide.
+ */
+import CurrencyToggle from './CurrencyToggle.astro';
+
+interface Props {
+	active?: 'home' | 'providers' | 'models' | 'blog';
+}
+
+const { active } = Astro.props;
+
+const links = [
+	{ href: '/', label: '首页', key: 'home' },
+	{ href: '/providers', label: '订阅商', key: 'providers' },
+	{ href: '/models', label: '模型', key: 'models' },
+	{ href: '/blog', label: '博客', key: 'blog' },
+] as const;
+---
+
+<header class="site-header">
+	<a class="brand" href="/">模型聚合</a>
+
+	<nav class="main-nav" aria-label="主导航">
+		{
+			links.map((link) => (
+				<a
+					class:list={{ 'nav-link': true, active: active === link.key }}
+					href={link.href}
+					aria-current={active === link.key ? 'page' : undefined}
+				>
+					{link.label}
+				</a>
+			))
+		}
+	</nav>
+
+	<div class="nav-controls">
+		<!-- 语言切换（占位）：按钮，无实际逻辑 -->
+		<button type="button" class="lang-toggle" title="语言切换（占位）">
+			中 / EN
+		</button>
+
+		<!-- USD / CNY 切换（真实逻辑，见 CurrencyToggle.astro） -->
+		<CurrencyToggle />
+
+		<!-- 深色模式（占位）：无实际逻辑，未来接入 data-theme -->
+		<button type="button" class="dark-toggle" title="深色模式（占位）" aria-label="深色模式">
+			🌙
+		</button>
+	</div>
+</header>
+
+<style>
+	.site-header {
+		display: flex;
+		align-items: center;
+		gap: 2rem;
+		position: sticky;
+		top: 0;
+		z-index: 10;
+		padding: 0 1.5rem;
+		height: 3.5rem;
+		background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.brand {
+		font-weight: 700;
+		font-size: 1.125rem;
+		color: var(--color-text);
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.brand:hover {
+		color: var(--color-accent);
+	}
+
+	.main-nav {
+		display: flex;
+		gap: 1.5rem;
+	}
+
+	.nav-link {
+		color: var(--color-text-muted);
+		text-decoration: none;
+		font-size: 0.9375rem;
+		padding: 0.25rem 0;
+		border-bottom: 2px solid transparent;
+		transition: color 150ms ease;
+	}
+
+	.nav-link:hover {
+		color: var(--color-text);
+	}
+
+	.nav-link.active {
+		color: var(--color-accent);
+		border-bottom-color: var(--color-accent);
+	}
+
+	.nav-controls {
+		margin-left: auto;
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		user-select: none;
+	}
+
+	/* Control chrome shared by the placeholder toggles (CurrencyToggle
+	   styles its own segment control). */
+	.lang-toggle,
+	.dark-toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.25rem;
+		appearance: none;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: 0.5rem;
+		padding: 0.25rem 0.625rem;
+		min-height: 1.625rem;
+		font: inherit;
+		font-size: 0.75rem;
+		line-height: 1.5;
+		font-weight: 500;
+		letter-spacing: 0.01em;
+		color: var(--color-text-muted);
+		cursor: pointer;
+		white-space: nowrap;
+	}
+
+	.lang-toggle:hover,
+	.dark-toggle:hover {
+		color: var(--color-text);
+		border-color: var(--color-text-muted);
+	}
+
+	.dark-toggle {
+		font-size: 0.875rem;
+		line-height: 1.25;
+	}
+</style>

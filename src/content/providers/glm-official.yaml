@@ -1,0 +1,30 @@
+# GLM 官方 API（智谱官方）— mock 数据，非真实报价
+# kind: official —— 按量计费，无月费（billing.baseFee 0），无 credits 池。
+# 官方价按 ¥/1M 计（CNY），quota/credits 不适用（记 null / 缺省）。
+id: glm-official
+name: GLM Official API
+nameZh: GLM 官方 API（智谱）
+kind: official
+currency: CNY
+description: >-
+  mock 数据（虚构）：GLM 系列模型的官方按量 API 入口。纯按 token 计费（¥/百万），
+  无月费、无资源池，价格随用随付。此处所有 ¥ 价格均为虚构示例，用于本站比价演示，
+  不代表真实官方定价。
+billing:
+  baseFee: 0
+models:
+  - modelId: glm-5.2
+    input: 15
+    output: 55
+    cacheRead: 1.5
+    cacheWrite: 0
+  - modelId: glm-5.2-flash
+    input: 2
+    output: 8
+    cacheRead: 0.2
+    cacheWrite: 0
+  - modelId: glm-5.2-turbo
+    input: 1.2
+    output: 4.8
+    cacheRead: 0.12
+    cacheWrite: 0

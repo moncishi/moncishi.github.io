@@ -1,0 +1,177 @@
+---
+/**
+ * CurrencyToggle — USD / CNY switcher.
+ *
+ * Site prices are rendered with BOTH values so the client can flip at
+ * runtime without a server round-trip:
+ *
+ *   <span data-price data-usd="8.00" data-cny="57.60" data-format="...">…</span>
+ *
+ * Contract (this is the mechanism other components must rely on):
+ *   1. <html data-currency="USD|CNY">  — the single source of truth. Layout
+ *      pre-hydrates it from localStorage before first paint.
+ *   2. Every price node carries `data-price` plus both `data-usd` / `data-cny`
+ *      (numbers or pre-formatted display strings). On toggle this component
+ *      swaps each node's text from the matching attribute.
+ *   3. A `currencychange` CustomEvent (detail.currency) fires on `window` so
+ *      any richer component (e.g. charts/rates) can listen and re-render.
+ *
+ * The updater below is a DELEGATED document-level listener: Nav renders this
+ * component once, so the listener is installed exactly once per page.
+ *
+ * Styling note: this is a `<div role="group">` segment control using CSS vars,
+ * matching Nav's controls. Currency rows elsewhere on the page can flip via
+ * CSS alone: `[data-currency="CNY"] .official-price { display:none }` etc.
+ */
+---
+
+<div
+	class="currency-switch"
+	role="group"
+	aria-label="货币切换"
+	title="切换 USD / CNY"
+>
+	<button
+		type="button"
+		class="currency-option"
+		data-currency-option="USD"
+		aria-pressed="true"
+	>
+		USD
+	</button>
+	<button
+		type="button"
+		class="currency-option"
+		data-currency-option="CNY"
+		aria-pressed="false"
+	>
+		CNY
+	</button>
+</div>
+
+<script>
+	(function () {
+		// Normalise whatever Layout painted on <html> to USD|CNY.
+		function current() {
+			return document.documentElement.dataset.currency === 'CNY' ? 'CNY' : 'USD';
+		}
+
+		// Parse data-usd/data-cny. Callers decide whether the value makes sense
+		// in the target currency (price-type hints live in the data-* payload).
+		function num(v) {
+			var n = parseFloat(v);
+			return Number.isFinite(n) ? n : null;
+		}
+
+		// If attributes hold pre-formatted display strings (e.g. "¥57.60"),
+		// keep them verbatim; otherwise format from a number.
+		function display(currency, node) {
+			var raw = node.getAttribute('data-' + currency.toLowerCase());
+			var n = num(raw);
+			if (n === null) return null; // attribute absent or unparseable → skip
+			if (raw !== String(n)) return raw; // already formatted (contains "¥", "$", digits+symbols…)
+			if (currency === 'CNY') return '¥' + n;
+			return '$' + n;
+		}
+
+		// The delegated updater: re-render every [data-price] node for the
+		// current currency. Runs on every toggle AND after first load so the
+		// DOM is consistent with <html data-currency> even when a page renders
+		// its server-side default and Layout can't reach it.
+		function render(currency) {
+			var nodes = document.querySelectorAll('[data-price]');
+			for (var i = 0; i < nodes.length; i++) {
+				var node = nodes[i];
+				var text = display(currency, node);
+				if (text !== null) node.textContent = text;
+			}
+		}
+
+		function setCurrency(next) {
+			if (next === current()) return;
+			document.documentElement.dataset.currency = next;
+			try {
+				localStorage.setItem('currency', next);
+			} catch (e) {
+				/* private mode / storage blocked — session-only is fine */
+			}
+			// Announce so price rows NOT using the data-price convention and
+			// any client-side tables/charts can react.
+			window.dispatchEvent(
+				new CustomEvent('currencychange', { detail: { currency: next } })
+			);
+			render(next);
+		}
+
+		function sync() {
+			var cur = current();
+			var opts = document.querySelectorAll('[data-currency-option]');
+			for (var i = 0; i < opts.length; i++) {
+				var opt = opts[i];
+				var pressed = opt.getAttribute('data-currency-option') === cur;
+				opt.setAttribute('aria-pressed', String(pressed));
+			}
+			render(cur);
+		}
+
+		// One delegated listener: a click anywhere on the segment flips, so a
+		// re-render / client-side router that replaces buttons keeps working.
+		document.addEventListener('click', function (e) {
+			var target = e.target;
+			if (!(target instanceof Element)) return;
+			var btn = target.closest('[data-currency-option]');
+			if (!btn) return;
+			var next = btn.getAttribute('data-currency-option');
+			if (next !== 'USD' && next !== 'CNY') return;
+			setCurrency(next);
+		});
+
+		// Also react if something else flips the html attribute directly
+		// (another component / future pref).
+		document.documentElement.addEventListener('change', function (e) {
+			if (e.target === document.documentElement) sync();
+		});
+
+		sync();
+	})();
+</script>
+
+<style>
+	.currency-switch {
+		display: inline-flex;
+		align-items: stretch;
+		border: 1px solid var(--color-border);
+		border-radius: 0.5rem;
+		overflow: hidden;
+		background: var(--color-surface);
+	}
+
+	.currency-option {
+		appearance: none;
+		background: transparent;
+		border: 0;
+		padding: 0.25rem 0.625rem;
+		font: inherit;
+		font-size: 0.75rem;
+		line-height: 1.5;
+		font-weight: 500;
+		letter-spacing: 0.01em;
+		color: var(--color-text-muted);
+		cursor: pointer;
+		white-space: nowrap;
+	}
+
+	.currency-option + .currency-option {
+		border-left: 1px solid var(--color-border);
+	}
+
+	.currency-option:hover {
+		color: var(--color-text);
+	}
+
+	.currency-option[aria-pressed='true'] {
+		background: var(--color-accent);
+		border-color: var(--color-accent);
+		color: #ffffff;
+	}
+</style>

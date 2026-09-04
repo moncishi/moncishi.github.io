@@ -1,17 +1,338 @@
 ---
+/**
+ * 首页 — AI 订阅套餐性价比对比（concept 01-home-desktop-v2）。
+ *
+ * 结构自上而下：
+ *   1. Hero：主标题 + 副标题 + 模型搜索（提交 → /models?q=…）+ 热门模型 chips。
+ *   2. 性价比速览榜：全局 (provider, model) 组合按 $/M 升序取 Top 5。
+ *   3. 博客：最新 3 篇，一行一篇。
+ *   4. Footer 由 Layout 提供（此处不重复）。
+ *
+ * 数据约定：
+ *   - Leaderboard 用 DEFAULT_MIX 按 USD 服务端渲染。ValueLeaderboard 不走
+ *     [data-price] 机制，因此货币切换不会重渲染此榜（T26 统一处理）。
+ *   - 博客详情路由 /blog/[slug] 由后续 worker 提供，当前链接可能 404，可接受。
+ */
+import Layout from '../layouts/Layout.astro';
+import ValueLeaderboard from '../components/ValueLeaderboard.astro';
+import BlogList from '../components/BlogList.astro';
+import { getCollection } from 'astro:content';
 
+import { getGlobalLeaderboard } from '../lib/data';
+import { DEFAULT_MIX, round1 } from '../lib/pricing';
+
+// --- 性价比速览榜：Top 5 组合，按 $/M 升序（getGlobalLeaderboard 已排好）----
+const leaderboard = await getGlobalLeaderboard(DEFAULT_MIX, 'USD', 5);
+
+const leaderboardRows = leaderboard.map((entry) => ({
+	rank: entry.rank,
+	modelName: entry.modelName,
+	providerName: entry.providerName,
+	providerKind: entry.providerKind,
+	providerHref: `/providers/${entry.providerId}`,
+	modelHref: `/models/${entry.modelId}`,
+	currencyPerM: entry.curPerM === null ? null : round1(entry.curPerM),
+	mPerCurrency: entry.mPerCur === null ? null : round1(entry.mPerCur),
+}));
+
+// --- 热门模型 chips：id 必须命中 models 集合（路由 /models/[id]）------------
+const HOT_MODEL_IDS = [
+	'glm-5.2',
+	'qwen-3.8-max',
+	'deepseek-v4-flash',
+	'gpt-5.6-sol',
+	'qwen-3.7-plus',
+	'glm-5.2-flash',
+];
+
+const modelEntries = await getCollection('models');
+const modelNameById = new Map(modelEntries.map((m) => [m.data.id, m.data.name] as const));
+const hotModels = HOT_MODEL_IDS.map((id) => ({
+	id,
+	name: modelNameById.get(id) ?? id,
+}));
+
+// --- 博客：最新 3 篇 ---------------------------------------------------------
+const blogPosts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+	.slice(0, 3)
+	.map(({ id, data }) => ({
+		slug: id,
+		title: data.title,
+		description: data.description,
+		pubDate: data.pubDate,
+	}));
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<!-- ============================== Hero =================================== -->
+<section class="home-hero">
+	<h1 class="hero-title">AI 订阅套餐性价比对比</h1>
+	<p class="hero-subtitle">同一模型，比遍所有订阅渠道的实际成本</p>
+
+	<form class="hero-search" action="/models" method="get" role="search">
+		<svg
+			class="hero-search-icon"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			aria-hidden="true"
+		>
+			<circle cx="11" cy="11" r="7"></circle>
+			<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+		</svg>
+		<label class="sr-only" for="home-model-q">输入模型名称</label>
+		<input
+			id="home-model-q"
+			name="q"
+			class="hero-search-input"
+			type="text"
+			placeholder="搜索模型，如 GLM-5.2、Qwen-3.8-Max…"
+			autocomplete="off"
+			spellcheck="false"
+		/>
+		<button class="hero-search-btn" type="submit">对比</button>
+	</form>
+
+	<ul class="hero-chips" aria-label="热门模型">
+		{
+			hotModels.map((m) => (
+				<li>
+					<a class="chip" href={`/models/${m.id}`}>{m.name}</a>
+				</li>
+			))
+		}
+	</ul>
+</section>
+
+<!-- ========================= 性价比速览榜 ================================ -->
+<div class="home-section">
+	<ValueLeaderboard
+		title="性价比速览榜"
+		currencyLabel="$"
+		rows={leaderboardRows}
+		allHref="/models"
+	/>
+</div>
+
+<!-- ============================== 博客 =================================== -->
+<div class="home-section">
+	<div class="card blog-card">
+		<BlogList heading="博客" posts={blogPosts} />
+	</div>
+</div>
+
+<style>
+	/* ---- Hero ----------------------------------------------------------- */
+
+	.home-hero {
+		position: relative;
+		text-align: center;
+		padding: 2rem 0 2.5rem;
+	}
+
+	/* Soft accent glow behind the headline — static decoration, no motion. */
+	.home-hero::before {
+		content: '';
+		position: absolute;
+		left: 50%;
+		top: -4rem;
+		width: min(46rem, 110%);
+		height: 26rem;
+		transform: translateX(-50%);
+		background: radial-gradient(
+			ellipse at center,
+			color-mix(in srgb, var(--color-accent) 8%, transparent),
+			transparent 68%
+		);
+		pointer-events: none;
+	}
+
+	.home-hero > * {
+		position: relative;
+		z-index: 1;
+	}
+
+	.hero-title {
+		margin: 0;
+		font-size: clamp(1.875rem, 2.4vw + 1.1rem, 2.75rem);
+		font-weight: 800;
+		line-height: 1.18;
+		letter-spacing: -0.015em;
+		color: var(--color-text);
+	}
+
+	.hero-subtitle {
+		margin: 0.75rem auto 0;
+		max-width: 36rem;
+		font-size: 1.0625rem;
+		line-height: 1.6;
+		color: var(--color-text-muted);
+	}
+
+	/* ---- Model search (navigates to /models?q=…) ----------------------- */
+
+	.hero-search {
+		position: relative;
+		display: flex;
+		align-items: stretch;
+		max-width: 34rem;
+		margin: 1.875rem auto 0;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: 0.75rem;
+		box-shadow:
+			0 1px 2px rgb(0 0 0 / 0.04),
+			0 10px 28px -14px rgb(0 0 0 / 0.14);
+		transition:
+			border-color 120ms ease,
+			box-shadow 120ms ease;
+	}
+
+	.hero-search:focus-within {
+		border-color: var(--color-accent);
+		box-shadow:
+			0 0 0 3px var(--color-accent-soft),
+			0 10px 28px -14px rgb(0 0 0 / 0.14);
+	}
+
+	.hero-search-icon {
+		position: absolute;
+		left: 0.9375rem;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 1.125rem;
+		height: 1.125rem;
+		color: var(--color-text-muted);
+		pointer-events: none;
+	}
+
+	.hero-search-input {
+		flex: 1 1 auto;
+		min-width: 0;
+		appearance: none;
+		border: 0;
+		outline: none;
+		background: transparent;
+		padding: 0.875rem 1rem 0.875rem 2.75rem;
+		font: inherit;
+		font-size: 0.9375rem;
+		line-height: 1.5;
+		color: var(--color-text);
+		border-radius: 0.75rem 0 0 0.75rem;
+	}
+
+	.hero-search-input::placeholder {
+		color: var(--color-text-muted);
+	}
+
+	.hero-search-btn {
+		appearance: none;
+		border: 0;
+		margin: 0.25rem;
+		padding: 0 1.375rem;
+		background: var(--color-accent);
+		border-radius: 0.625rem;
+		font: inherit;
+		font-size: 0.9375rem;
+		font-weight: 600;
+		letter-spacing: 0.01em;
+		color: #ffffff;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: background 120ms ease;
+	}
+
+	.hero-search-btn:hover {
+		background: color-mix(in srgb, var(--color-accent) 88%, #000 12%);
+	}
+
+	.hero-search-btn:active {
+		background: color-mix(in srgb, var(--color-accent) 76%, #000 24%);
+	}
+
+	.hero-search-btn:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 2px;
+	}
+
+	/* ---- Hot-model chips ------------------------------------------------ */
+
+	.hero-chips {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		margin: 1.125rem auto 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.3125rem 0.875rem;
+		border-radius: 9999px;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: var(--color-text-muted);
+		text-decoration: none;
+		white-space: nowrap;
+		transition:
+			color 120ms ease,
+			border-color 120ms ease,
+			background 120ms ease;
+	}
+
+	.chip:hover {
+		color: var(--color-accent);
+		border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+		background: color-mix(in srgb, var(--color-accent-soft) 40%, var(--color-surface));
+	}
+
+	.chip:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 2px;
+	}
+
+	/* ---- Stacked sections ---------------------------------------------- */
+
+	.home-section {
+		margin-top: 1.375rem;
+	}
+
+	/* Blog card wrapper: BlogList itself has no surface — the concept shows a
+	   white rounded card, so it is wrapped here (component untouched). */
+	.blog-card {
+		padding: 1.25rem;
+	}
+
+	/* Screen-reader-only label for the hero search field. */
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	@media (max-width: 40rem) {
+		.home-hero {
+			padding-top: 1.25rem;
+		}
+
+		.hero-search-btn {
+			padding: 0 1rem;
+		}
+	}
+</style>

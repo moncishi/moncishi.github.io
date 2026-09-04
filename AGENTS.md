@@ -1,3 +1,37 @@
+## Sending images to develop-group
+
+After generating any image (e.g. UI concept images via `tools/sensenova-img/`), deliver it to the fixed Lark group **develop-group**. Recipient never changes; do not re-search or re-confirm.
+
+**Recipient (fixed):** group chat `oc_038fb08137e8b99b71c3fb86758a2b33`, send as bot identity.
+
+**Workflow (from repo root):**
+
+```bash
+# 1. Stage images — lark-cli requires cwd-relative paths, rejects absolute
+mkdir -p .lark-send
+cp <image1> <image2> .lark-send/
+
+# 2. Send each image (one message per image)
+LARKSUITE_CLI_NO_UPDATE_NOTIFIER=1 lark-cli im +messages-send --as bot \
+  --chat-id oc_038fb08137e8b99b71c3fb86758a2b33 \
+  --image ./.lark-send/<name>.png
+
+# 3. Send caption (separate message; --image and --text are mutually exclusive)
+LARKSUITE_CLI_NO_UPDATE_NOTIFIER=1 lark-cli im +messages-send --as bot \
+  --chat-id oc_038fb08137e8b99b71c3fb86758a2b33 \
+  --text $'caption line 1\ncaption line 2'
+
+# 4. Clean up so generated images never get committed
+rm -rf .lark-send
+```
+
+**Gotchas:**
+- Use **bot** identity (`--as bot`), never user (user token is expired).
+- Image paths must be **cwd-relative**; copy into `.lark-send/` first.
+- Send each image and the caption as **separate messages**.
+- Delete `.lark-send/` after sending.
+
+
 ## Development
 
 When starting the dev server, use background mode:

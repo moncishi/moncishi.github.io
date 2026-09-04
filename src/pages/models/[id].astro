@@ -1,0 +1,197 @@
+---
+/**
+ * /models/[id] — single-model subscription comparison (concept 03).
+ *
+ * The core page: for ONE model, compares every provider/channel carrying it.
+ * Metrics are computed with getModelChannels(modelId, DEFAULT_MIX, 'USD') —
+ * already sorted by raw curPerM ascending with pay-as-you-go (按量) last — so
+ * rank is simply 1-based position in the returned array.
+ *
+ * Structure (top → bottom):
+ *   1. Breadcrumb: 模型 / {model name}.
+ *   2. Header: model name (h1) + muted official-price reference
+ *      (¥ 官方：输入 X / 输出 Y) straight from the models collection entry.
+ *   3. MixSlider — renders the 90/9/1 usage-mix strip for UX. Live
+ *      recompute from mixchange is intentionally NOT wired yet (T23 note
+ *      pattern); the table below is computed at build time against
+ *      DEFAULT_MIX and stays static until that ticket lands.
+ *   4. RankTable — the ranked channel comparison (RankTable owns the numeric
+ *      formatting internally, so raw values are passed through). #1 is the
+ *      最佳值 highlight; every row links to /providers/[providerId].
+ *
+ * getStaticPaths covers every models-collection id; an unknown slug therefore
+ * falls through to Astro's built-in 404.
+ */
+import { getCollection } from 'astro:content';
+
+import Layout from '../../layouts/Layout.astro';
+import MixSlider from '../../components/MixSlider.astro';
+import RankTable from '../../components/RankTable.astro';
+import { DEFAULT_MIX, type Currency } from '../../lib/pricing';
+import { getModelChannels } from '../../lib/data';
+
+interface OfficialBlock {
+	input: number;
+	output: number;
+	cacheRead: number | null;
+	cacheWrite: number | null;
+	currency: Currency;
+}
+
+export interface Props {
+	modelId: string;
+	modelName: string;
+	official: OfficialBlock;
+}
+
+export async function getStaticPaths(): Promise<
+	{ params: { id: string }; props: Props }[]
+> {
+	const entries = await getCollection('models');
+	return entries.map(({ data }) => ({
+		params: { id: data.id },
+		props: {
+			modelId: data.id,
+			modelName: data.name,
+			official: data.official,
+		},
+	}));
+}
+
+const { modelId, modelName, official } = Astro.props;
+const currencySymbol = official.currency === 'CNY' ? '¥' : '$';
+
+const channels = await getModelChannels(modelId, DEFAULT_MIX, 'USD');
+
+// Channels arrive pre-sorted by raw curPerM ascending (best first, 按量 last);
+// rank = position in that order. Numeric fields stay RAW — RankTable does its
+// own 1-dp / grouping / fee trimming internally.
+const rows = channels.map((c, i) => ({
+	providerId: c.providerId,
+	providerName: c.providerName,
+	kind: c.kind,
+	providerHref: `/providers/${c.providerId}`,
+	monthlyFee: c.monthlyFee,
+	quotaM: c.quotaM,
+	mPerCur: c.mPerCur,
+	curPerM: c.curPerM,
+	rank: i + 1,
+}));
+
+/** Compact price for the subtitle: 1 dp, trailing ".0" trimmed ("15", "1.2"). */
+function fmtRef(n: number): string {
+	const r = Math.round((n + Number.EPSILON) * 10) / 10;
+	return Number.isInteger(r) ? String(r) : r.toFixed(1);
+}
+
+const pageTitle = `${modelName} 订阅商对比`;
+const pageDescription = `${modelName} 在各订阅商与官方 API 之间的月费、月额度与每 M 成本对比`;
+---
+
+<Layout title={pageTitle} description={pageDescription} activeNav="models">
+	<div class="model-page">
+		<nav class="breadcrumb" aria-label="面包屑">
+			<a href="/models">模型</a>
+			<span class="bc-sep" aria-hidden="true">/</span>
+			<span class="bc-current" aria-current="page">{modelName}</span>
+		</nav>
+
+		<header class="page-head">
+			<h1 class="model-title">{modelName}</h1>
+			<p class="model-sub">
+				{currencySymbol} 官方：输入 {fmtRef(official.input)} / 输出{' '}
+				{fmtRef(official.output)}
+				<span class="model-sub-unit">（官方按量参考价，¥/M）</span>
+			</p>
+		</header>
+
+		<div class="mix-panel">
+			<MixSlider label="Token 用量配比（默认 90 / 9 / 1）" />
+			<p class="mix-note">
+				拖拽配比实时重算即将上线 —— 当前下方对比按默认配比计算。
+			</p>
+		</div>
+
+		<RankTable modelName={modelName} rows={rows} currencySymbol="$" />
+	</div>
+</Layout>
+
+<style>
+	.model-page {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+
+	/* --- Breadcrumb ------------------------------------------------------ */
+	.breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: var(--color-text-muted);
+	}
+
+	.breadcrumb a {
+		color: var(--color-text-muted);
+		text-decoration: none;
+		transition: color 150ms ease;
+	}
+
+	.breadcrumb a:hover {
+		color: var(--color-accent);
+	}
+
+	.bc-sep {
+		color: var(--color-border);
+		user-select: none;
+	}
+
+	.bc-current {
+		color: var(--color-text);
+		font-weight: 500;
+	}
+
+	/* --- Page header ----------------------------------------------------- */
+	.page-head {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+	}
+
+	.model-title {
+		margin: 0;
+		font-size: 1.875rem;
+		font-weight: 800;
+		line-height: 1.25;
+		letter-spacing: -0.01em;
+		color: var(--color-text);
+	}
+
+	.model-sub {
+		margin: 0;
+		font-size: 0.875rem;
+		line-height: 1.6;
+		color: var(--color-text-muted);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.model-sub-unit {
+		color: var(--color-text-muted);
+		opacity: 0.8;
+	}
+
+	/* --- Usage-mix strip -------------------------------------------------- */
+	.mix-panel {
+		width: 100%;
+		max-width: 42rem;
+	}
+
+	.mix-note {
+		margin: 0.4375rem 0.125rem 0;
+		font-size: 0.75rem;
+		line-height: 1.5;
+		color: var(--color-text-muted);
+	}
+</style>

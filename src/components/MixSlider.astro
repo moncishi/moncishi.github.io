@@ -1,0 +1,305 @@
+---
+/**
+ * MixSlider — three-slider "usage mix" control.
+ *
+ * Lets a user set 缓存读 (cacheRead) / 输入 (input) / 输出 (output) as integer
+ * percentages 0-100 that together define the token-mix used to recompute
+ * derived quota / value columns on the provider-detail (10-col) and
+ * model-compare (rank) tables.
+ *
+ * Balance rule (the simple, robust choice):
+ *   - input and output are the two ADJUSTABLE sliders (0-100 each);
+ *   - cacheRead is AUTO = 100 - input - output, so it is read-only/display
+ *     only. When input + output would exceed 100, the slider that was just
+ *     moved is clamped so the pair always sums to ≤ 100.
+ *   Default 90 / 9 / 1 (i.e. cacheRead .9, input .09, output .01), matching
+ *   DEFAULT_MIX in src/lib/pricing.ts.
+ *
+ * Props:
+ *   @prop initial? { cacheRead, input, output } — starting integer mix.
+ *     Values are clamped to integers 0-100 and renormalised (cacheRead is
+ *     recomputed from input/output). Defaults to 90/9/1.
+ *   @prop label? — rendered as a small caption above the sliders.
+ *
+ * Behaviour (hoisted vanilla JS, no framework deps):
+ *   1. Slider 输入 / 输出 are adjustable; 缓存读 auto-balances.
+ *   2. On any change the derived labels update immediately.
+ *   3. A window `mixchange` CustomEvent fires with detail.mix as FRACTIONS
+ *      summing to 1, e.g. { cacheRead: 0.9, input: 0.09, output: 0.01 }.
+ *   4. The current integer mix is written to the component root dataset
+ *      (`data-mix-input`, `data-mix-output`, `data-mix-cacheread`) so table
+ *      scripts can read a consistent value synchronously.
+ *   5. On startup the labels and dataset are synced to the rendered (server)
+ *      state — no interaction needed for defaults to be visible/consistent.
+ *
+ * Multiple instances: every slider id / label-for is derived from the Astro
+ * page-unique id (Astro-generated) so two instances never collide; lookups
+ * are always scoped to the instance root (this.wrapper).
+ */
+interface Props {
+	initial?: { cacheRead: number; input: number; output: number };
+	label?: string;
+}
+
+const { initial, label = 'Token 用量配比' } = Astro.props;
+
+// Server-side defaults mirror DEFAULT_MIX (90/9/1). Missing / malformed props
+// fall back to the spec defaults (input 9, output 1); anything present is
+// clamped to an integer 0-100 so no NaN can leak through.
+function clampInt(v: unknown, fallback: number): number {
+	const n = Math.round(Number(v));
+	return Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : fallback;
+}
+const initInput = clampInt(initial?.input, 9);
+const initOutput = clampInt(initial?.output, 1);
+// Renormalise from input/output so cacheRead always stays ≥ 0 no matter what
+// the caller passed.
+const initCacheRead = clampInt(100 - initInput - initOutput, 90);
+const instanceId = `mix-slider-${Astro.generator ? 'static' : 'ssr'}-${Math.random()
+	.toString(36)
+	.slice(2, 10)}`;
+const rowIdInput = `${instanceId}-input`;
+const rowIdOutput = `${instanceId}-output`;
+const rowIdCacheRead = `${instanceId}-cacheread`;
+---
+
+<div
+	class="mix-slider"
+	data-mix-cacheread={initCacheRead}
+	data-mix-input={initInput}
+	data-mix-output={initOutput}
+>
+	<p class="mix-slider-label">{label}</p>
+
+	<div class="mix-slider-row">
+		<div class="mix-slider-head">
+			<label for={rowIdInput}>输入</label>
+			<span class="mix-slider-value" data-value="input">{initInput}%</span>
+		</div>
+		<input
+			id={rowIdInput}
+			class="mix-slider-input"
+			type="range"
+			min="0"
+			max="100"
+			step="1"
+			value={initInput}
+			data-role="input"
+			aria-describedby={`${instanceId}-hint`}
+		/>
+	</div>
+
+	<div class="mix-slider-row">
+		<div class="mix-slider-head">
+			<label for={rowIdOutput}>输出</label>
+			<span class="mix-slider-value" data-value="output">{initOutput}%</span>
+		</div>
+		<input
+			id={rowIdOutput}
+			class="mix-slider-input"
+			type="range"
+			min="0"
+			max="100"
+			step="1"
+			value={initOutput}
+			data-role="output"
+			aria-describedby={`${instanceId}-hint`}
+		/>
+	</div>
+
+	<div class="mix-slider-row mix-slider-row--readonly">
+		<div class="mix-slider-head">
+			<label for={rowIdCacheRead}>缓存读</label>
+			<span class="mix-slider-value" data-value="cacheread">{initCacheRead}%</span>
+		</div>
+		<input
+			id={rowIdCacheRead}
+			class="mix-slider-input"
+			type="range"
+			min="0"
+			max="100"
+			step="1"
+			value={initCacheRead}
+			data-role="cacheread"
+			tabindex="-1"
+			aria-readonly="true"
+			aria-describedby={`${instanceId}-hint`}
+		/>
+	</div>
+
+	<p class="mix-slider-hint" id={`${instanceId}-hint`}>
+		输入 + 输出 ≤ 100%，缓存读自动取余数。
+	</p>
+</div>
+
+<script>
+	(function () {
+		var root = document.currentScript && document.currentScript.parentElement;
+		if (!root) return;
+
+		// Read the integer mix straight off the server-rendered dataset.
+		// Guards below keep everything integer / finite — no NaN paths.
+		function readInt(name, fallback) {
+			var raw = root.getAttribute('data-mix-' + name);
+			if (raw === null) return fallback;
+			var n = Math.round(Number(raw));
+			if (!Number.isFinite(n)) return fallback;
+			return Math.min(100, Math.max(0, n));
+		}
+
+		// Start from the initial mix persisted on the dataset; a listener that
+		// runs before this component ever touched a slider still sees the
+		// same default. Kept on the object so repeated checks cheaply compare.
+		var state = {
+			cacheRead: readInt('cacheread', 90),
+			input: readInt('input', 9),
+			output: readInt('output', 1),
+		};
+
+		var cacheInput = root.querySelector('[data-role="input"]');
+		var cacheOutput = root.querySelector('[data-role="output"]');
+		var cacheRead = root.querySelector('[data-role="cacheread"]');
+		var valInput = root.querySelector('[data-value="input"]');
+		var valOutput = root.querySelector('[data-value="output"]');
+		var valCacheRead = root.querySelector('[data-value="cacheread"]');
+
+		function setSlider(el, v) {
+			if (el) el.value = String(v);
+		}
+		function setLabel(el, v) {
+			if (el) el.textContent = v + '%';
+		}
+
+		// Move slider(s), refresh the live labels, then broadcast.
+		function applyMix(input, output) {
+			// cacheRead is derived — input + output can never exceed 100.
+			var cacheReadPct = 100 - input - output;
+
+			state.input = input;
+			state.output = output;
+			state.cacheRead = cacheReadPct;
+
+			setSlider(cacheInput, input);
+			setSlider(cacheOutput, output);
+			setSlider(cacheRead, cacheReadPct);
+			setLabel(valInput, input);
+			setLabel(valOutput, output);
+			setLabel(valCacheRead, cacheReadPct);
+
+			// Persist the integer mix on the root for synchronous consumers.
+			root.setAttribute('data-mix-cacheread', String(cacheReadPct));
+			root.setAttribute('data-mix-input', String(input));
+			root.setAttribute('data-mix-output', String(output));
+
+			// Broadcast fractions (sum to 1) for derived-column recompute.
+			var mix = {
+				cacheRead: cacheReadPct / 100,
+				input: input / 100,
+				output: output / 100,
+			};
+			window.dispatchEvent(new CustomEvent('mixchange', { detail: { mix: mix } }));
+		}
+
+		// One of the two adjustable sliders moved: clamp it so input + output
+		// stays ≤ 100, then rebalance cacheRead.
+		function onMove(which) {
+			var el = which === 'input' ? cacheInput : cacheOutput;
+			if (!el) return;
+			var next = Math.round(Number(el.value));
+			if (!Number.isFinite(next)) next = 0;
+			next = Math.min(100, Math.max(0, next));
+
+			var other = which === 'input' ? state.output : state.input;
+			if (next + other > 100) next = 100 - other; // keep pair ≤ 100
+
+			if (which === 'input') applyMix(next, state.output);
+			else applyMix(state.input, next);
+		}
+
+		if (cacheInput) cacheInput.addEventListener('input', function () { onMove('input'); });
+		if (cacheOutput) cacheOutput.addEventListener('input', function () { onMove('output'); });
+
+		// Startup sync: make DOM / dataset agree with the rendered state so the
+		// very first read of data-mix-* on this instance is correct and the
+		// read-only cacheRead slider visually matches its label.
+		setSlider(cacheInput, state.input);
+		setSlider(cacheOutput, state.output);
+		setSlider(cacheRead, state.cacheRead);
+		setLabel(valInput, state.input);
+		setLabel(valOutput, state.output);
+		setLabel(valCacheRead, state.cacheRead);
+	})();
+</script>
+
+<style>
+	.mix-slider {
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+		padding: 0.75rem 0.875rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		font-size: 0.8125rem;
+		color: var(--color-text);
+	}
+
+	.mix-slider-label {
+		margin: 0;
+		font-weight: 600;
+		font-size: 0.8125rem;
+		letter-spacing: 0.01em;
+	}
+
+	.mix-slider-row {
+		display: grid;
+		grid-template-columns: 5.5rem 1fr;
+		grid-template-rows: auto auto;
+		column-gap: 0.75rem;
+		row-gap: 0.25rem;
+		align-items: center;
+	}
+
+	.mix-slider-row label {
+		grid-column: 1;
+		grid-row: 1;
+		color: var(--color-text);
+		font-weight: 500;
+		white-space: nowrap;
+		cursor: pointer;
+	}
+
+	.mix-slider-value {
+		grid-column: 2;
+		grid-row: 1;
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+		font-weight: 600;
+		color: var(--color-accent);
+	}
+
+	.mix-slider-input {
+		grid-column: 2;
+		grid-row: 2;
+		width: 100%;
+		accent-color: var(--color-accent);
+		cursor: pointer;
+	}
+
+	.mix-slider-row--readonly .mix-slider-value {
+		color: var(--color-text-muted);
+	}
+
+	.mix-slider-row--readonly .mix-slider-input {
+		accent-color: var(--color-text-muted);
+		cursor: default;
+		opacity: 0.65;
+	}
+
+	.mix-slider-hint {
+		margin: 0;
+		font-size: 0.6875rem;
+		line-height: 1.4;
+		color: var(--color-text-muted);
+	}
+</style>

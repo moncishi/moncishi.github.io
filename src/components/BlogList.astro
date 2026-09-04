@@ -1,0 +1,60 @@
+---
+/**
+ * BlogList — vertical stacked list of blog posts, one full-width row per post.
+ *
+ * Props:
+ *  - posts: array of { slug, title, description, pubDate } (optionally shaped
+ *    as blog collection entries — PostCard normalizes). Sorted by pubDate
+ *    descending here as a defensive guarantee (newest first), so callers do
+ *    not need to pre-sort.
+ *  - heading: optional section heading (e.g. "最新文章") rendered above the list.
+ *
+ * Renders a `<ul>` of PostCard rows; hairline separators between rows (the
+ * border lives on each row and is dropped on the last one).
+ */
+import PostCard from './PostCard.astro';
+
+interface PostShape {
+	slug: string;
+	title: string;
+	description: string;
+	pubDate: Date;
+}
+
+interface Props {
+	posts: PostShape[];
+	heading?: string;
+}
+
+const { posts, heading } = Astro.props;
+
+const sorted = [...posts].sort(
+	(a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
+);
+---
+
+<section class="blog-list" aria-label={heading ?? '博客文章列表'}>
+	{heading && <h2 class="blog-list-title">{heading}</h2>}
+
+	<ul class="blog-list-items">
+		{sorted.map((post) => <PostCard post={post} />)}
+	</ul>
+</section>
+
+<style>
+	.blog-list-title {
+		font-size: 1.0625rem;
+		font-weight: 600;
+		color: var(--color-text);
+		margin: 0 0 0.5rem;
+		padding: 0 0.75rem;
+	}
+
+	.blog-list-items {
+		display: flex;
+		flex-direction: column;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+</style>

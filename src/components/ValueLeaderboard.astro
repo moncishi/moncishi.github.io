@@ -1,0 +1,347 @@
+---
+/**
+ * ValueLeaderboard — homepage 性价比速览榜 card.
+ *
+ * Pure display: the page computes `rows` (TOP N cheapest 货币/M combos,
+ * pre-sorted ascending) and hands them in. No data-layer access here, so the
+ * component stays reusable anywhere a ranked value list is needed.
+ *
+ * Props:
+ *  - rows: LeaderboardRow[] — best-value (lowest currency-per-M) rows first.
+ *    `currencyPerM` / `mPerCurrency` are display values already rounded to
+ *    1 decimal; null renders as '—'.
+ *  - currencyLabel: '$' or '¥' prefix shown on the metric.
+ *  - title: card heading, defaults to 性价比速览.
+ *  - allHref: target of the footer 查看全部 link, defaults to '/'.
+ *
+ * Each row: rank marker (#1..#5, gold/silver/bronze tint for the top 3),
+ * bold model name → modelHref, muted provider name + kind pill →
+ * providerHref, and the mono 货币/M metric on the right. The #1 row gets a
+ * light accent-soft fill and a left accent bar.
+ */
+import Badge from './Badge.astro';
+
+interface LeaderboardRow {
+	rank: number;
+	modelName: string;
+	providerName: string;
+	providerKind: 'official' | 'subscription';
+	providerHref: string;
+	modelHref: string;
+	currencyPerM: number | null;
+	mPerCurrency: number | null;
+}
+
+interface Props {
+	rows: LeaderboardRow[];
+	currencyLabel: string;
+	title?: string;
+	allHref?: string;
+}
+
+const { rows, currencyLabel, title = '性价比速览', allHref = '/' } = Astro.props;
+
+// Compact 1-decimal formatting: 0.3 → "0.3", 3 → "3". No trailing ".0".
+const fmt = (value: number | null): string | null => {
+	if (value === null || Number.isNaN(value)) return null;
+	return String(parseFloat(value.toFixed(1)));
+};
+
+// Medal tint for the top 3 ranks; undefined renders the neutral marker.
+const rankClass = (rank: number): string | undefined => {
+	if (rank === 1) return 'medal-gold';
+	if (rank === 2) return 'medal-silver';
+	if (rank === 3) return 'medal-bronze';
+	return undefined;
+};
+---
+
+<section class="card value-lb" aria-label={title}>
+	<header class="value-lb-head">
+		<h2 class="value-lb-title">{title}</h2>
+	</header>
+
+	{
+		rows.length > 0 ? (
+			<ol class="value-lb-list">
+				{
+					rows.map((row) => {
+						const perM = fmt(row.currencyPerM);
+						const perUnit = fmt(row.mPerCurrency);
+						return (
+							<li
+								class:list={['value-row', { highlight: row.rank === 1 }]}
+							>
+								<span
+									class:list={['value-rank', rankClass(row.rank)]}
+									aria-label={`第 ${row.rank} 名`}
+								>
+									#{row.rank}
+								</span>
+
+								<div class="value-main">
+									<a class="value-model" href={row.modelHref}>
+										{row.modelName}
+									</a>
+									<div class="value-provider-row">
+										<a
+											class="value-provider"
+											href={row.providerHref}
+										>
+											{row.providerName}
+										</a>
+										<Badge kind={row.providerKind} />
+									</div>
+								</div>
+
+								<div class="value-price">
+									{perM !== null ? (
+										<span class="value-price-main">
+											{currencyLabel}{perM}
+											<span class="value-price-unit">/M</span>
+										</span>
+									) : (
+										<span class="value-price-main value-price-na">—</span>
+									)}
+									{perUnit !== null && (
+										<span class="value-price-alt">
+											≈ {perUnit} M/{currencyLabel}
+										</span>
+									)}
+								</div>
+							</li>
+						);
+					})
+				}
+			</ol>
+		) : (
+			<p class="value-empty">暂无数据</p>
+		)
+	}
+
+	<footer class="value-lb-footer">
+		<a class="value-lb-all" href={allHref}>
+			查看全部<span class="value-lb-all-arrow" aria-hidden="true"> →</span>
+		</a>
+	</footer>
+</section>
+
+<style>
+	.value-lb {
+		padding: 1.25rem;
+	}
+
+	.value-lb-head {
+		margin-bottom: 0.75rem;
+	}
+
+	.value-lb-title {
+		margin: 0;
+		font-size: 1.125rem;
+		font-weight: 700;
+		color: var(--color-text);
+	}
+
+	.value-lb-list {
+		display: flex;
+		flex-direction: column;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.value-row {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.875rem;
+		padding: 0.625rem 0.875rem;
+		border-radius: 0.5rem;
+		border-bottom: 1px solid var(--color-border);
+		transition: background 150ms ease;
+	}
+
+	/* Hairline between rows; drop it on the last one. */
+	.value-row:last-child {
+		border-bottom-color: transparent;
+	}
+
+	.value-row:hover {
+		background: color-mix(in srgb, var(--color-accent-soft) 45%, transparent);
+	}
+
+	/* #1 — light accent-soft fill + left accent bar (as in the concept). */
+	.value-row.highlight {
+		background: color-mix(
+			in srgb,
+			var(--color-accent-soft) 55%,
+			var(--color-surface)
+		);
+	}
+
+	.value-row.highlight::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.5rem;
+		bottom: 0.5rem;
+		width: 0.1875rem;
+		border-radius: 9999px;
+		background: var(--color-accent);
+	}
+
+	/* Rank marker. Top 3 render as tinted pills; the rest are neutral text. */
+	.value-rank {
+		flex: none;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 1.875rem;
+		padding: 0 0.375rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+		color: var(--color-text-muted);
+		white-space: nowrap;
+	}
+
+	.medal-gold,
+	.medal-silver,
+	.medal-bronze {
+		border-radius: 9999px;
+		line-height: 1.6;
+	}
+
+	.medal-gold {
+		background: #fef3c7;
+		border: 1px solid #fcd34d;
+		color: #92400e;
+	}
+
+	.medal-silver {
+		background: #f3f4f6;
+		border: 1px solid #d1d5db;
+		color: #4b5563;
+	}
+
+	.medal-bronze {
+		background: #ffedd5;
+		border: 1px solid #fdba74;
+		color: #9a3412;
+	}
+
+	.value-main {
+		flex: 1 1 auto;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+	}
+
+	.value-model {
+		font-weight: 600;
+		font-size: 0.9375rem;
+		line-height: 1.4;
+		color: var(--color-text);
+		text-decoration: none;
+	}
+
+	.value-model:hover {
+		color: var(--color-accent);
+	}
+
+	.value-provider-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		min-width: 0;
+	}
+
+	.value-provider {
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: var(--color-text-muted);
+		text-decoration: none;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.value-provider:hover {
+		color: var(--color-text);
+	}
+
+	.value-price {
+		flex: none;
+		margin-left: 0.75rem;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.125rem;
+		white-space: nowrap;
+	}
+
+	.value-price-main,
+	.value-price-alt {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.value-price-main {
+		font-size: 0.9375rem;
+		font-weight: 600;
+		line-height: 1.4;
+		color: var(--color-text);
+	}
+
+	.value-price-na {
+		color: var(--color-text-muted);
+	}
+
+	.value-price-unit {
+		font-size: 0.6875rem;
+		font-weight: 400;
+		color: var(--color-text-muted);
+		margin-left: 0.125rem;
+	}
+
+	.value-price-alt {
+		font-size: 0.6875rem;
+		line-height: 1.4;
+		color: var(--color-text-muted);
+	}
+
+	.value-empty {
+		margin: 0.25rem 0 0.5rem;
+		font-size: 0.875rem;
+		color: var(--color-text-muted);
+	}
+
+	.value-lb-footer {
+		margin-top: 0.875rem;
+		padding-top: 0.75rem;
+		border-top: 1px solid var(--color-border);
+		text-align: right;
+	}
+
+	.value-lb-all {
+		display: inline-flex;
+		align-items: center;
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--color-accent);
+		text-decoration: none;
+	}
+
+	.value-lb-all:hover {
+		text-decoration: underline;
+	}
+
+	.value-lb-all-arrow {
+		transition: transform 150ms ease;
+	}
+
+	.value-lb-all:hover .value-lb-all-arrow {
+		transform: translateX(0.1875rem);
+	}
+</style>

@@ -1,0 +1,67 @@
+# Command Code Goat — 订阅聚合（mock 数据，非真实报价）
+# 虚构的编程向聚合订阅：月费 $10 + 7% 手续费，共享资源池，按模型消耗池内 credits。
+# 所有价格均为虚构示例，用于本站 UI 演示，不代表任何真实服务商的价格。
+id: command-code-goat
+name: Command Code Goat
+nameZh: 编程码羊聚合
+kind: subscription
+currency: USD
+description: >-
+  mock 数据（虚构服务）：编程向聚合订阅商。一次月费进入共享资源池，各模型按
+  每百万 token 的 $ 定价消耗池内 credits。模型定价为虚构示例，用于演示订阅聚合
+  与官方 API 的价格对比，不代表真实厂商报价。
+billing:
+  baseFee: 10
+  feePct: 7
+  currency: USD
+  poolNote: 月费 $10 + 7% 手续费，共享资源池，按模型消耗池内 credits
+models:
+  # cacheWrite: 本商不单列缓存写入费（已含在读取价内），记 null
+  - modelId: glm-5.2
+    input: 0.55
+    output: 1.6
+    cacheRead: 0.055
+    cacheWrite: null
+    credits: 48
+    quota90: 417.4      # = 48 / (0.9*0.055 + 0.09*0.55 + 0.01*1.6)
+    quota95: 531.9      # = 48 / (0.95*0.055 + 0.04*0.55 + 0.01*1.6)
+  - modelId: glm-5.2-flash
+    input: 0.2
+    output: 0.6
+    cacheRead: 0.02
+    cacheWrite: null
+    credits: 26
+    quota90: 619.0      # = 26 / (0.9*0.02 + 0.09*0.2 + 0.01*0.6)
+    quota95: 787.9      # = 26 / (0.95*0.02 + 0.04*0.2 + 0.01*0.6)
+  - modelId: qwen-3.7-plus
+    input: 0.2
+    output: 0.62
+    cacheRead: 0.02
+    cacheWrite: null
+    credits: 28
+    quota90: 663.5      # = 28 / (0.9*0.02 + 0.09*0.2 + 0.01*0.62)
+    quota95: 843.4      # = 28 / (0.95*0.02 + 0.04*0.2 + 0.01*0.62)
+  - modelId: qwen-3.8-max
+    input: 0.36
+    output: 1.25
+    cacheRead: 0.036
+    cacheWrite: null
+    credits: 42
+    quota90: 543.3      # = 42 / (0.9*0.036 + 0.09*0.36 + 0.01*1.25)
+    quota95: 687.4      # = 42 / (0.95*0.036 + 0.04*0.36 + 0.01*1.25)
+  - modelId: gpt-5.6-sol
+    input: 2.8
+    output: 10.5
+    cacheRead: 0.28
+    cacheWrite: null
+    credits: 74
+    quota90: 121.5      # = 74 / (0.9*0.28 + 0.09*2.8 + 0.01*10.5)
+    quota95: 153.2      # = 74 / (0.95*0.28 + 0.04*2.8 + 0.01*10.5)
+  - modelId: deepseek-v4-flash
+    input: 0.2
+    output: 0.65
+    cacheRead: 0.02
+    cacheWrite: null
+    credits: 24
+    quota90: 564.7      # = 24 / (0.9*0.02 + 0.09*0.2 + 0.01*0.65)
+    quota95: 716.4      # = 24 / (0.95*0.02 + 0.04*0.2 + 0.01*0.65)

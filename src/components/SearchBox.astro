@@ -1,0 +1,222 @@
+---
+export interface Props {
+	placeholder?: string;
+	targetSelector?: string;
+	filterAttr?: string;
+}
+
+/**
+ * SearchBox — client-side keyword filter over a list/grid of cards.
+ *
+ * Renders a text input with a magnifier icon and an optional clear button.
+ * As the user types it walks the target container's DIRECT child elements and
+ * toggles `display:none` on every one whose `[data-filterAttr]` value does not
+ * contain the query (case-insensitive, trimmed). No framework, no network.
+ *
+ * Props:
+ *   placeholder      — input placeholder text            (default "输入关键词筛选…")
+ *   targetSelector   — CSS selector of the list container whose children get
+ *                      filtered. Omit to make the box a harmless no-op.
+ *   filterAttr       — data attribute on each item holding the searchable text
+ *                      (default "data-search", so items carry data-search="…").
+ *
+ * Config is mirrored onto data-* attributes of the rendered box so the single
+ * hoisted (delegated, deduped) script can resolve each instance from the DOM —
+ * the component may appear several times on one page, and survives re-renders.
+ */
+const { placeholder = '输入关键词筛选…', targetSelector = '', filterAttr = 'data-search' } = Astro.props;
+---
+
+<div
+	class="search-box"
+	data-search-box
+	data-target-selector={targetSelector}
+	data-filter-attr={filterAttr}
+>
+	<svg
+		class="search-icon"
+		xmlns="http://www.w3.org/2000/svg"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="2"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		aria-hidden="true"
+	>
+		<circle cx="11" cy="11" r="7"></circle>
+		<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+	</svg>
+	<input
+		class="search-input"
+		type="text"
+		data-search-input
+		placeholder={placeholder}
+		aria-label={placeholder}
+		autocomplete="off"
+		spellcheck="false"
+	/>
+	<button
+		type="button"
+		class="search-clear"
+		data-search-clear
+		aria-label="清除筛选"
+		title="清除筛选"
+	>
+		×
+	</button>
+</div>
+
+<script>
+	(function () {
+		// Hide every DIRECT child of the target list whose [data-filter-attr]
+		// text does not contain the query. Children without the attribute get
+		// an empty haystack, so they are only visible while the box is empty —
+		// safe when a stray non-item element sits inside the grid.
+		function applyFilter(box, query) {
+			var targetSelector = box.getAttribute('data-target-selector');
+			if (!targetSelector) return; // no target configured → no-op
+
+			var filterAttr = box.getAttribute('data-filter-attr') || 'data-search';
+			var q = query.toLowerCase().trim();
+			if (q === '') {
+				var all = box.getAttribute('data-visible');
+				if (all) return; // already showing everything — nothing to do
+			}
+
+			var list;
+			try {
+				list = document.querySelector(targetSelector);
+			} catch (e) {
+				return; // invalid selector → ignore quietly
+			}
+			if (!list) return; // list not rendered (yet) → no error
+
+			box.setAttribute('data-visible', q === '' ? '1' : '0');
+
+			var items = list.children;
+			for (var i = 0; i < items.length; i++) {
+				var item = items[i];
+				var hay = (item.getAttribute(filterAttr) || '').toLowerCase();
+				item.style.display = hay.indexOf(q) !== -1 ? '' : 'none';
+			}
+		}
+
+		function findBox(el) {
+			return el && el.closest ? el.closest('[data-search-box]') : null;
+		}
+
+		function sync(box) {
+			var input = box.querySelector('[data-search-input]');
+			var value = input ? input.value : '';
+			applyFilter(box, value);
+			box.classList.toggle('has-value', value.length > 0);
+		}
+
+		// Delegated input listener — boxes added/removed by a re-render keep
+		// working without rebinding.
+		document.addEventListener('input', function (e) {
+			if (!(e.target instanceof Element)) return;
+			var box = findBox(e.target);
+			if (!box) return;
+			sync(box);
+		});
+
+		// Delegated click on the clear button resets the box and refocuses.
+		document.addEventListener('click', function (e) {
+			if (!(e.target instanceof Element)) return;
+			var btn = e.target.closest('[data-search-clear]');
+			if (!btn) return;
+			var box = findBox(btn);
+			if (!box) return;
+			var input = box.querySelector('[data-search-input]');
+			if (input) {
+				input.value = '';
+				sync(box);
+				input.focus();
+			}
+		});
+
+		// Hoisted scripts run after the DOM parses; bring any pre-filled box
+		// (e.g. restored form state) in line on first paint.
+		var boxes = document.querySelectorAll('[data-search-box]');
+		for (var i = 0; i < boxes.length; i++) {
+			sync(boxes[i]);
+		}
+	})();
+</script>
+
+<style>
+	.search-box {
+		position: relative;
+		width: 100%;
+	}
+
+	.search-icon {
+		position: absolute;
+		left: 0.75rem;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 1rem;
+		height: 1rem;
+		color: var(--color-text-muted);
+		pointer-events: none;
+	}
+
+	.search-input {
+		width: 100%;
+		appearance: none;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: 0.625rem;
+		padding: 0.5rem 2.25rem 0.5rem 2.25rem;
+		font: inherit;
+		font-size: 0.875rem;
+		line-height: 1.5;
+		color: var(--color-text);
+		transition:
+			border-color 120ms ease,
+			box-shadow 120ms ease;
+	}
+
+	.search-input::placeholder {
+		color: var(--color-text-muted);
+	}
+
+	.search-input:focus {
+		outline: none;
+		border-color: var(--color-accent);
+		box-shadow: 0 0 0 3px var(--color-accent-soft);
+	}
+
+	.search-clear {
+		position: absolute;
+		right: 0.375rem;
+		top: 50%;
+		transform: translateY(-50%);
+		appearance: none;
+		border: 0;
+		background: transparent;
+		width: 1.5rem;
+		height: 1.5rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 0.375rem;
+		font: inherit;
+		font-size: 1.125rem;
+		line-height: 1;
+		color: var(--color-text-muted);
+		cursor: pointer;
+	}
+
+	.search-clear:hover {
+		color: var(--color-text);
+		background: var(--color-accent-soft);
+	}
+
+	/* Only surface the clear button once there is something to clear. */
+	.search-box:not(.has-value) .search-clear {
+		display: none;
+	}
+</style>

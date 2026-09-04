@@ -1,0 +1,288 @@
+---
+/**
+ * /models — model list page (concept 02).
+ *
+ * The model directory: every models-collection entry as a card showing its
+ * official FOUR-tier API price (输入 / 输出 / 缓存读 / 缓存写, ¥), the provider
+ * chips carrying it, and a card-wide link to /models/[id].
+ *
+ * Data wiring:
+ *  - `getCollection('models')` supplies the model entries.
+ *  - Provider display names are resolved by joining the `providers` collection
+ *    (id → name / nameZh, preferring nameZh for the human label) against each
+ *    model's `providers` id list.
+ *  - Each card is built as a plain <div data-search="…"> wrapper around
+ *    <ModelCard> (Astro does not forward extra attributes to a component's
+ *    root element, so the search haystack lives on the wrapper). The wrapper
+ *    is the grid cell: SearchBox walks #model-grid's children and toggles
+ *    their display, while the inner card fills the cell.
+ *
+ * ?q= support: the site is STATIC (output: 'static', GitHub Pages deploy), so
+ * Astro.url.searchParams is never evaluated per request — server-side
+ * pre-filtering cannot run on the real host. The homepage hero search submits
+ * GET /models?q=<term>; on load this page reads the query CLIENT-SIDE, pre-
+ * fills the SearchBox, and dispatches an input event so SearchBox's own
+ * delegated filter hides non-matching cards (name + provider labels + official
+ * input/output, case-insensitive — the same haystack typed into data-search).
+ * Clearing the box restores the full grid; the empty-state hint appears when
+ * nothing matches.
+ *
+ * Official prices render as static ¥ text server-side (official.currency is
+ * CNY in the yaml); ModelCard owns all 0 → 免费 / null → — handling.
+ */
+import { getCollection } from 'astro:content';
+
+import Layout from '../../layouts/Layout.astro';
+import ModelCard from '../../components/ModelCard.astro';
+import SearchBox from '../../components/SearchBox.astro';
+
+interface ProviderInfo {
+	id: string;
+	/** Human label: nameZh when present (智谱官方-style), else English name. */
+	label: string;
+}
+
+// Resolve provider id → human label once, for every model below.
+const providers = await getCollection('providers');
+const providerById = new Map<string, ProviderInfo>(
+	providers.map(({ data }) => [
+		data.id,
+		{ id: data.id, label: data.nameZh ?? data.name },
+	]),
+);
+
+// Model entries, name-sorted for a deterministic grid. All entries always
+// render (static host); ?q= narrows the view client-side.
+const entries = (await getCollection('models')).sort((a, b) =>
+	a.data.name.localeCompare(b.data.name),
+);
+
+interface GridItem {
+	modelId: string;
+	modelName: string;
+	providerNames: string[];
+	/** Whitespace-joined haystack for the client-side search filter. */
+	searchText: string;
+	detailHref: string;
+	official: {
+		input: number;
+		output: number;
+		cacheRead: number | null;
+		cacheWrite: number | null;
+		currency: 'USD' | 'CNY';
+	};
+}
+
+const items: GridItem[] = entries.map(({ data }) => {
+	const providerNames = (data.providers ?? [])
+		.map((id) => providerById.get(id)?.label)
+		.filter((name): name is string => Boolean(name));
+	const officialKeywords = [data.official.input, data.official.output]
+		.map((v) => String(v))
+		.join(' ');
+	return {
+		modelId: data.id,
+		modelName: data.name,
+		providerNames,
+		searchText: [data.name, ...providerNames, officialKeywords].join(' '),
+		detailHref: `/models/${data.id}`,
+		official: data.official,
+	};
+});
+---
+
+<Layout title="模型" description="模型官方价格目录 · 订阅方案对比" activeNav="models">
+	<header class="models-head">
+		<h1 class="models-title">模型</h1>
+		<p class="models-lead">
+			官方 API 四档价格速览（输入 / 输出 / 缓存读 / 缓存写，¥/百万 token）
+		</p>
+	</header>
+
+	<div class="models-toolbar">
+		<SearchBox
+			targetSelector="#model-grid"
+			placeholder="搜索模型或提供商…"
+		/>
+	</div>
+
+	<div class="model-grid" id="model-grid">
+		{
+			items.map((item) => (
+				<div class="model-grid-cell" data-search={item.searchText}>
+					<ModelCard
+						model={{
+							id: item.modelId,
+							name: item.modelName,
+							official: item.official,
+						}}
+						providerNames={item.providerNames}
+						detailHref={item.detailHref}
+					/>
+				</div>
+			))
+		}
+	</div>
+
+	<p class="models-empty" hidden aria-live="polite">
+		没有匹配的模型，换个关键词试试
+	</p>
+</Layout>
+
+<style>
+	.models-head {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+	}
+
+	.models-title {
+		margin: 0;
+		font-size: 1.875rem;
+		font-weight: 800;
+		line-height: 1.25;
+		letter-spacing: -0.01em;
+		color: var(--color-text);
+	}
+
+	.models-lead {
+		margin: 0;
+		font-size: 0.875rem;
+		line-height: 1.6;
+		color: var(--color-text-muted);
+	}
+
+	.models-toolbar {
+		width: 100%;
+		max-width: 42rem;
+		margin-top: 0.25rem;
+	}
+
+	/* Card grid — responsive. Each wrapper div is one searchable grid cell:
+	   the grid stretches cells to equal row height (default align-items), and
+	   SearchBox walks #model-grid's direct children to toggle their display.
+	   The inner <article> (ModelCard's own root, carries its own scope id) is
+	   filled with :global rules because Astro page styles can't target a child
+	   component's root element with the page scope id. ModelCard's .model-card
+	   then fills the article via its internal height:100%. */
+	.model-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+		gap: 1rem;
+		margin-top: 1.25rem;
+	}
+
+	.model-grid-cell {
+		min-width: 0;
+	}
+
+	/* The card root must not shrink below its content and fills the cell —
+	   plain (unscoped) so it matches ModelCard's article across scope ids. */
+	:global(.model-grid-cell > article) {
+		min-width: 0;
+		height: 100%;
+	}
+
+	/* No-match hint — [hidden] by default; the sync script removes the
+	   attribute while a ?q= term (or typed query) hides every card. */
+	.models-empty {
+		margin: 1.25rem 0 0;
+		padding: 1.5rem;
+		border: 1px dashed var(--color-border);
+		border-radius: var(--radius-card);
+		color: var(--color-text-muted);
+		font-size: 0.875rem;
+		line-height: 1.6;
+		text-align: center;
+	}
+</style>
+
+<script>
+	// ?q= landing sync + empty-clear reconcile (static host).
+	//
+	// ?q=: the homepage hero search submits GET /models?q=<term>. Astro renders
+	// the same static HTML for every query string, so on first paint we read
+	// the URL term client-side, pre-fill the SearchBox, and dispatch an input
+	// event so SearchBox's own delegated filter hides non-matching cards (the
+	// haystack on each data-search wrapper = name + provider labels + official
+	// input/output — same terms the box matches).
+	//
+	// Empty-clear reconcile: SearchBox's applyFilter treats data-visible="0"
+	// as truthy and early-returns, so after any filter the clear button /
+	// backspace-to-empty leaves the grid stuck hidden (a shared-component
+	// defect, visible on /providers too). This page restores the intended
+	// empty-state behaviour (show every card) without touching SearchBox: when
+	// the box reads empty we force-show all cells and reset data-visible. The
+	// reconcile is idempotent — if SearchBox is later fixed, forcing the same
+	// state it would have produced is harmless.
+	(function () {
+		var box = document.querySelector('[data-search-box]');
+		var grid = document.getElementById('model-grid');
+		if (!box || !grid) return;
+		var input = box.querySelector('[data-search-input]');
+		if (!input) return;
+		var empty = document.querySelector('.models-empty');
+
+		function anyCellVisible() {
+			return Array.prototype.some.call(grid.children, function (cell) {
+				return cell.style.display !== 'none';
+			});
+		}
+
+		// Empty-state hint mirrors whether any card is currently visible.
+		function syncEmpty() {
+			if (empty) empty.hidden = anyCellVisible();
+		}
+
+		// Box reads empty → show every card (SearchBox's own empty intent).
+		function reconcile() {
+			if (input.value.trim() !== '') return; // non-empty → SearchBox rules
+			box.setAttribute('data-visible', '1');
+			Array.prototype.forEach.call(grid.children, function (cell) {
+				cell.style.display = '';
+			});
+			box.classList.remove('has-value');
+			syncEmpty();
+		}
+
+		// Run after SearchBox's own delegated handlers for the same event, so
+		// results are independent of script execution order.
+		function defer(fn) {
+			var raf =
+				window.requestAnimationFrame ||
+				function (cb) {
+					return window.setTimeout(cb, 0);
+				};
+			raf(fn);
+		}
+
+		// Every typed/erased/cleared state ends here AFTER SearchBox filtered.
+		document.addEventListener('input', function (e) {
+			if (!(e.target instanceof Element)) return;
+			if (!e.target.closest('[data-search-input]')) return;
+			defer(function () {
+				reconcile();
+				syncEmpty();
+			});
+		});
+		document.addEventListener('click', function (e) {
+			if (!(e.target instanceof Element)) return;
+			if (!e.target.closest('[data-search-clear]')) return;
+			defer(function () {
+				reconcile();
+				syncEmpty();
+			});
+		});
+
+		// ?q= landing: pre-fill and drive SearchBox's filter. Whether this
+		// module runs before or after SearchBox's, the dispatched (bubbling)
+		// input event reaches its delegated listener and the first-paint pass
+		// also reads the now-set value — one of the two always filters.
+		var raw = new URLSearchParams(window.location.search).get('q');
+		if (raw !== null && raw.trim() !== '') {
+			input.value = raw.trim();
+			input.dispatchEvent(new Event('input', { bubbles: true }));
+			defer(syncEmpty);
+		}
+	})();
+</script>

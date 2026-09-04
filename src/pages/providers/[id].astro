@@ -1,0 +1,374 @@
+---
+/**
+ * /providers/[id] — single-provider model price table (concept 04).
+ *
+ * For ONE provider, lists every model it carries in the wide 10-column
+ * ProviderTable. Derived value metrics (月额度 M、M/货币、货币/M) are computed
+ * against DEFAULT_MIX (90/9/1) in USD — see src/lib/data.ts — at build time;
+ * the rows are then sorted by RAW 货币/M ascending so the best value is #1 and
+ * gets ProviderTable's 最佳值 highlight.
+ *
+ * Structure (top → bottom):
+ *   1. Breadcrumb: 订阅商 / {provider name}.
+ *   2. Header: provider name (h1) + kind <Badge> + a billing line — for
+ *      subscription providers the composed plan "月费 $10 + 7% ≈ $10.7/月 ·
+ *      共享资源池" (amount from pricing.actualMonthly); for official providers
+ *      the 按量 marker "官方按量 · ¥/1M · 无月费".
+ *   3. MixSlider — renders the 90/9/1 usage-mix strip for UX. Live recompute
+ *      from its window `mixchange` event is intentionally NOT wired yet (same
+ *      T23-note pattern as /models/[id]); the table below is server-rendered
+ *      against DEFAULT_MIX and stays static until that ticket lands.
+ *   4. ProviderTable — the 10-column wide table (Model|Input|Output|Cache
+ *      Read|Cache Write|月度积分|月额度M(90,9,1)|月额度M(95,4,1)|M/货币|货币/M).
+ *      Every cell is null-safe: an official provider (no credits / quota /
+ *      billing) renders its rows with "—" in the pool-derived columns and is
+ *      ranked lowest (its rows carry no computable curPerM, so they sort to
+ *      the bottom and never become a 最佳值).
+ *
+ * getStaticPaths enumerates every providers-collection id; an unknown slug
+ * falls through to Astro's built-in 404.
+ */
+import Badge from '../../components/Badge.astro';
+import Layout from '../../layouts/Layout.astro';
+import MixSlider from '../../components/MixSlider.astro';
+import ProviderTable from '../../components/ProviderTable.astro';
+import {
+	DEFAULT_MIX,
+	actualMonthly,
+	round1,
+	type Currency,
+} from '../../lib/pricing';
+import {
+	computeRowMetrics,
+	getProvidersWithModels,
+	type ProviderWithModels,
+} from '../../lib/data';
+
+export interface Props {
+	provider: ProviderWithModels;
+}
+
+export async function getStaticPaths(): Promise<
+	{ params: { id: string }; props: Props }[]
+> {
+	const providers = await getProvidersWithModels();
+	return providers.map((provider) => ({
+		params: { id: provider.id },
+		props: { provider },
+	}));
+}
+
+const { provider } = Astro.props;
+const isOfficial = provider.kind === 'official';
+// Provider's own listing currency — the per-1M price columns carry its native
+// prices. Official mock providers list ¥/1M; subscription providers list $.
+const currencySymbol: '$' | '¥' = provider.currency === 'CNY' ? '¥' : '$';
+
+/** 1-dp money string, trailing ".0" trimmed: 10.7 → "10.7", 20 → "20". */
+function fmtTrim(n: number): string {
+	const r = Math.round((n + Number.EPSILON) * 10) / 10;
+	const fixed = r.toFixed(1);
+	return fixed.endsWith('.0') ? fixed.slice(0, -2) : fixed;
+}
+
+// --- Billing line (header) ------------------------------------------------
+// Subscription: composed from the plan — 月费 + feePct, actual monthly from
+// pricing.actualMonthly (baseFee × (1 + feePct)) — plus the 共享资源池 marker.
+// Official: 按量 (pay-as-you-go) marker in the listing currency.
+let billPrimary: string;
+let billRest: string;
+
+if (isOfficial) {
+	billPrimary = '官方按量';
+	billRest = `${currencySymbol}/1M · 无月费，随用随付`;
+} else {
+	const billing =
+		provider.billing && provider.billing.baseFee > 0 ? provider.billing : null;
+	if (!billing) {
+		billPrimary = '订阅聚合';
+		billRest = '按共享资源池计费';
+	} else {
+		const pct = typeof billing.feePct === 'number' ? billing.feePct : 0;
+		billPrimary = `月费 ${currencySymbol}${fmtTrim(billing.baseFee)}`;
+		const extra: string[] = [];
+		if (pct > 0) {
+			billPrimary += ` + ${pct}%`;
+			const actual = actualMonthly(billing, billing.currency ?? 'USD');
+			extra.push(`≈ ${currencySymbol}${fmtTrim(actual)}/月`);
+		} else if (pct === 0) {
+			extra.push('无手续费');
+		}
+		extra.push('共享资源池');
+		billRest = extra.join(' · ');
+	}
+}
+
+// --- ProviderTable rows ----------------------------------------------------
+// Metrics: computed per modelRow via computeRowMetrics(…, DEFAULT_MIX, 'USD').
+// computeRowMetrics returns RAW ratios; rows are sorted on raw curPerM so ties
+// behave predictably, then the display values are rounded to 1 dp (the
+// ProviderTable contract). Official rows → every pool metric null → they sort
+// last (stable) and render "—".
+type SortableRow = {
+	modelId: string;
+	modelName: string;
+	modelHref: string;
+	price: ProviderWithModels['modelRows'][number]['price'];
+	credits: number | null;
+	quota90: number | null;
+	quota95: number | null;
+	mPerCur: number | null;
+	curPerM: number | null;
+	_sort: number; // raw curPerM, Infinity when null
+};
+
+const sortable: SortableRow[] = provider.modelRows.map((row) => {
+	const m = computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'USD');
+	return {
+		modelId: row.modelId,
+		modelName: row.modelName,
+		modelHref: `/models/${row.modelId}`,
+		price: row.price,
+		credits: row.credits,
+		quota90: row.quota90,
+		quota95: row.quota95,
+		mPerCur: m.mPerCur === null ? null : round1(m.mPerCur),
+		curPerM: m.curPerM === null ? null : round1(m.curPerM),
+		_sort: m.curPerM === null ? Number.POSITIVE_INFINITY : m.curPerM,
+	};
+});
+
+sortable.sort((a, b) => a._sort - b._sort);
+
+// Drop the internal sort key before handing rows to the display component.
+// rank 1 carries isBest (ProviderTable's own rank===1 fallback highlights the
+// first row even without the flag — same convention as /models/[id]'s RankTable,
+// which also ranks a pure-按量 list 1..n and lets the component highlight #1).
+const rows = sortable.map(({ _sort, ...row }, i) => ({
+	...row,
+	rank: i + 1,
+	isBest: i === 0,
+}));
+
+const mixLabel = '缓存90/输入9/输出1';
+const pageTitle = provider.name;
+const pageDescription = isOfficial
+	? `${provider.name} 各模型的官方按量 ¥ 价格（mock 数据）`
+	: `${provider.name} 各模型的月费、月额度与每 M 成本明细（mock 数据）`;
+const sectionTitle = isOfficial ? '官方按量价格' : '模型价格与月配额';
+const sectionSub = isOfficial
+	? '官方 API 按 token 计费，无月费与额度池'
+	: `按 ${currencySymbol}/M 升序，第 1 行为最佳值 · 折算配比 ${mixLabel}`;
+---
+
+<Layout title={pageTitle} description={pageDescription} activeNav="providers">
+	<div class="detail-page">
+		<nav class="breadcrumb" aria-label="面包屑">
+			<a href="/providers">订阅商</a>
+			<span class="bc-sep" aria-hidden="true">/</span>
+			<span class="bc-current" aria-current="page">{provider.name}</span>
+		</nav>
+
+		<header class="page-head">
+			<div class="head-row">
+				<h1 class="provider-title">{provider.name}</h1>
+				<Badge kind={provider.kind} />
+			</div>
+			<p class="billing-line">
+				<span class="bill-primary">{billPrimary}</span>
+				{billRest && (
+					<span class="bill-rest">
+						<span class="bill-sep" aria-hidden="true">·</span>
+						{billRest}
+					</span>
+				)}
+			</p>
+		</header>
+
+		<div class="mix-panel">
+			<MixSlider label="Token 用量配比（默认 90 / 9 / 1）" />
+			<p class="mix-note">
+				拖拽配比实时重算即将上线 —— 当前下方表格按默认 90 / 9 / 1 配比计算。
+			</p>
+		</div>
+
+		<section class="pt-card" aria-label={sectionTitle}>
+			<div class="pt-head">
+				<div class="pt-titles">
+					<h2 class="pt-title">{sectionTitle}</h2>
+					<p class="pt-sub">{sectionSub}</p>
+				</div>
+				<span class="pt-count">共 {rows.length} 个模型</span>
+			</div>
+
+			{rows.length > 0 ? (
+				<ProviderTable rows={rows} currencySymbol={currencySymbol} mixLabel={mixLabel} />
+			) : (
+				<p class="pt-empty">该订阅商暂无模型数据</p>
+			)}
+		</section>
+	</div>
+</Layout>
+
+<style>
+	.detail-page {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+
+	/* --- Breadcrumb ------------------------------------------------------ */
+	.breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.8125rem;
+		line-height: 1.5;
+		color: var(--color-text-muted);
+	}
+
+	.breadcrumb a {
+		color: var(--color-text-muted);
+		text-decoration: none;
+		transition: color 150ms ease;
+	}
+
+	.breadcrumb a:hover {
+		color: var(--color-accent);
+	}
+
+	.bc-sep {
+		color: var(--color-border);
+		user-select: none;
+	}
+
+	.bc-current {
+		color: var(--color-text);
+		font-weight: 500;
+	}
+
+	/* --- Page header ----------------------------------------------------- */
+	.page-head {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4375rem;
+	}
+
+	.head-row {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.625rem;
+	}
+
+	.provider-title {
+		margin: 0;
+		font-size: 1.875rem;
+		font-weight: 800;
+		line-height: 1.25;
+		letter-spacing: -0.01em;
+		color: var(--color-text);
+	}
+
+	.billing-line {
+		display: flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+		margin: 0;
+		font-size: 0.875rem;
+		line-height: 1.6;
+		color: var(--color-text);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.bill-primary {
+		font-weight: 600;
+	}
+
+	.bill-rest {
+		color: var(--color-text-muted);
+	}
+
+	.bill-sep {
+		margin-right: 0.375rem;
+		color: var(--color-border);
+		user-select: none;
+	}
+
+	/* --- Usage-mix strip -------------------------------------------------- */
+	.mix-panel {
+		width: 100%;
+		max-width: 42rem;
+	}
+
+	.mix-note {
+		margin: 0.4375rem 0.125rem 0;
+		font-size: 0.75rem;
+		line-height: 1.5;
+		color: var(--color-text-muted);
+	}
+
+	/* --- Table card -------------------------------------------------------- */
+	.pt-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+	}
+
+	.pt-head {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0 0.125rem;
+	}
+
+	.pt-titles {
+		display: flex;
+		flex-direction: column;
+		gap: 0.1875rem;
+		min-width: 0;
+	}
+
+	.pt-title {
+		margin: 0;
+		font-size: 1.0625rem;
+		font-weight: 700;
+		line-height: 1.4;
+		color: var(--color-text);
+		letter-spacing: 0.01em;
+	}
+
+	.pt-sub {
+		margin: 0;
+		font-size: 0.75rem;
+		line-height: 1.5;
+		color: var(--color-text-muted);
+	}
+
+	.pt-count {
+		flex: none;
+		display: inline-flex;
+		align-items: center;
+		padding: 0.125rem 0.625rem;
+		border-radius: 9999px;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		font-size: 0.75rem;
+		font-weight: 500;
+		color: var(--color-text-muted);
+		white-space: nowrap;
+	}
+
+	.pt-empty {
+		margin: 0;
+		padding: 2.25rem 1rem;
+		text-align: center;
+		font-size: 0.875rem;
+		color: var(--color-text-muted);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+	}
+</style>
