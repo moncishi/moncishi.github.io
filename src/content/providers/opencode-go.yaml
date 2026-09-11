@@ -15,6 +15,17 @@ billing:
   feePct: 0
   currency: USD
   poolNote: 月费 $20 无手续费，缓存写入免费（记 0）
+plans:
+  - id: standard
+    name: 编码畅享包
+    baseFee: 20
+    currency: USD
+    feePct: 0
+    quotaType: credits
+    quotaAmount: 58
+    rateLimit:
+      hasLimit: 'no'
+    poolNote: 月费 $20 无手续费，共享 58 credits 资源池
 models:
   - modelId: qwen-3.8-max
     input: 0.32

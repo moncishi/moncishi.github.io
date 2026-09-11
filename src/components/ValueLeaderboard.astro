@@ -28,6 +28,8 @@ interface LeaderboardRow {
 	modelName: string;
 	providerName: string;
 	providerKind: 'official' | 'subscription';
+	planName?: string;
+	rateLimitNote?: string;
 	providerHref: string;
 	modelHref: string;
 	currencyPerM: number | null;
@@ -103,6 +105,16 @@ const rankClass = (rank: number): string | undefined => {
 										>
 											{row.providerName}
 										</a>
+										{row.planName && (
+											<span class="text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
+												{row.planName}
+											</span>
+										)}
+										{row.rateLimitNote && (
+											<span class="text-xs px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">
+												{row.rateLimitNote}
+											</span>
+										)}
 										<Badge kind={row.providerKind} />
 									</div>
 								</div>

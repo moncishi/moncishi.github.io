@@ -15,6 +15,31 @@ billing:
   feePct: 7
   currency: USD
   poolNote: 月费 $10 + 7% 手续费，共享资源池，按模型消耗池内 credits
+plans:
+  - id: go
+    name: Go 套餐
+    baseFee: 8
+    currency: CNY
+    feePct: 0
+    quotaType: currency
+    quotaAmount: 10
+    quotaCurrency: USD
+    rateLimit:
+      hasLimit: unknown
+    poolNote: 8元/月，提供 10 美元额度
+  - id: goat
+    name: Goat 套餐
+    baseFee: 10
+    currency: USD
+    feePct: 7
+    quotaType: currency
+    quotaAmount: 60
+    quotaCurrency: USD
+    rateLimit:
+      hasLimit: 'yes'
+      rolling5h: 20次或$5
+      monthly: 60美元
+    poolNote: 10美元/月 + 7% 手续费，提供 60 美元额度
 models:
   # cacheWrite: 本商不单列缓存写入费（已含在读取价内），记 null
   - modelId: glm-5.2

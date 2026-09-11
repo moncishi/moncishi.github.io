@@ -70,16 +70,22 @@ const [usdChannels, cnyChannels] = await Promise.all([
 	getModelChannels(modelId, DEFAULT_MIX, 'USD'),
 	getModelChannels(modelId, DEFAULT_MIX, 'CNY'),
 ]);
-const cnyByProvider = new Map(cnyChannels.map((c) => [c.providerId, c]));
+const cnyByKey = new Map(
+	cnyChannels.map((c) => [`${c.providerId}:${c.planId ?? ''}`, c]),
+);
 
-// USD channels arrive pre-sorted by raw curPerM ascending (best first, 按量
-// last); rank = position in that order. Numeric fields stay RAW — RankTable
-// does its own 1-dp / grouping / fee trimming internally.
 const rows = usdChannels.map((c, i) => {
-	const cny = cnyByProvider.get(c.providerId);
+	const cny = cnyByKey.get(`${c.providerId}:${c.planId ?? ''}`);
 	return {
 		providerId: c.providerId,
 		providerName: c.providerName,
+		planName: c.planName,
+		rateLimitNote:
+			c.planRateLimit?.hasLimit === 'yes'
+				? (c.planRateLimit.rolling5h ?? '有限额')
+				: c.planRateLimit?.hasLimit === 'no'
+				? '无频控'
+				: undefined,
 		kind: c.kind,
 		providerHref: `/providers/${c.providerId}`,
 		monthlyFeeUsd: c.monthlyFee,
@@ -99,6 +105,7 @@ function fmtRef(n: number): string {
 	return Number.isInteger(r) ? String(r) : r.toFixed(1);
 }
 
+const isImage = official && 'pricing' in official;
 const pageTitle = `${modelName} 订阅商对比`;
 const pageDescription = `${modelName} 在各订阅商与官方 API 之间的月费、月额度与每 M 成本对比`;
 ---
@@ -114,18 +121,32 @@ const pageDescription = `${modelName} 在各订阅商与官方 API 之间的月�
 		<header class="page-head">
 			<h1 class="model-title">{modelName}</h1>
 			<p class="model-sub">
-				{currencySymbol} 官方：输入 {fmtRef(official.input)} / 输出{' '}
-				{fmtRef(official.output)}
-				<span class="model-sub-unit">（官方按量参考价，¥/M）</span>
+				{isImage ? (
+					<>
+						{currencySymbol} 官方：1K {official.pricing?.['1k'] ?? '—'} / 2K{' '}
+						{official.pricing?.['2k'] ?? '—'}
+						<span class="model-sub-unit">（官方按量参考价，¥/张）</span>
+					</>
+				) : (
+					<>
+						{currencySymbol} 官方：输入 {fmtRef(official.input)} / 输出{' '}
+						{fmtRef(official.output)}
+						<span class="model-sub-unit">（官方按量参考价，¥/M）</span>
+					</>
+				)}
 			</p>
 		</header>
 
-		<div class="mix-panel">
-			<MixSlider label="Token 用量配比（默认 90 / 9 / 1）" />
-			<p class="mix-note">
-				拖拽配比实时重算即将上线 —— 当前下方对比按默认配比计算。
-			</p>
-		</div>
+		{
+			!isImage && (
+				<div class="mix-panel">
+					<MixSlider label="Token 用量配比（默认 90 / 9 / 1）" />
+					<p class="mix-note">
+						拖拽配比实时重算即将上线 —— 当前下方对比按默认配比计算。
+					</p>
+				</div>
+			)
+		}
 
 		<RankTable modelName={modelName} rows={rows} />
 	</div>

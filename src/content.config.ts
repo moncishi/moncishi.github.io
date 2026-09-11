@@ -2,11 +2,26 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-/**
- * Schema contract for mock data files (T7).
- * Providers are either `official` (官方, ¥ CNY official API) or
- * `subscription` (订阅聚合, $ USD pool).
- */
+const planSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  baseFee: z.number(), // monthly fixed fee in its currency
+  currency: z.enum(['USD', 'CNY']),
+  feePct: z.number().optional().default(0),
+  quotaType: z.enum(['credits', 'currency']),
+  quotaAmount: z.number(), // e.g. 20000 credits or 60 USD
+  quotaCurrency: z.enum(['USD', 'CNY']).optional(),
+  rateLimit: z
+    .object({
+      hasLimit: z.enum(['yes', 'no', 'unknown']),
+      rolling5h: z.string().nullable().optional(),
+      weekly: z.string().nullable().optional(),
+      monthly: z.string().nullable().optional(),
+    })
+    .optional(),
+  poolNote: z.string().optional(),
+});
+
 const providers = defineCollection({
   loader: glob({ pattern: '**/*.yaml', base: './src/content/providers' }),
   schema: z.object({
@@ -16,12 +31,13 @@ const providers = defineCollection({
     kind: z.enum(['official', 'subscription']),
     currency: z.enum(['USD', 'CNY']),
     description: z.string().optional(),
+    plans: z.array(planSchema).default([]),
     billing: z
       .object({
-        baseFee: z.number(), // monthly fixed fee in its currency
-        feePct: z.number().optional(), // e.g. 7 = 7%
+        baseFee: z.number(),
+        feePct: z.number().optional(),
         currency: z.enum(['USD', 'CNY']).optional(),
-        poolNote: z.string().optional(), // mechanism note (zh)
+        poolNote: z.string().optional(),
       })
       .optional(),
     models: z.array(
@@ -39,18 +55,26 @@ const providers = defineCollection({
   }),
 });
 
+const textOfficialSchema = z.object({
+  input: z.number(), // official API price per 1M
+  output: z.number(),
+  cacheRead: z.number().nullable(),
+  cacheWrite: z.number().nullable().default(0),
+  currency: z.enum(['USD', 'CNY']).default('CNY'),
+});
+
+const imageOfficialSchema = z.object({
+  pricing: z.record(z.string(), z.number()), // e.g. { '1k': 0.08, '2k': 0.15 }
+  currency: z.enum(['USD', 'CNY']).default('CNY'),
+});
+
 const models = defineCollection({
   loader: glob({ pattern: '**/*.yaml', base: './src/content/models' }),
   schema: z.object({
     id: z.string(),
     name: z.string(),
-    official: z.object({
-      input: z.number(), // ¥ CNY official API price per 1M
-      output: z.number(),
-      cacheRead: z.number().nullable(),
-      cacheWrite: z.number().nullable().default(0),
-      currency: z.enum(['USD', 'CNY']).default('CNY'),
-    }),
+    modality: z.enum(['text', 'image', 'video']).default('text'),
+    official: z.union([textOfficialSchema, imageOfficialSchema]),
     providers: z.array(z.string()).default([]), // provider ids that carry this model
   }),
 });

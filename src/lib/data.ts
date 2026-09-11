@@ -5,40 +5,36 @@
  * functions to (a) read the `providers` / `models` collections once and
  * (b) compute the derived comparison metrics they all render. All collection
  * reads and metric assembly live here so the pages stay consistent.
- *
- * Design rules:
- * - Every row-level metric comes from pricing.ts (no duplicated math). The
- *   provider schema has no pricing-`Billing` object, so rows are first
- *   normalized into a pricing `Billing` when the provider bills a pool, then
- *   handed to pricing fns.
- * - quota M / monthly bill are computed against the provider's OWN currency
- *   (`valueMetrics` with the provider currency); only the monthly bill is then
- *   re-expressed in the caller's `displayCurrency`, and the per-token ratios
- *   derive from that bill. Token prices and token counts are currency-free.
- * - Ranking (channels, leaderboard) sorts on RAW (unrounded) ratios so ties
- *   behave predictably; 1-decimal rounding is a display concern only.
  */
 
 import { getCollection } from 'astro:content';
 
 import {
+  planActualMonthly,
+  planValueMetrics,
   toDisplayCurrency,
   valueMetrics,
   type Billing,
   type Currency,
   type Kind,
   type Mix,
+  type Plan,
   type Price,
+  type QuotaType,
+  type RateLimit,
 } from './pricing';
 
 /** One display row of a provider's model (provider detail page / cards). */
 export interface ProviderModelRow {
   modelId: string;
   modelName: string;
+  modality?: 'text' | 'image' | 'video';
   /** Provider's own price per 1M tokens, in the provider's currency. */
   price: Price;
   /** Official ¥ CNY price block from the models collection, if any. */
   officialPrice: Price | null;
+  /** Official image/video pricing tiers (e.g. { '1k': 0.08, '2k': 0.15 }) */
+  officialPricing?: Record<string, number> | null;
   /** Monthly credits / pool face value, when the provider bills a pool. */
   credits: number | null;
   /** Published (90/9/1) monthly quota in M tokens, when the provider states it. */
@@ -57,7 +53,9 @@ export interface ProviderWithModels {
   /** Provider's own listing currency (native prices / billing are in it). */
   currency: 'USD' | 'CNY';
   description?: string;
-  /** Billing plan as authored; null → official pay-as-you-go (按量). */
+  /** All available subscription/pricing plans. */
+  plans: Plan[];
+  /** Legacy billing plan as authored; null → official pay-as-you-go (按量). */
   billing: {
     baseFee: number;
     feePct?: number;
@@ -79,11 +77,15 @@ export interface RowMetrics {
   curPerM: number | null;
 }
 
-/** A single model's channels across every provider carrying it. */
+/** A single model's channels across every provider and plan carrying it. */
 export interface ModelChannel {
   providerId: string;
   providerName: string;
   kind: Kind;
+  planId?: string;
+  planName?: string;
+  planRateLimit?: RateLimit;
+  quotaType?: QuotaType;
   /** Effective monthly bill in display currency. null = pay-as-you-go. */
   monthlyFee: number | null;
   /** Monthly quota in M tokens. null when not computable. */
@@ -94,13 +96,17 @@ export interface ModelChannel {
   curPerM: number | null;
 }
 
-/** One (provider, model) combo on the global value leaderboard. */
+/** One (provider, plan, model) combo on the global value leaderboard. */
 export interface LeaderboardEntry {
   modelId: string;
   modelName: string;
   providerId: string;
   providerName: string;
   providerKind: Kind;
+  planId?: string;
+  planName?: string;
+  planRateLimit?: RateLimit;
+  quotaType?: QuotaType;
   /** Raw cost per M token in display currency. null for non-pool combos. */
   curPerM: number | null;
   /** Raw M tokens per display-currency unit. null for non-pool combos. */
@@ -110,18 +116,16 @@ export interface LeaderboardEntry {
 }
 
 /** Official ¥ CNY price block from the models collection, reshaped to a `Price`. */
-function officialToPrice(official: {
-  input: number;
-  output: number;
-  cacheRead: number | null;
-  cacheWrite: number | null;
-}): Price {
-  return {
-    input: official.input,
-    output: official.output,
-    cacheRead: official.cacheRead,
-    cacheWrite: official.cacheWrite,
-  };
+function officialToPrice(official: any): Price | null {
+  if (official && 'input' in official && 'output' in official) {
+    return {
+      input: official.input,
+      output: official.output,
+      cacheRead: official.cacheRead ?? null,
+      cacheWrite: official.cacheWrite ?? null,
+    };
+  }
+  return null;
 }
 
 /**
@@ -139,18 +143,7 @@ function toBilling(billing: ProviderWithModels['billing']): Billing | null {
 }
 
 /**
- * Derived value metrics for ONE (provider modelRow, mix) pair.
- *
- * Metrics are computed against the provider's own currency (see module header)
- * and the monthly bill is converted to `displayCurrency`. Ratios are returned
- * RAW (unrounded) so callers can rank on exact values.
- *
- * - subscription with a real monthly fee + credits (>0): quotaM from
- *   credits / weighted cost; monthlyFee from baseFee×(1+feePct).
- * - official (billing null or baseFee 0, credits null): quotaM null and
- *   monthlyFee null — 按量 (pay-as-you-go).
- * - credits present but ≤0, or weighted cost unknowable (null price under a
- *   nonzero mix weight): quota not computable → all pool metrics null.
+ * Derived value metrics for ONE (provider modelRow, mix) pair using legacy billing.
  */
 export function computeRowMetrics(
   price: Price,
@@ -161,11 +154,9 @@ export function computeRowMetrics(
 ): RowMetrics {
   const normalized = toBilling(billing);
   if (normalized === null) {
-    // Pay-as-you-go: no pool, no fixed bill, no quota.
     return { quotaM: null, monthlyFee: null, mPerCur: null, curPerM: null };
   }
 
-  // The provider's own listing currency (billing.currency ?? 'USD').
   const providerCurrency = normalized.currency ?? 'USD';
   const vm = valueMetrics(price, mix, credits ?? 0, normalized, providerCurrency);
 
@@ -173,20 +164,45 @@ export function computeRowMetrics(
     return { quotaM: null, monthlyFee: null, mPerCur: null, curPerM: null };
   }
 
-  // vm.actualMonthly is in providerCurrency; re-express in displayCurrency.
   const monthlyFee = toDisplayCurrency(
     vm.actualMonthly,
     providerCurrency,
     displayCurrency,
   );
-  const quotaM = vm.quotaM; // non-null after the guard above.
+  const quotaM = vm.quotaM;
   const curPerM = monthlyFee / quotaM;
   return { quotaM, monthlyFee, mPerCur: quotaM / monthlyFee, curPerM };
 }
 
 /**
+ * Derived value metrics for ONE (plan, model price, mix) pair.
+ */
+export function computePlanMetrics(
+  price: Price,
+  plan: Plan,
+  mix: Mix,
+  displayCurrency: Currency,
+  priceCurrency: Currency = 'USD',
+): RowMetrics {
+  if (plan.baseFee === 0 && plan.quotaAmount === 0) {
+    return { quotaM: null, monthlyFee: null, mPerCur: null, curPerM: null };
+  }
+
+  const vm = planValueMetrics(price, mix, plan, displayCurrency, priceCurrency);
+  if (vm.quotaM === null || vm.actualMonthly === null) {
+    return { quotaM: null, monthlyFee: null, mPerCur: null, curPerM: null };
+  }
+
+  const monthlyFee = vm.actualMonthly;
+  const quotaM = vm.quotaM;
+  const curPerM = quotaM > 0 ? monthlyFee / quotaM : null;
+  const mPerCur = monthlyFee > 0 && quotaM > 0 ? quotaM / monthlyFee : null;
+  return { quotaM, monthlyFee, mPerCur, curPerM };
+}
+
+/**
  * All providers with their model rows, joined to the models collection
- * (model display name + official ¥ CNY prices). Sorted by provider id for
+ * (model display name + official prices). Sorted by provider id for
  * deterministic output.
  */
 export async function getProvidersWithModels(): Promise<ProviderWithModels[]> {
@@ -201,6 +217,42 @@ export async function getProvidersWithModels(): Promise<ProviderWithModels[]> {
 
   return providerEntries
     .map(({ data: p }) => {
+      const plans: Plan[] =
+        p.plans && p.plans.length > 0
+          ? p.plans.map((pl) => ({
+              id: pl.id,
+              name: pl.name,
+              baseFee: pl.baseFee,
+              currency: pl.currency,
+              feePct: pl.feePct ?? 0,
+              quotaType: pl.quotaType,
+              quotaAmount: pl.quotaAmount,
+              quotaCurrency: pl.quotaCurrency,
+              rateLimit: pl.rateLimit
+                ? {
+                    hasLimit: pl.rateLimit.hasLimit,
+                    rolling5h: pl.rateLimit.rolling5h ?? null,
+                    weekly: pl.rateLimit.weekly ?? null,
+                    monthly: pl.rateLimit.monthly ?? null,
+                  }
+                : undefined,
+              poolNote: pl.poolNote,
+            }))
+          : p.billing
+          ? [
+              {
+                id: 'default',
+                name: '默认套餐',
+                baseFee: p.billing.baseFee,
+                feePct: p.billing.feePct ?? 0,
+                currency: p.billing.currency ?? p.currency,
+                quotaType: 'credits' as const,
+                quotaAmount: 0,
+                poolNote: p.billing.poolNote,
+              },
+            ]
+          : [];
+
       const billing =
         p.billing === undefined
           ? null
@@ -218,9 +270,15 @@ export async function getProvidersWithModels(): Promise<ProviderWithModels[]> {
       const modelRows = (p.models ?? []).map((row) => {
         const model = modelIndex.get(row.modelId);
         const officialPrice = model?.official ? officialToPrice(model.official) : null;
+        const officialPricing =
+          model?.official && 'pricing' in model.official
+            ? (model.official as { pricing: Record<string, number> }).pricing
+            : null;
+
         return {
           modelId: row.modelId,
           modelName: model?.name ?? row.modelId,
+          modality: model?.modality ?? 'text',
           price: {
             input: row.input,
             output: row.output,
@@ -228,6 +286,7 @@ export async function getProvidersWithModels(): Promise<ProviderWithModels[]> {
             cacheWrite: row.cacheWrite,
           },
           officialPrice,
+          officialPricing,
           credits: row.credits ?? null,
           quota90: row.quota90 ?? null,
           quota95: row.quota95 ?? null,
@@ -241,6 +300,7 @@ export async function getProvidersWithModels(): Promise<ProviderWithModels[]> {
         kind: p.kind,
         currency: p.currency,
         ...(p.description !== undefined ? { description: p.description } : {}),
+        plans,
         billing,
         modelRows,
       } satisfies ProviderWithModels;
@@ -249,7 +309,7 @@ export async function getProvidersWithModels(): Promise<ProviderWithModels[]> {
 }
 
 /**
- * A single model's channels: every provider carrying it, with derived metrics
+ * A single model's channels: every provider and plan carrying it, with derived metrics
  * for `mix` expressed in `displayCurrency`. Sorted by raw curPerM ascending;
  * pay-as-you-go channels (null curPerM) sort last.
  */
@@ -264,6 +324,32 @@ export async function getModelChannels(
     .flatMap((p) => {
       const row = p.modelRows.find((r) => r.modelId === modelId);
       if (!row) return [];
+
+      if (p.plans && p.plans.length > 0) {
+        return p.plans.map((plan) => {
+          const metrics = computePlanMetrics(
+            row.price,
+            plan,
+            mix,
+            displayCurrency,
+            p.currency,
+          );
+          return {
+            providerId: p.id,
+            providerName: p.name,
+            kind: p.kind,
+            planId: plan.id,
+            planName: plan.name,
+            planRateLimit: plan.rateLimit,
+            quotaType: plan.quotaType,
+            monthlyFee: metrics.monthlyFee,
+            quotaM: metrics.quotaM,
+            mPerCur: metrics.mPerCur,
+            curPerM: metrics.curPerM,
+          } satisfies ModelChannel;
+        });
+      }
+
       const metrics = computeRowMetrics(
         row.price,
         row.credits,
@@ -291,9 +377,9 @@ export async function getModelChannels(
 }
 
 /**
- * Global value leaderboard: every (provider, model) combo whose quota is
+ * Global value leaderboard: every (provider, plan, model) combo whose quota is
  * computable under `mix`, ranked by RAW curPerM ascending. Combos without a
- * computable quota (pay-as-you-go rows, missing/zero credits) are excluded.
+ * computable quota (pay-as-you-go rows, missing/zero credits/quota) are excluded.
  * Returns at most `limit` entries when given.
  */
 export async function getGlobalLeaderboard(
@@ -306,25 +392,53 @@ export async function getGlobalLeaderboard(
   const combos: Array<LeaderboardEntry & { _curPerM: number }> = [];
   for (const p of providers) {
     for (const row of p.modelRows) {
-      const metrics = computeRowMetrics(
-        row.price,
-        row.credits,
-        p.billing,
-        mix,
-        displayCurrency,
-      );
-      if (metrics.curPerM === null || metrics.mPerCur === null) continue;
-      combos.push({
-        modelId: row.modelId,
-        modelName: row.modelName,
-        providerId: p.id,
-        providerName: p.name,
-        providerKind: p.kind,
-        curPerM: metrics.curPerM,
-        mPerCur: metrics.mPerCur,
-        rank: 0,
-        _curPerM: metrics.curPerM,
-      });
+      if (p.plans && p.plans.length > 0) {
+        for (const plan of p.plans) {
+          const metrics = computePlanMetrics(
+            row.price,
+            plan,
+            mix,
+            displayCurrency,
+            p.currency,
+          );
+          if (metrics.curPerM === null || metrics.mPerCur === null) continue;
+          combos.push({
+            modelId: row.modelId,
+            modelName: row.modelName,
+            providerId: p.id,
+            providerName: p.name,
+            providerKind: p.kind,
+            planId: plan.id,
+            planName: plan.name,
+            planRateLimit: plan.rateLimit,
+            quotaType: plan.quotaType,
+            curPerM: metrics.curPerM,
+            mPerCur: metrics.mPerCur,
+            rank: 0,
+            _curPerM: metrics.curPerM,
+          });
+        }
+      } else {
+        const metrics = computeRowMetrics(
+          row.price,
+          row.credits,
+          p.billing,
+          mix,
+          displayCurrency,
+        );
+        if (metrics.curPerM === null || metrics.mPerCur === null) continue;
+        combos.push({
+          modelId: row.modelId,
+          modelName: row.modelName,
+          providerId: p.id,
+          providerName: p.name,
+          providerKind: p.kind,
+          curPerM: metrics.curPerM,
+          mPerCur: metrics.mPerCur,
+          rank: 0,
+          _curPerM: metrics.curPerM,
+        });
+      }
     }
   }
 

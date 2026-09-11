@@ -39,6 +39,8 @@ import Badge from './Badge.astro';
 interface ChannelRow {
 	providerId: string;
 	providerName: string;
+	planName?: string;
+	rateLimitNote?: string;
 	kind: 'official' | 'subscription';
 	providerHref: string;
 	/** Monthly bill in USD. null / ≤ 0 → 按量付费 (pay-as-you-go). */
@@ -220,11 +222,31 @@ const colSpan = 7;
 											aria-label={`查看 ${row.providerName} 订阅商详情`}
 										>
 											<span class="rt-provider-name">{row.providerName}</span>
+											{row.planName && (
+												<span class="text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
+													{row.planName}
+												</span>
+											)}
+											{row.rateLimitNote && (
+												<span class="text-xs px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">
+													{row.rateLimitNote}
+												</span>
+											)}
 											<Badge kind={kind} />
 										</a>
 									) : (
 										<span class="rt-provider-static">
 											<span class="rt-provider-name">{row.providerName}</span>
+											{row.planName && (
+												<span class="text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
+													{row.planName}
+												</span>
+											)}
+											{row.rateLimitNote && (
+												<span class="text-xs px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">
+													{row.rateLimitNote}
+												</span>
+											)}
 											<Badge kind={kind} />
 										</span>
 									)}

@@ -12,6 +12,16 @@ description: >-
   不代表真实官方定价。
 billing:
   baseFee: 0
+plans:
+  - id: pay-as-you-go
+    name: 官方按量付费
+    baseFee: 0
+    currency: CNY
+    quotaType: currency
+    quotaAmount: 0
+    rateLimit:
+      hasLimit: 'no'
+    poolNote: 纯按量计费，随用随付
 models:
   - modelId: qwen-3.8-max
     input: 10

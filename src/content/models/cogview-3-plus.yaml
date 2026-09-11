@@ -1,0 +1,10 @@
+# CogView-3-Plus — 智谱官方图像生成模型
+id: cogview-3-plus
+name: CogView-3-Plus
+modality: image
+official:
+  currency: CNY
+  pricing:
+    '1k': 0.08    # ¥0.08 / 张
+    '2k': 0.15    # ¥0.15 / 张
+providers: []

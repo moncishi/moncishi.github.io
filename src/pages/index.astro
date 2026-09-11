@@ -36,6 +36,13 @@ const leaderboardRows = usdBoard.map((entry) => {
 		modelName: entry.modelName,
 		providerName: entry.providerName,
 		providerKind: entry.providerKind,
+		planName: entry.planName,
+		rateLimitNote:
+			entry.planRateLimit?.hasLimit === 'yes'
+				? (entry.planRateLimit.rolling5h ?? '有限额')
+				: entry.planRateLimit?.hasLimit === 'no'
+				? '无频控'
+				: undefined,
 		providerHref: `/providers/${entry.providerId}`,
 		modelHref: `/models/${entry.modelId}`,
 		currencyPerM: entry.curPerM === null ? null : round1(entry.curPerM),

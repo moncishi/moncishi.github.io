@@ -64,22 +64,17 @@ interface GridItem {
 	/** Whitespace-joined haystack for the client-side search filter. */
 	searchText: string;
 	detailHref: string;
-	official: {
-		input: number;
-		output: number;
-		cacheRead: number | null;
-		cacheWrite: number | null;
-		currency: 'USD' | 'CNY';
-	};
+	official: any;
 }
 
 const items: GridItem[] = entries.map(({ data }) => {
 	const providerNames = (data.providers ?? [])
 		.map((id) => providerById.get(id)?.label)
 		.filter((name): name is string => Boolean(name));
-	const officialKeywords = [data.official.input, data.official.output]
-		.map((v) => String(v))
-		.join(' ');
+	const officialKeywords =
+		'pricing' in data.official
+			? Object.values(data.official.pricing).map((v) => String(v)).join(' ')
+			: [data.official.input, data.official.output].map((v) => String(v)).join(' ');
 	return {
 		modelId: data.id,
 		modelName: data.name,

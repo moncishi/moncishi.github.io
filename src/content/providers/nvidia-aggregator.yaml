@@ -15,6 +15,17 @@ billing:
   feePct: 3
   currency: USD
   poolNote: 月费 $15 + 3% 手续费，无独立缓存写入费（记 null）
+plans:
+  - id: standard
+    name: 聚合标准包
+    baseFee: 15
+    currency: USD
+    feePct: 3
+    quotaType: credits
+    quotaAmount: 85
+    rateLimit:
+      hasLimit: unknown
+    poolNote: 月费 $15 + 3% 手续费，共享 85 credits 资源池
 models:
   - modelId: gpt-5.6-sol
     input: 2.3

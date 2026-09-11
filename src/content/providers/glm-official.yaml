@@ -12,6 +12,34 @@ description: >-
   不代表真实官方定价。
 billing:
   baseFee: 0
+plans:
+  - id: pay-as-you-go
+    name: 官方按量付费
+    baseFee: 0
+    currency: CNY
+    quotaType: currency
+    quotaAmount: 0
+    rateLimit:
+      hasLimit: 'no'
+    poolNote: 纯按量计费，无月费
+  - id: lite
+    name: Lite 资源包
+    baseFee: 49
+    currency: CNY
+    quotaType: credits
+    quotaAmount: 20000
+    rateLimit:
+      hasLimit: 'no'
+    poolNote: 49元/月，提供 20,000 credits 资源包
+  - id: pro
+    name: Pro 专业包
+    baseFee: 119
+    currency: CNY
+    quotaType: credits
+    quotaAmount: 80000
+    rateLimit:
+      hasLimit: 'no'
+    poolNote: 119元/月，提供 80,000 credits 资源包
 models:
   - modelId: glm-5.2
     input: 15

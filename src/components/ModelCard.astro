@@ -37,13 +37,7 @@ import { toDisplayCurrency, type Currency } from '../lib/pricing';
 interface ModelProps {
 	id: string;
 	name: string;
-	official: {
-		input: number;
-		output: number;
-		cacheRead: number | null;
-		cacheWrite: number | null;
-		currency: Currency;
-	};
+	official: any;
 }
 
 interface Props {
@@ -132,17 +126,29 @@ function cellContent(
 	return { price: money(native), text: '', muted: false };
 }
 
+const isImage = official && 'pricing' in official;
+
 /** Two prominent cells: label stacked above a large price. */
-const primaryCells = [
-	{ label: '输入', ...cellContent(official.input, 'money') },
-	{ label: '输出', ...cellContent(official.output, 'money') },
-] as const;
+const primaryCells = isImage
+	? [
+			{ label: '1K 图像', ...cellContent(official.pricing['1k'] ?? null, 'money') },
+			{ label: '2K 图像', ...cellContent(official.pricing['2k'] ?? null, 'money') },
+	  ]
+	: [
+			{ label: '输入', ...cellContent(official.input, 'money') },
+			{ label: '输出', ...cellContent(official.output, 'money') },
+	  ];
 
 /** Two compact cells: inline label + price on one line. */
-const secondaryCells = [
-	{ label: '缓存读', ...cellContent(official.cacheRead, 'money') },
-	{ label: '缓存写', ...cellContent(official.cacheWrite, 'free-or-dash') },
-] as const;
+const secondaryCells = isImage
+	? [
+			{ label: '计费方式', price: null, text: '按张计费', muted: true },
+			{ label: '模型类型', price: null, text: '图像生成', muted: true },
+	  ]
+	: [
+			{ label: '缓存读', ...cellContent(official.cacheRead, 'money') },
+			{ label: '缓存写', ...cellContent(official.cacheWrite, 'free-or-dash') },
+	  ];
 ---
 
 <article>

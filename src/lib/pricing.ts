@@ -11,6 +11,36 @@
 export type Currency = 'USD' | 'CNY';
 export type Kind = 'official' | 'subscription';
 
+export type QuotaType = 'credits' | 'currency';
+export type RateLimitStatus = 'yes' | 'no' | 'unknown';
+export type Modality = 'text' | 'image' | 'video';
+
+export interface RateLimit {
+  hasLimit: RateLimitStatus;
+  rolling5h?: string | null;
+  weekly?: string | null;
+  monthly?: string | null;
+}
+
+export interface Plan {
+  id: string;
+  name: string;
+  baseFee: number;
+  currency: Currency;
+  feePct?: number;
+  quotaType: QuotaType;
+  quotaAmount: number;
+  quotaCurrency?: Currency;
+  rateLimit?: RateLimit;
+  poolNote?: string;
+}
+
+export type ImageResolution = '1k' | '2k';
+export type ImagePricing = Record<ImageResolution, number>;
+
+export type VideoResolution = '480p' | '720p' | '1k' | '2k';
+export type VideoPricing = Record<VideoResolution, number>;
+
 /** Token-mix weights (cacheRead + input + output ≈ 1). */
 export interface Mix {
   cacheRead: number;
@@ -33,7 +63,7 @@ export interface Billing {
 }
 
 /** Site-level mock FX rate for USD <-> CNY display conversion. */
-export const FX_CNY_PER_USD = 7.2;
+export const FX_CNY_PER_USD = 7.0;
 
 export const DEFAULT_MIX: Mix = { cacheRead: 0.9, input: 0.09, output: 0.01 };
 export const MIX_90_9_1 = DEFAULT_MIX;
@@ -82,6 +112,31 @@ export function actualMonthly(billing: Billing, currency: Currency): number {
   return toDisplayCurrency(amount, from, currency);
 }
 
+/** Monthly bill for a specific plan converted to display currency. */
+export function planActualMonthly(plan: Plan, displayCurrency: Currency): number {
+  const amount = plan.baseFee * (1 + (plan.feePct ?? 0) / 100);
+  return toDisplayCurrency(amount, plan.currency, displayCurrency);
+}
+
+/**
+ * Monthly quota in millions of tokens under a specific plan.
+ * priceCurrency is the currency in which weightedCostPerM is denominated (default USD).
+ */
+export function planQuotaMillion(
+  plan: Plan,
+  weightedCostPerM: number | null,
+  priceCurrency?: Currency,
+): number | null {
+  if (weightedCostPerM === null || !Number.isFinite(weightedCostPerM) || weightedCostPerM <= 0) return null;
+  if (plan.quotaType === 'credits') {
+    return plan.quotaAmount / weightedCostPerM;
+  }
+  const quotaCur = plan.quotaCurrency ?? plan.currency;
+  const targetPriceCur = priceCurrency ?? quotaCur;
+  const quotaInPriceCur = toDisplayCurrency(plan.quotaAmount, quotaCur, targetPriceCur);
+  return quotaInPriceCur / weightedCostPerM;
+}
+
 /** "How many M tokens per currency unit" — higher is better. 1 decimal. */
 export function mPerCurrency(quotaM: number | null, actualMonthlyUsd: number): number | null {
   if (quotaM === null) return null;
@@ -116,8 +171,6 @@ export function fmtMoney(n: number | null, currency: Currency, opts?: { decimals
 export function fmtM(n: number | null): string {
   if (n === null) return '—';
   const rounded = round1(n);
-  // Groups the integer part only; `(?!\d)` stops the decimal tail from
-  // participating in digit-run matching (e.g. 15136.5 -> "15,136.5").
   return rounded.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
@@ -147,5 +200,26 @@ export function valueMetrics(
     actualMonthly: actualMonthlyUsd,
     mPerCur: mPerCurrency(quotaM, actualMonthlyUsd),
     curPerM: currencyPerM(actualMonthlyUsd, quotaM),
+  };
+}
+
+/**
+ * Convenience bundle for a specific plan.
+ */
+export function planValueMetrics(
+  price: Price,
+  mix: Mix,
+  plan: Plan,
+  displayCurrency: Currency,
+  priceCurrency: Currency = 'USD',
+): ValueMetrics {
+  const weighted = weightedCostPerM(price, mix);
+  const quotaM = planQuotaMillion(plan, weighted, priceCurrency);
+  const actualMonthlyCur = planActualMonthly(plan, displayCurrency);
+  return {
+    quotaM,
+    actualMonthly: actualMonthlyCur,
+    mPerCur: mPerCurrency(quotaM, actualMonthlyCur),
+    curPerM: currencyPerM(actualMonthlyCur, quotaM),
   };
 }
