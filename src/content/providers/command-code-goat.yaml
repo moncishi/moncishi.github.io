@@ -15,7 +15,7 @@ plans:
     name: GOAT Plan
     baseFee: 10
     currency: USD
-    feePct: 0
+    feePct: 7
     quotaType: currency
     quotaAmount: 70
     quotaCurrency: USD
@@ -24,8 +24,15 @@ plans:
       rolling5h: $14
       weekly: $35
       monthly: $70
-    poolNote: 月费 $10，提供最高 70 美元总额度池，不同模型具有不同专属额度与倍率
+    poolNote: 月费 $10 (+7% 服务费，实付 $10.7)，提供最高 70 美元总额度池，不同模型具有不同专属额度与倍率
 models:
+  - modelId: gpt-5.6-sol
+    input: 5.0
+    output: 30.0
+    cacheRead: 0.5
+    cacheWrite: 6.25
+    multiplier: 1
+    modelQuota: 70
   - modelId: glm-5.2
     input: 1.4
     output: 4.4
@@ -87,8 +94,8 @@ models:
     output: 4
     cacheRead: 0.19
     cacheWrite: null
-    multiplier: 1.17
-    modelQuota: 60
+    multiplier: 7
+    modelQuota: 10
   - modelId: minimax-m3
     input: 0.3
     output: 1.2

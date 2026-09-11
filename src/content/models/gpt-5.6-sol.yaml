@@ -1,0 +1,12 @@
+id: gpt-5.6-sol
+name: GPT-5.6 Sol
+modality: text
+description: GPT-5.6 Sol 高性能模型（由 Command Code 提供接入）
+official:
+  input: 5.0
+  output: 30.0
+  cacheRead: 0.5
+  cacheWrite: 6.25
+  currency: USD
+providers:
+  - command-code-goat

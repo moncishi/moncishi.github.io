@@ -63,23 +63,28 @@
 			return Number.isFinite(n) ? n : null;
 		}
 
-		// If attributes hold pre-formatted display strings (e.g. "¥57.60"),
+		// If attributes hold pre-formatted display strings (e.g. "¥57.60", "<$0.001", "168.8 M"),
 		// keep them verbatim; otherwise format from a number.
 		function display(currency, node) {
 			var raw = node.getAttribute('data-' + currency.toLowerCase());
+			if (raw === null || raw === undefined) return null;
+			// Ratio nodes (M/货币) must never have currency symbols prepended
+			if (node.hasAttribute('data-ratio')) return raw;
+			if (raw.startsWith('$') || raw.startsWith('¥') || raw.startsWith('<') || raw.includes(' ')) {
+				return raw;
+			}
 			var n = num(raw);
 			if (n === null) return null; // attribute absent or unparseable → skip
-			if (raw !== String(n)) return raw; // already formatted (contains "¥", "$", digits+symbols…)
-			if (currency === 'CNY') return '¥' + n;
-			return '$' + n;
+			if (currency === 'CNY') return '¥' + raw;
+			return '$' + raw;
 		}
 
-		// The delegated updater: re-render every [data-price] node for the
+		// The delegated updater: re-render every [data-price] and [data-ratio] node for the
 		// current currency. Runs on every toggle AND after first load so the
 		// DOM is consistent with <html data-currency> even when a page renders
 		// its server-side default and Layout can't reach it.
 		function render(currency) {
-			var nodes = document.querySelectorAll('[data-price]');
+			var nodes = document.querySelectorAll('[data-price], [data-ratio]');
 			for (var i = 0; i < nodes.length; i++) {
 				var node = nodes[i];
 				var text = display(currency, node);

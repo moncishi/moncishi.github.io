@@ -22,6 +22,7 @@
  * light accent-soft fill and a left accent bar.
  */
 import Badge from './Badge.astro';
+import { fmtMoneyPrecise, formatPrecision3 } from '../lib/pricing';
 
 interface LeaderboardRow {
 	rank: number;
@@ -49,12 +50,6 @@ interface Props {
 
 const { rows, currencyLabel, title = '性价比速览', allHref = '/' } = Astro.props;
 
-// Compact 1-decimal formatting: 0.3 → "0.3", 3 → "3". No trailing ".0".
-const fmt = (value: number | null): string | null => {
-	if (value === null || Number.isNaN(value)) return null;
-	return String(parseFloat(value.toFixed(1)));
-};
-
 // Medal tint for the top 3 ranks; undefined renders the neutral marker.
 const rankClass = (rank: number): string | undefined => {
 	if (rank === 1) return 'medal-gold';
@@ -74,15 +69,13 @@ const rankClass = (rank: number): string | undefined => {
 			<ol class="value-lb-list">
 				{
 					rows.map((row) => {
-						const perM = fmt(row.currencyPerM);
-						const perUnit = fmt(row.mPerCurrency);
-						const perMCny = fmt(row.currencyPerMCny);
-						const perUnitCny = fmt(row.mPerCurrencyCny);
-						// Canonical number strings for the [data-price] attrs:
-						// String(parseFloat(x)) === x — no symbol, no commas, no
-						// trailing ".0".
-						const num = (v: string | null): string | null =>
-							v === null ? null : String(Number(v));
+						const perMUsd = fmtMoneyPrecise(row.currencyPerM, 'USD', 3);
+						const perMCny = fmtMoneyPrecise(row.currencyPerMCny, 'CNY', 3);
+						const perMDisplay = currencyLabel === '¥' ? perMCny : perMUsd;
+						const perUnitUsd = formatPrecision3(row.mPerCurrency, 3);
+						const perUnitCny = formatPrecision3(row.mPerCurrencyCny, 3);
+						const perUnitDisplay = currencyLabel === '¥' ? perUnitCny : perUnitUsd;
+
 						return (
 							<li
 								class:list={['value-row', { highlight: row.rank === 1 }]}
@@ -123,27 +116,27 @@ const rankClass = (rank: number): string | undefined => {
 								</div>
 
 								<div class="value-price">
-									{perM !== null && perMCny !== null ? (
+									{row.currencyPerM !== null && row.currencyPerMCny !== null ? (
 										<span class="value-price-main">
 											<span
 												data-price
-												data-usd={num(perM)!}
-												data-cny={num(perMCny)!}
-												>{currencyLabel}{perM}</span
+												data-usd={perMUsd}
+												data-cny={perMCny}
+												>{perMDisplay}</span
 											><span class="value-price-unit">/M</span>
 										</span>
 									) : (
 										<span class="value-price-main value-price-na">—</span>
 									)}
-									{perUnit !== null &&
+									{perUnitUsd !== null &&
 										perUnitCny !== null && (
 											<span class="value-price-alt">
 												≈{' '}
 												<span
-													data-price
-													data-usd={num(perUnit)!}
-													data-cny={num(perUnitCny)!}
-													>{perUnit}</span
+													data-ratio
+													data-usd={perUnitUsd}
+													data-cny={perUnitCny}
+													>{perUnitDisplay}</span
 												>{' '}M/货币
 											</span>
 										)}

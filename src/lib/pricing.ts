@@ -133,6 +133,11 @@ export function round1(n: number): number {
   return Math.round((n + Number.EPSILON) * 10) / 10;
 }
 
+/** Round a number to 3 decimal places (half away from zero). */
+export function round3(n: number): number {
+  return Math.round((n + Number.EPSILON) * 1000) / 1000;
+}
+
 /**
  * Weighted cost per 1M tokens under a given mix.
  *
@@ -207,18 +212,63 @@ export function planQuotaMillion(
   return quotaInPriceCur / weightedCostPerM;
 }
 
-/** "How many M tokens per currency unit" — higher is better. 1 decimal. */
+/** "How many M tokens per currency unit" — higher is better. Up to 3 decimals. */
 export function mPerCurrency(quotaM: number | null, actualMonthlyUsd: number): number | null {
   if (quotaM === null) return null;
   if (!Number.isFinite(actualMonthlyUsd) || actualMonthlyUsd <= 0) return null;
-  return round1(quotaM / actualMonthlyUsd);
+  return round3(quotaM / actualMonthlyUsd);
 }
 
-/** "How much currency per M token" — lower is better. 1 decimal. Inverse of mPerCurrency. */
+/** "How much currency per M token" — lower is better. Up to 3 decimals. Inverse of mPerCurrency. */
 export function currencyPerM(actualMonthly: number, quotaM: number | null): number | null {
   if (quotaM === null) return null;
   if (!Number.isFinite(quotaM) || quotaM <= 0) return null;
-  return round1(actualMonthly / quotaM);
+  return round3(actualMonthly / quotaM);
+}
+
+/**
+ * Formats a number with up to `maxDecimals` (default 3) decimal places,
+ * stripping trailing zeros and trailing decimal point.
+ * Examples:
+ *   formatPrecision3(30.123) => "30.123"
+ *   formatPrecision3(20.12)  => "20.12"
+ *   formatPrecision3(1.1)    => "1.1"
+ *   formatPrecision3(5.0)    => "5"
+ *   formatPrecision3(0)      => "0"
+ *   formatPrecision3(null)   => null
+ */
+export function formatPrecision3(n: number | null | undefined, maxDecimals = 3): string | null {
+  if (n === null || n === undefined || !Number.isFinite(n)) return null;
+  const factor = Math.pow(10, maxDecimals);
+  const rounded = Math.round((n + Number.EPSILON) * factor) / factor;
+  return rounded.toFixed(maxDecimals).replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1');
+}
+
+/**
+ * Currency display with up to 3 decimals, trailing zeros stripped.
+ * If 0 < n < 0.001, renders "<$0.001" or "<¥0.001" instead of $0.
+ */
+export function fmtMoneyPrecise(n: number | null | undefined, currency: Currency, maxDecimals = 3): string {
+  if (n === null || n === undefined || !Number.isFinite(n)) return '—';
+  const symbol = currency === 'USD' ? '$' : '¥';
+  const threshold = Math.pow(10, -maxDecimals);
+  if (n > 0 && n < threshold) {
+    return `<${symbol}${threshold}`;
+  }
+  const str = formatPrecision3(n, maxDecimals);
+  return `${symbol}${str}`;
+}
+
+/**
+ * Large token counts / quotas with up to 3 decimals, thousands separators, trailing zeros stripped.
+ */
+export function fmtMPrecise(n: number | null | undefined, maxDecimals = 3): string {
+  if (n === null || n === undefined || !Number.isFinite(n)) return '—';
+  const str = formatPrecision3(n, maxDecimals);
+  if (!str) return '—';
+  const [int, dec] = str.split('.');
+  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return dec ? `${grouped}.${dec}` : grouped;
 }
 
 /** FX display conversion. from==to → identity. */

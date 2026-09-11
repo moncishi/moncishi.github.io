@@ -39,7 +39,7 @@ import {
 	MIX_95_4_1,
 	formatRateLimitNote,
 	planActualMonthly,
-	round1,
+	round3,
 	type Currency,
 	type Plan,
 } from '../../lib/pricing';
@@ -84,9 +84,6 @@ const primaryPlan: Plan | undefined =
 		: undefined;
 
 // --- Billing line (header) ------------------------------------------------
-// Subscription: composed from primary plan — 月费 + feePct, actual monthly from
-// planActualMonthly — plus the 共享额度池 marker.
-// Official: 按量 (pay-as-you-go) marker in the listing currency.
 let billPrimary: string;
 let billRest: string;
 
@@ -112,9 +109,7 @@ if (isOfficial) {
 	billRest = '按共享额度池计费';
 }
 
-// --- ProviderTable rows ----------------------------------------------------
-// Metrics: derived from provider.plans (primaryPlan) via computePlanMetrics,
-// falling back to computeRowMetrics if no plan exists.
+// --- ProviderTable rows per Plan --------------------------------------------
 type SortableRow = {
 	modelId: string;
 	modelName: string;
@@ -122,6 +117,8 @@ type SortableRow = {
 	price: ProviderWithModels['modelRows'][number]['price'];
 	nativeCurrency: Currency;
 	credits: number | null;
+	quotaType?: 'credits' | 'currency' | null;
+	quotaCurrency?: Currency | null;
 	quota90: number | null;
 	quota95: number | null;
 	mPerCur: number | null;
@@ -131,45 +128,59 @@ type SortableRow = {
 	_sort: number; // raw curPerM (USD), Infinity when null
 };
 
-const sortable: SortableRow[] = provider.modelRows.map((row) => {
-	const mUsd = primaryPlan
-		? computePlanMetrics(row.price, primaryPlan, DEFAULT_MIX, 'USD', provider.currency, row.modelQuota, row.multiplier)
-		: computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'USD');
-	const mCny = primaryPlan
-		? computePlanMetrics(row.price, primaryPlan, DEFAULT_MIX, 'CNY', provider.currency, row.modelQuota, row.multiplier)
-		: computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'CNY');
-	const mUsd95 = primaryPlan
-		? computePlanMetrics(row.price, primaryPlan, MIX_95_4_1, 'USD', provider.currency, row.modelQuota, row.multiplier)
-		: null;
+const plansToRender: (Plan | undefined)[] =
+	provider.plans && provider.plans.length > 0 ? provider.plans : [undefined];
 
-	const quota90 = mUsd.quotaM !== null ? round1(mUsd.quotaM) : row.quota90;
-	const quota95 = mUsd95?.quotaM != null ? round1(mUsd95.quotaM) : row.quota95;
+const planData = plansToRender.map((plan, planIdx) => {
+	const isDefault = planIdx === 0;
+	const sortable: SortableRow[] = provider.modelRows.map((row) => {
+		const mUsd = plan
+			? computePlanMetrics(row.price, plan, DEFAULT_MIX, 'USD', provider.currency, row.modelQuota, row.multiplier)
+			: computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'USD');
+		const mCny = plan
+			? computePlanMetrics(row.price, plan, DEFAULT_MIX, 'CNY', provider.currency, row.modelQuota, row.multiplier)
+			: computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'CNY');
+		const mUsd95 = plan
+			? computePlanMetrics(row.price, plan, MIX_95_4_1, 'USD', provider.currency, row.modelQuota, row.multiplier)
+			: null;
+
+		const quota90 = mUsd.quotaM !== null ? round3(mUsd.quotaM) : row.quota90;
+		const quota95 = mUsd95?.quotaM != null ? round3(mUsd95.quotaM) : row.quota95;
+
+		return {
+			modelId: row.modelId,
+			modelName: row.modelName,
+			modelHref: `/models/${row.modelId}`,
+			price: row.price,
+			nativeCurrency: provider.currency,
+			credits: row.modelQuota ?? (plan ? plan.quotaAmount : row.credits),
+			quotaType: plan ? plan.quotaType : null,
+			quotaCurrency: plan ? plan.quotaCurrency : null,
+			quota90,
+			quota95,
+			mPerCur: mUsd.mPerCur === null ? null : round3(mUsd.mPerCur),
+			mPerCurCny: mCny.mPerCur === null ? null : round3(mCny.mPerCur),
+			curPerM: mUsd.curPerM === null ? null : round3(mUsd.curPerM),
+			curPerMCny: mCny.curPerM === null ? null : round3(mCny.curPerM),
+			_sort: mUsd.curPerM === null ? Number.POSITIVE_INFINITY : mUsd.curPerM,
+		};
+	});
+
+	sortable.sort((a, b) => a._sort - b._sort);
+
+	const rows = sortable.map(({ _sort, ...row }, i) => ({
+		...row,
+		rank: i + 1,
+		isBest: i === 0,
+	}));
 
 	return {
-		modelId: row.modelId,
-		modelName: row.modelName,
-		modelHref: `/models/${row.modelId}`,
-		price: row.price,
-		nativeCurrency: provider.currency,
-		credits: row.modelQuota ?? (primaryPlan ? primaryPlan.quotaAmount : row.credits),
-		quota90,
-		quota95,
-		mPerCur: mUsd.mPerCur === null ? null : round1(mUsd.mPerCur),
-		mPerCurCny: mCny.mPerCur === null ? null : round1(mCny.mPerCur),
-		curPerM: mUsd.curPerM === null ? null : round1(mUsd.curPerM),
-		curPerMCny: mCny.curPerM === null ? null : round1(mCny.curPerM),
-		_sort: mUsd.curPerM === null ? Number.POSITIVE_INFINITY : mUsd.curPerM,
+		plan,
+		planId: plan?.id ?? 'default',
+		rows,
+		isDefault,
 	};
 });
-
-sortable.sort((a, b) => a._sort - b._sort);
-
-// Drop the internal sort key before handing rows to the display component.
-const rows = sortable.map(({ _sort, ...row }, i) => ({
-	...row,
-	rank: i + 1,
-	isBest: i === 0,
-}));
 
 const mixLabel = '缓存90/输入9/输出1';
 const pageTitle = provider.name;
@@ -180,7 +191,7 @@ const sectionTitle = isOfficial ? '官方按量价格' : '模型价格与月配�
 const planNote = primaryPlan && !isOfficial ? `（套餐：${primaryPlan.name}）` : '';
 const sectionSub = isOfficial
 	? '官方 API 按 token 计费，无月费与额度池'
-	: `按每元额度降序，第 1 行为最佳值 · 折算配比 ${mixLabel}${planNote ? ' · ' + planNote : ''}`;
+	: `按每元额度降序，第 1 行为最佳值 · 折算配比 ${mixLabel}`;
 ---
 
 <Layout title={pageTitle} description={pageDescription} activeNav="providers">
@@ -243,39 +254,116 @@ const sectionSub = isOfficial
 				)}
 			</p>
 			{provider.plans && provider.plans.length > 0 && (
-				<div class="plans-strip flex flex-wrap gap-2 pt-2">
-					{provider.plans.map((pl) => {
-						const rateLimitNote = formatRateLimitNote(pl.rateLimit);
-						const isLimit = pl.rateLimit?.hasLimit === 'yes';
-						const isSelected = primaryPlan?.id === pl.id;
-						return (
-							<div class={`plan-badge flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs ${isSelected ? 'border-blue-500/40 bg-blue-50/60 dark:bg-blue-950/20 ring-1 ring-blue-500/20' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50'}`}>
-								<span class="font-semibold text-slate-800 dark:text-slate-200">{pl.name}</span>
-								<span class="text-slate-500">
-									{pl.baseFee > 0 ? `${pl.currency === 'USD' ? '$' : '¥'}${pl.baseFee}/月` : '按量/0月费'}
-								</span>
-								{pl.quotaAmount > 0 && (
-									<span class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
-										{pl.quotaType === 'credits' ? `${pl.quotaAmount.toLocaleString()} 点` : `${pl.quotaCurrency === 'USD' ? '$' : '¥'}${pl.quotaAmount} 额度`}
-									</span>
-								)}
-								{rateLimitNote && (
-									<span class={
-										pl.rateLimit?.hasLimit === 'yes'
-											? "px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400"
-											: pl.rateLimit?.hasLimit === 'no'
-											? "px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-											: "px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-600 dark:text-slate-400"
-									}>
-										{rateLimitNote}
-									</span>
-								)}
-							</div>
-						);
-					})}
+				<div class="plans-section space-y-3 pt-3">
+					<div class="flex items-center justify-between">
+						<h2 class="text-sm font-bold tracking-tight text-slate-700 dark:text-slate-300">
+							{provider.plans.length > 1 ? '订阅套餐规格 (点击卡片切换对比明细)' : '订阅套餐规格'}
+						</h2>
+						{provider.plans.length > 1 && (
+							<span class="text-xs text-slate-500 dark:text-slate-400">共 {provider.plans.length} 个可选套餐</span>
+						)}
+					</div>
+					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+						{provider.plans.map((pl, idx) => {
+							const rateLimit = pl.rateLimit;
+							const isSelected = idx === 0;
+							const symbol = pl.currency === 'CNY' ? '¥' : '$';
+							const quotaSymbol = pl.quotaCurrency === 'CNY' ? '¥' : '$';
+							const pct = pl.feePct ?? 0;
+							const actual = planActualMonthly(pl, pl.currency);
+
+							return (
+								<div
+									role={provider.plans.length > 1 ? 'button' : undefined}
+									tabindex={provider.plans.length > 1 ? 0 : undefined}
+									data-plan-btn={pl.id}
+									data-plan-name={pl.name}
+									aria-selected={String(isSelected)}
+									class={`plan-card relative flex flex-col justify-between p-4 rounded-xl border text-left transition select-none ${
+										isSelected
+											? 'border-blue-500 bg-blue-50/60 dark:bg-blue-950/30 ring-2 ring-blue-500/30 shadow-sm'
+											: 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'
+									} ${provider.plans.length > 1 ? 'cursor-pointer' : ''}`}
+								>
+									<div>
+										<div class="flex items-center justify-between gap-2 mb-2">
+											<h3 class="text-base font-bold text-slate-900 dark:text-slate-100">{pl.name}</h3>
+											<span class="text-[11px] px-2 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+												{pl.quotaType === 'credits' ? '积分制' : '法币额度池'}
+											</span>
+										</div>
+
+										<div class="mb-3">
+											<div class="flex items-baseline gap-1">
+												<span class="text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums">
+													{symbol}{pl.baseFee}
+												</span>
+												<span class="text-xs text-slate-500">/月</span>
+												{pct > 0 && (
+													<span class="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
+														+{pct}% 费率 ≈ {symbol}{fmtTrim(actual)}
+													</span>
+												)}
+											</div>
+											<p class="text-xs font-medium text-blue-600 dark:text-blue-400 mt-0.5">
+												包含额度：{pl.quotaType === 'credits'
+													? `${pl.quotaAmount.toLocaleString()} 积分`
+													: `${quotaSymbol}${pl.quotaAmount} 总额度池`}
+											</p>
+										</div>
+
+										{rateLimit && (
+											<div class="space-y-1.5 py-2 my-2 border-t border-b border-slate-100 dark:border-slate-800/80 text-xs">
+												<div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+													<span class="text-slate-400 dark:text-slate-500">5小时限额</span>
+													<span class="font-medium text-slate-700 dark:text-slate-300">{rateLimit.rolling5h ?? (rateLimit.hasLimit === 'no' ? '无限制' : '—')}</span>
+												</div>
+												<div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+													<span class="text-slate-400 dark:text-slate-500">周限额</span>
+													<span class="font-medium text-slate-700 dark:text-slate-300">{rateLimit.weekly ?? (rateLimit.hasLimit === 'no' ? '无限制' : '—')}</span>
+												</div>
+												<div class="flex items-center justify-between text-slate-600 dark:text-slate-400">
+													<span class="text-slate-400 dark:text-slate-500">月限额</span>
+													<span class="font-medium text-slate-700 dark:text-slate-300">{rateLimit.monthly ?? (rateLimit.hasLimit === 'no' ? '无限制' : '—')}</span>
+												</div>
+											</div>
+										)}
+
+										{pl.poolNote && (
+											<p class="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 mt-2">
+												{pl.poolNote}
+											</p>
+										)}
+									</div>
+
+									{provider.plans.length > 1 && (
+										<div class="mt-4 pt-2.5 border-t border-slate-100/80 dark:border-slate-800/80 flex items-center justify-between text-xs font-semibold">
+											<span class="plan-status text-blue-600 dark:text-blue-400">
+												{isSelected ? '✓ 正在查看此套餐' : '点击切换此套餐 →'}
+											</span>
+										</div>
+									)}
+								</div>
+							);
+						})}
+					</div>
 				</div>
 			)}
 		</header>
+
+		{primaryPlan && primaryPlan.quotaType === 'currency' && (
+			<div class="p-3.5 rounded-xl border border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20 text-xs text-blue-900 dark:text-blue-200 flex items-start gap-2.5">
+				<span class="text-base leading-none">💡</span>
+				<div class="space-y-1">
+					<p class="font-semibold">
+						动态倍率额度池说明
+					</p>
+					<p class="text-blue-800/80 dark:text-blue-300/80 leading-relaxed">
+						该套餐提供最高 {primaryPlan.quotaCurrency === 'USD' ? '$' : '¥'}{primaryPlan.quotaAmount} 总额度池。不同模型具有不同的单月最大可用法币额度上限与扣费倍率（见下方表格「额度 / 积分」列）。横向性价比与每元额度测算基准假定用户当月 100% 预算均投入该单一模型。
+					</p>
+				</div>
+			</div>
+		)}
 
 		<div class="mix-panel">
 			<MixSlider label="Token 用量配比（默认 90 / 9 / 1）" />
@@ -287,20 +375,95 @@ const sectionSub = isOfficial
 		<section class="pt-card" aria-label={sectionTitle}>
 			<div class="pt-head">
 				<div class="pt-titles">
-					<h2 class="pt-title">{sectionTitle}</h2>
+					<h2 class="pt-title">
+						{sectionTitle}
+						<span class="text-blue-600 dark:text-blue-400 font-normal ml-1.5" data-active-plan-name>
+							{planNote}
+						</span>
+					</h2>
 					<p class="pt-sub">{sectionSub}</p>
 				</div>
-				<span class="pt-count">共 {rows.length} 个模型</span>
+				<span class="pt-count">共 {provider.modelRows.length} 个模型</span>
 			</div>
 
-			{rows.length > 0 ? (
-				<ProviderTable rows={rows} mixLabel={mixLabel} />
-			) : (
-				<p class="pt-empty">该订阅商暂无模型数据</p>
-			)}
+			{planData.map((pd) => (
+				<div
+					data-plan-table={pd.planId}
+					style={pd.isDefault ? '' : 'display: none;'}
+					class={pd.isDefault ? '' : 'hidden'}
+				>
+					{pd.rows.length > 0 ? (
+						<ProviderTable rows={pd.rows} mixLabel={mixLabel} />
+					) : (
+						<p class="pt-empty">该套餐暂无模型数据</p>
+					)}
+				</div>
+			))}
 		</section>
 	</div>
 </Layout>
+
+<script>
+	function setupPlanSwitcher() {
+		const buttons = document.querySelectorAll('[data-plan-btn]');
+		const tables = document.querySelectorAll('[data-plan-table]');
+		const activeLabel = document.querySelector('[data-active-plan-name]');
+
+		function activate(planId: string) {
+			buttons.forEach((btn) => {
+				const isSelected = btn.getAttribute('data-plan-btn') === planId;
+				btn.setAttribute('aria-selected', String(isSelected));
+				const statusText = btn.querySelector('.plan-status');
+				if (isSelected) {
+					btn.classList.add('border-blue-500', 'bg-blue-50/60', 'dark:bg-blue-950/30', 'ring-2', 'ring-blue-500/30', 'shadow-sm');
+					btn.classList.remove('border-slate-200', 'dark:border-slate-800', 'bg-white', 'dark:bg-slate-900');
+					if (statusText) statusText.textContent = '✓ 正在查看此套餐';
+				} else {
+					btn.classList.remove('border-blue-500', 'bg-blue-50/60', 'dark:bg-blue-950/30', 'ring-2', 'ring-blue-500/30', 'shadow-sm');
+					btn.classList.add('border-slate-200', 'dark:border-slate-800', 'bg-white', 'dark:bg-slate-900');
+					if (statusText) statusText.textContent = '点击切换此套餐 →';
+				}
+			});
+
+			tables.forEach((tbl) => {
+				const match = tbl.getAttribute('data-plan-table') === planId;
+				if (match) {
+					tbl.classList.remove('hidden');
+					(tbl as HTMLElement).style.display = 'block';
+				} else {
+					tbl.classList.add('hidden');
+					(tbl as HTMLElement).style.display = 'none';
+				}
+			});
+
+			const activeBtn = Array.from(buttons).find(b => b.getAttribute('data-plan-btn') === planId);
+			if (activeBtn && activeLabel) {
+				const name = activeBtn.getAttribute('data-plan-name');
+				if (name) activeLabel.textContent = `（套餐：${name}）`;
+			}
+		}
+
+		buttons.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const planId = btn.getAttribute('data-plan-btn');
+				if (planId) {
+					activate(planId);
+					try {
+						history.replaceState(null, '', `#plan-${planId}`);
+					} catch (e) {}
+				}
+			});
+		});
+
+		if (window.location.hash.startsWith('#plan-')) {
+			const hashPlan = window.location.hash.replace('#plan-', '');
+			if (hashPlan) activate(hashPlan);
+		}
+	}
+
+	setupPlanSwitcher();
+	document.addEventListener('astro:page-load', setupPlanSwitcher);
+</script>
 
 <style>
 	.detail-page {

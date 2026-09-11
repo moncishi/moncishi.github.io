@@ -33,7 +33,7 @@
  * table — it is the mix the page used (and recomputes on slider drag) for the
  * M/货币 · 货币/M columns.
  */
-import { fmtM, toDisplayCurrency, type Currency } from '../lib/pricing';
+import { fmtMPrecise, formatPrecision3, toDisplayCurrency, type Currency } from '../lib/pricing';
 
 interface Row {
 	modelId: string;
@@ -46,12 +46,14 @@ interface Row {
 		cacheWrite: number | null;
 	};
 	nativeCurrency: Currency; // provider's own listing currency (prices above are in it)
-	credits: number | null; // monthly credits (null for official)
+	credits: number | null; // monthly credits or currency quota (null for official)
+	quotaType?: 'credits' | 'currency' | null;
+	quotaCurrency?: Currency | null;
 	quota90: number | null; // millions, published, M(90,9,1)
 	quota95: number | null; // millions, published, M(95,4,1)
-	mPerCur: number | null; // USD, already rounded 1 dp display value
+	mPerCur: number | null; // USD, up to 3 dp display value
 	mPerCurCny: number | null; // CNY equivalent of mPerCur
-	curPerM: number | null; // USD, already rounded 1 dp display value
+	curPerM: number | null; // USD, up to 3 dp display value
 	curPerMCny: number | null; // CNY equivalent of curPerM
 	rank: number; // position by curPerM ascending (page pre-sorts + ranks)
 	isBest?: boolean; // rank-1 flag for highlight
@@ -157,16 +159,16 @@ function fmtCredits(n: number): string {
 							) : (
 								<span class="val">{fmt(v)}</span>
 							);
-						// Canonical 1-dp attr for a pre-rounded USD/CNY ratio value.
-						const canon1d = (n: number): string => String(Number(n.toFixed(1)));
+						const mpUsd = formatPrecision3(row.mPerCur, 3);
+						const mpCny = formatPrecision3(row.mPerCurCny, 3);
 						const pInput = displayPrice(row.price.input, row.nativeCurrency, 'USD');
 						const pInputCny = displayPrice(row.price.input, row.nativeCurrency, 'CNY');
 						const pOutput = displayPrice(row.price.output, row.nativeCurrency, 'USD');
 						const pOutputCny = displayPrice(row.price.output, row.nativeCurrency, 'CNY');
-						const mpUsd = row.mPerCur === null ? null : canon1d(row.mPerCur);
-						const mpCny = row.mPerCurCny === null ? null : canon1d(row.mPerCurCny);
-						const cpUsd = row.curPerM === null ? null : canon1d(row.curPerM);
-						const cpCny = row.curPerMCny === null ? null : canon1d(row.curPerMCny);
+						const isCurrencyQuota = row.quotaType === 'currency';
+						const creditsUsdText = row.credits !== null ? (isCurrencyQuota ? `$${row.credits}` : `${fmtCredits(row.credits)} 点`) : null;
+						const creditsCnyText = row.credits !== null ? (isCurrencyQuota ? `¥${Math.round(row.credits * 7.0)}` : `${fmtCredits(row.credits)} 点`) : null;
+
 						return (
 							<tr class:list={{ best }} data-rank={rank}>
 								<td class="cell model">
@@ -219,19 +221,26 @@ function fmtCredits(n: number): string {
 								</td>
 								<td class="cell num">
 									{row.credits === null ? (
-										<span class="nil" title="官方按量计费，无月度积分">—</span>
+										<span class="nil" title="官方按量计费，无月度积分/额度">—</span>
+									) : isCurrencyQuota ? (
+										<span
+											data-price
+											data-usd={creditsUsdText}
+											data-cny={creditsCnyText}
+											class="val font-medium"
+										>{creditsUsdText}</span>
 									) : (
-										<span class="val">{fmtCredits(row.credits)}</span>
+										<span class="val">{creditsUsdText}</span>
 									)}
 								</td>
-								<td class="cell num">{numCell(row.quota90, fmtM)}</td>
-								<td class="cell num">{numCell(row.quota95, fmtM)}</td>
+								<td class="cell num">{numCell(row.quota90, fmtMPrecise)}</td>
+								<td class="cell num">{numCell(row.quota95, fmtMPrecise)}</td>
 								<td class="cell num">
 									{mpUsd === null ? (
 										<span class="nil">—</span>
 									) : (
 										<span
-											data-price
+											data-ratio
 											data-usd={`${mpUsd} M`}
 											data-cny={`${mpCny} M`}
 											class="val m-per-cur font-semibold text-emerald-600 dark:text-emerald-400"

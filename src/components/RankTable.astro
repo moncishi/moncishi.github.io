@@ -35,6 +35,7 @@
  * content collections, no framework deps.
  */
 import Badge from './Badge.astro';
+import { fmtMoneyPrecise, fmtMPrecise, formatPrecision3 } from '../lib/pricing';
 
 interface ChannelRow {
 	providerId: string;
@@ -189,12 +190,13 @@ const colSpan = 7;
 						// stays the USD default; attrs carry both canonical numbers.
 						const feeUsd = normNum(row.monthlyFeeUsd);
 						const hasFee = feeUsd !== null && feeUsd > 0;
-						const feeUsdText = hasFee ? `$${feeText(row.monthlyFeeUsd)}` : null;
-						const quota = fmt1(row.quotaM);
-						const mPerCurUsdText = fmt1(row.mPerCurUsd);
-						const curPerMUsdText = fmt1(row.curPerMUsd);
-						const curPerMUsdDisp =
-							curPerMUsdText !== null ? `$${curPerMUsdText}` : null;
+						const feeUsdText = hasFee ? fmtMoneyPrecise(row.monthlyFeeUsd, 'USD', 2) : null;
+						const feeCnyText = hasFee ? fmtMoneyPrecise(row.monthlyFeeCny, 'CNY', 2) : null;
+						const quota = fmtMPrecise(row.quotaM, 3);
+						const mPerCurUsd = formatPrecision3(row.mPerCurUsd, 3);
+						const mPerCurCny = formatPrecision3(row.mPerCurCny, 3);
+						const curPerMUsdDisp = fmtMoneyPrecise(row.curPerMUsd, 'USD', 3);
+						const curPerMCnyDisp = fmtMoneyPrecise(row.curPerMCny, 'CNY', 3);
 						const kind = safeKind(row.kind);
 
 						return (
@@ -263,8 +265,8 @@ const colSpan = 7;
 										<span
 											class="rt-money"
 											data-price
-											data-usd={canon2(row.monthlyFeeUsd)}
-											data-cny={canon2(row.monthlyFeeCny)}
+											data-usd={feeUsdText}
+											data-cny={feeCnyText}
 										>
 											{feeUsdText}
 										</span>
@@ -274,17 +276,17 @@ const colSpan = 7;
 								</td>
 
 								<td class="rt-cell rt-cell--num rt-cell--quota">
-									{quota ?? <span class="rt-null">—</span>}
+									{quota}
 								</td>
 
 								<td class="rt-cell rt-cell--num rt-cell--mper">
-									{mPerCurUsdText !== null ? (
+									{mPerCurUsd !== null ? (
 										<span
-											data-price
-											data-usd={canon(row.mPerCurUsd)}
-											data-cny={canon(row.mPerCurCny)}
+											data-ratio
+											data-usd={mPerCurUsd}
+											data-cny={mPerCurCny}
 										>
-											{mPerCurUsdText}
+											{mPerCurUsd}
 										</span>
 									) : (
 										<span class="rt-null">—</span>
@@ -294,12 +296,12 @@ const colSpan = 7;
 								<td class="rt-cell rt-cell--num rt-cell--curper">
 									<span class="rt-numwrap">
 										{best && <span class="rt-best">最佳值</span>}
-										{curPerMUsdDisp !== null ? (
+										{row.curPerMUsd !== null ? (
 											<span
 												class:list={['rt-money', best && 'rt-money--best']}
 												data-price
-												data-usd={canon(row.curPerMUsd)}
-												data-cny={canon(row.curPerMCny)}
+												data-usd={curPerMUsdDisp}
+												data-cny={curPerMCnyDisp}
 											>
 												{curPerMUsdDisp}
 											</span>

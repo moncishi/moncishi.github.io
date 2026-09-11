@@ -7,6 +7,10 @@ import {
   planValueMetrics,
   fmtMoney,
   round1,
+  round3,
+  formatPrecision3,
+  fmtMoneyPrecise,
+  fmtMPrecise,
   formatRateLimitNote,
   isImageOfficial,
   isTextOfficial,
@@ -107,14 +111,43 @@ test('planValueMetrics produces complete metrics for a plan and model price', ()
   // Weighted cost = 0.9*0.05 + 0.09*0.5 + 0.01*1.5 = 0.045 + 0.045 + 0.015 = 0.105
   // Quota = 50 / 0.105 ≈ 476.19 M
   // Actual monthly = $10
-  // mPerCur = 476.2 / 10 = 47.6
-  // curPerM = 10 / 476.2 = 0.02
+  // mPerCur = 476.190476... / 10 = 47.619
+  // curPerM = 10 / 476.190476... = 0.021
   const metrics = planValueMetrics(price, mix, plan, 'USD', 'USD');
   assert.ok(metrics.quotaM !== null);
   assert.equal(round1(metrics.quotaM), 476.2);
   assert.equal(metrics.actualMonthly, 10);
-  assert.equal(metrics.mPerCur, 47.6);
-  assert.equal(metrics.curPerM, 0.0);
+  assert.equal(metrics.mPerCur, 47.619);
+  assert.equal(metrics.curPerM, 0.021);
+});
+
+test('formatPrecision3, fmtMoneyPrecise, and fmtMPrecise handle 3-decimal formatting and guard against $0', () => {
+  // 3 decimals, trailing zeros trimmed
+  assert.equal(formatPrecision3(30.123), '30.123');
+  assert.equal(formatPrecision3(20.12), '20.12');
+  assert.equal(formatPrecision3(1.1), '1.1');
+  assert.equal(formatPrecision3(5.0), '5');
+  assert.equal(formatPrecision3(0), '0');
+  assert.equal(formatPrecision3(null), null);
+
+  // fmtMoneyPrecise with symbol and non-zero small value guard
+  assert.equal(fmtMoneyPrecise(30.123, 'USD'), '$30.123');
+  assert.equal(fmtMoneyPrecise(20.12, 'USD'), '$20.12');
+  assert.equal(fmtMoneyPrecise(1.1, 'USD'), '$1.1');
+  assert.equal(fmtMoneyPrecise(0.038, 'USD'), '$0.038');
+  assert.equal(fmtMoneyPrecise(0.006, 'USD'), '$0.006');
+  assert.equal(fmtMoneyPrecise(0, 'USD'), '$0');
+  // Guard against displaying $0 for tiny positive values (< 0.001)
+  assert.equal(fmtMoneyPrecise(0.0004, 'USD'), '<$0.001');
+  assert.equal(fmtMoneyPrecise(0.0004, 'CNY'), '<¥0.001');
+  assert.equal(fmtMoneyPrecise(null, 'USD'), '—');
+
+  // fmtMPrecise with thousands separators
+  assert.equal(fmtMPrecise(7446.8), '7,446.8');
+  assert.equal(fmtMPrecise(5468.825), '5,468.825');
+  assert.equal(fmtMPrecise(1000), '1,000');
+  assert.equal(fmtMPrecise(0), '0');
+  assert.equal(fmtMPrecise(null), '—');
 });
 
 test('formatRateLimitNote formats note according to domain rules', () => {
