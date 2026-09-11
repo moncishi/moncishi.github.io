@@ -64,7 +64,10 @@ const textOfficialSchema = z.object({
 });
 
 const imageOfficialSchema = z.object({
-  pricing: z.record(z.string(), z.number()), // e.g. { '1k': 0.08, '2k': 0.15 }
+  pricing: z.object({
+    '1k': z.number(),
+    '2k': z.number(),
+  }),
   currency: z.enum(['USD', 'CNY']).default('CNY'),
 });
 

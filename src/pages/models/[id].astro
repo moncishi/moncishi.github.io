@@ -27,7 +27,7 @@ import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import MixSlider from '../../components/MixSlider.astro';
 import RankTable from '../../components/RankTable.astro';
-import { DEFAULT_MIX, type Currency } from '../../lib/pricing';
+import { DEFAULT_MIX, formatRateLimitNote, type Currency } from '../../lib/pricing';
 import { getModelChannels } from '../../lib/data';
 
 interface OfficialBlock {
@@ -80,12 +80,7 @@ const rows = usdChannels.map((c, i) => {
 		providerId: c.providerId,
 		providerName: c.providerName,
 		planName: c.planName,
-		rateLimitNote:
-			c.planRateLimit?.hasLimit === 'yes'
-				? (c.planRateLimit.rolling5h ?? '有限额')
-				: c.planRateLimit?.hasLimit === 'no'
-				? '无频控'
-				: undefined,
+		rateLimitNote: formatRateLimitNote(c.planRateLimit),
 		kind: c.kind,
 		providerHref: `/providers/${c.providerId}`,
 		monthlyFeeUsd: c.monthlyFee,

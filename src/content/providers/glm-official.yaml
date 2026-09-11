@@ -23,23 +23,23 @@ plans:
       hasLimit: 'no'
     poolNote: 纯按量计费，无月费
   - id: lite
-    name: Lite 资源包
+    name: Lite 套餐
     baseFee: 49
     currency: CNY
     quotaType: credits
     quotaAmount: 20000
     rateLimit:
       hasLimit: 'no'
-    poolNote: 49元/月，提供 20,000 credits 资源包
+    poolNote: 49元/月，提供 20,000 credits 额度池
   - id: pro
-    name: Pro 专业包
+    name: Pro 套餐
     baseFee: 119
     currency: CNY
     quotaType: credits
     quotaAmount: 80000
     rateLimit:
       hasLimit: 'no'
-    poolNote: 119元/月，提供 80,000 credits 资源包
+    poolNote: 119元/月，提供 80,000 credits 额度池
 models:
   - modelId: glm-5.2
     input: 15

@@ -39,7 +39,7 @@ plans:
       hasLimit: 'yes'
       rolling5h: 20次或$5
       monthly: 60美元
-    poolNote: 10美元/月 + 7% 手续费，提供 60 美元额度
+    poolNote: 10美元/月 + 7% 平台附加费，提供 60 美元额度
 models:
   # cacheWrite: 本商不单列缓存写入费（已含在读取价内），记 null
   - modelId: glm-5.2

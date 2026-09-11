@@ -98,7 +98,7 @@ if (isOfficial) {
 			const actual = actualMonthly(billing, billing.currency ?? 'USD');
 			extra.push(`≈ ${currencySymbol}${fmtTrim(actual)}/月`);
 		} else if (pct === 0) {
-			extra.push('无手续费');
+			extra.push('无附加费');
 		}
 		extra.push('共享资源池');
 		billRest = extra.join(' · ');
@@ -212,7 +212,7 @@ const sectionSub = isOfficial
 							)}
 							{pl.rateLimit?.hasLimit === 'no' && (
 								<span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-									无频控
+									无限制
 								</span>
 							)}
 						</div>

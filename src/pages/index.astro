@@ -20,7 +20,7 @@ import BlogList from '../components/BlogList.astro';
 import { getCollection } from 'astro:content';
 
 import { getGlobalLeaderboard } from '../lib/data';
-import { DEFAULT_MIX, round1 } from '../lib/pricing';
+import { DEFAULT_MIX, formatRateLimitNote, round1 } from '../lib/pricing';
 
 // --- 性价比速览榜：Top 5 组合，按 $/M 升序（getGlobalLeaderboard 已排好）----
 // 同一 (mix, FX) 下 USD/CNY 的 rank 顺序一致，两份按 rank 一一配对。
@@ -37,12 +37,7 @@ const leaderboardRows = usdBoard.map((entry) => {
 		providerName: entry.providerName,
 		providerKind: entry.providerKind,
 		planName: entry.planName,
-		rateLimitNote:
-			entry.planRateLimit?.hasLimit === 'yes'
-				? (entry.planRateLimit.rolling5h ?? '有限额')
-				: entry.planRateLimit?.hasLimit === 'no'
-				? '无频控'
-				: undefined,
+		rateLimitNote: formatRateLimitNote(entry.planRateLimit),
 		providerHref: `/providers/${entry.providerId}`,
 		modelHref: `/models/${entry.modelId}`,
 		currencyPerM: entry.curPerM === null ? null : round1(entry.curPerM),

@@ -7,6 +7,7 @@ import {
   planValueMetrics,
   fmtMoney,
   round1,
+  formatRateLimitNote,
   type Plan,
   type Price,
   type Mix,
@@ -106,4 +107,22 @@ test('planValueMetrics produces complete metrics for a plan and model price', ()
   assert.equal(metrics.actualMonthly, 10);
   assert.equal(metrics.mPerCur, 47.6);
   assert.equal(metrics.curPerM, 0.0);
+});
+
+test('formatRateLimitNote formats note according to domain rules', () => {
+  assert.equal(formatRateLimitNote(undefined), undefined);
+  assert.equal(formatRateLimitNote({ hasLimit: 'no' }), '无限制');
+  assert.equal(formatRateLimitNote({ hasLimit: 'unknown' }), undefined);
+  assert.equal(formatRateLimitNote({ hasLimit: 'yes', rolling5h: '20次或$5' }), '20次或$5');
+  assert.equal(formatRateLimitNote({ hasLimit: 'yes', rolling5h: null }), '有限额');
+});
+
+test('ImagePricing type structure holds 1k and 2k prices', () => {
+  const imagePricing: ImagePricing = {
+    '1k': 0.08,
+    '2k': 0.15,
+  };
+  assert.equal(imagePricing['1k'], 0.08);
+  assert.equal(imagePricing['2k'], 0.15);
+  assert.equal(fmtMoney(imagePricing['1k'], 'CNY', { decimals: 2 }), '¥0.08');
 });

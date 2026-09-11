@@ -38,8 +38,17 @@ export interface Plan {
 export type ImageResolution = '1k' | '2k';
 export type ImagePricing = Record<ImageResolution, number>;
 
-export type VideoResolution = '480p' | '720p' | '1k' | '2k';
-export type VideoPricing = Record<VideoResolution, number>;
+/** Canonical user-facing note for a plan's rate limit. */
+export function formatRateLimitNote(rateLimit?: RateLimit): string | undefined {
+  if (!rateLimit) return undefined;
+  if (rateLimit.hasLimit === 'yes') {
+    return rateLimit.rolling5h ?? '有限额';
+  }
+  if (rateLimit.hasLimit === 'no') {
+    return '无限制';
+  }
+  return undefined;
+}
 
 /** Token-mix weights (cacheRead + input + output ≈ 1). */
 export interface Mix {

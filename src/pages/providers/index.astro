@@ -34,13 +34,19 @@ const [usdBoard, cnyBoard, providers] = await Promise.all([
 const rankByCombo = new Map<string, { rank: number; currencyPerM: number }>();
 const cnyPerMByCombo = new Map<string, number>();
 for (const entry of usdBoard) {
-	rankByCombo.set(`${entry.providerId}::${entry.modelId}`, {
-		rank: entry.rank,
-		currencyPerM: entry.curPerM,
-	});
+	const key = `${entry.providerId}::${entry.modelId}`;
+	if (!rankByCombo.has(key)) {
+		rankByCombo.set(key, {
+			rank: entry.rank,
+			currencyPerM: entry.curPerM,
+		});
+	}
 }
 for (const entry of cnyBoard) {
-	cnyPerMByCombo.set(`${entry.providerId}::${entry.modelId}`, entry.curPerM);
+	const key = `${entry.providerId}::${entry.modelId}`;
+	if (!cnyPerMByCombo.has(key)) {
+		cnyPerMByCombo.set(key, entry.curPerM);
+	}
 }
 
 const KIND_LABEL = { official: '官方', subscription: '订阅聚合' } as const;
