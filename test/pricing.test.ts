@@ -115,7 +115,7 @@ test('formatRateLimitNote formats note according to domain rules', () => {
   assert.equal(formatRateLimitNote(undefined), undefined);
   assert.equal(formatRateLimitNote({ hasLimit: 'no' }), '无限制');
   assert.equal(formatRateLimitNote({ hasLimit: 'unknown' }), '限额未知');
-  assert.equal(formatRateLimitNote({ hasLimit: 'yes', rolling5h: '20次或$5' }), '20次或$5');
+  assert.equal(formatRateLimitNote({ hasLimit: 'yes', rolling5h: '20次或$5' }), '5h 20次或$5');
   assert.equal(formatRateLimitNote({ hasLimit: 'yes', rolling5h: null }), '有限额');
   assert.equal(
     formatRateLimitNote({
@@ -123,14 +123,23 @@ test('formatRateLimitNote formats note according to domain rules', () => {
       rolling5h: '20次或$5',
       monthly: '60美元',
     }),
-    '20次或$5 · 月:60美元',
+    '5h 20次或$5 · monthly 60美元',
   );
   assert.equal(
     formatRateLimitNote({
       hasLimit: 'yes',
       weekly: '100次',
     }),
-    '周:100次',
+    'weekly 100次',
+  );
+  assert.equal(
+    formatRateLimitNote({
+      hasLimit: 'yes',
+      rolling5h: '5小时限额 $14',
+      weekly: '周限额 $35',
+      monthly: '月限额 $70',
+    }),
+    '5h $14 · weekly $35 · monthly $70',
   );
 });
 

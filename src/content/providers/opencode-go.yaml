@@ -21,9 +21,9 @@ plans:
     quotaCurrency: USD
     rateLimit:
       hasLimit: yes
-      rolling5h: 5小时限额 $12
-      weekly: 周限额 $30
-      monthly: 月限额 $60
+      rolling5h: $12
+      weekly: $30
+      monthly: $60
     poolNote: 月费 $10，提供最高 60 美元总额度池，不同模型具有不同额度与倍率
 models:
   - modelId: qwen-3.8-max

@@ -71,9 +71,24 @@ export function formatRateLimitNote(rateLimit?: RateLimit): string | undefined {
   if (!rateLimit) return undefined;
   if (rateLimit.hasLimit === 'yes') {
     const parts: string[] = [];
-    if (rateLimit.rolling5h) parts.push(rateLimit.rolling5h);
-    if (rateLimit.weekly) parts.push(`周:${rateLimit.weekly}`);
-    if (rateLimit.monthly) parts.push(`月:${rateLimit.monthly}`);
+    if (rateLimit.rolling5h) {
+      const clean = rateLimit.rolling5h
+        .replace(/^(?:5小时限额|5h限额|5h)[:：\s]*/i, '')
+        .trim();
+      parts.push(`5h ${clean}`);
+    }
+    if (rateLimit.weekly) {
+      const clean = rateLimit.weekly
+        .replace(/^(?:周限额|每周限额|周|weekly)[:：\s]*/i, '')
+        .trim();
+      parts.push(`weekly ${clean}`);
+    }
+    if (rateLimit.monthly) {
+      const clean = rateLimit.monthly
+        .replace(/^(?:月限额|每月限额|月|monthly)[:：\s]*/i, '')
+        .trim();
+      parts.push(`monthly ${clean}`);
+    }
     return parts.length > 0 ? parts.join(' · ') : '有限额';
   }
   if (rateLimit.hasLimit === 'no') {

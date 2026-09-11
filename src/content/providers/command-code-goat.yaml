@@ -21,9 +21,9 @@ plans:
     quotaCurrency: USD
     rateLimit:
       hasLimit: yes
-      rolling5h: 5小时限额 $14
-      weekly: 周限额 $35
-      monthly: 月限额 $70
+      rolling5h: $14
+      weekly: $35
+      monthly: $70
     poolNote: 月费 $10，提供最高 70 美元总额度池，不同模型具有不同专属额度与倍率
 models:
   - modelId: glm-5.2
