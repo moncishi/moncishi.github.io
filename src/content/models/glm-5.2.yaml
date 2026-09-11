@@ -8,7 +8,6 @@ official:
   currency: CNY
 providers:
   - command-code-goat
-  - nvidia-aggregator
   - glm-official
   - opencode-go
 modality: text

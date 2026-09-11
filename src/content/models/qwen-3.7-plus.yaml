@@ -1,9 +1,12 @@
 id: qwen-3.7-plus
-name: Qwen-3.7-Plus
+name: Qwen 3.7 Plus
+modality: text
 official:
-  input: 4         # mock 官方价（¥/1M，CNY）
-  output: 16
-  cacheRead: 0.4
-  cacheWrite: 0
-  currency: CNY
-providers: [command-code-goat, opencode-go, qwen-official]
+  input: 0.4
+  output: 1.6
+  cacheRead: 0.08
+  cacheWrite: 0.5
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go

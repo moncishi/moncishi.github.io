@@ -1,9 +1,12 @@
 id: deepseek-v4-flash
 name: DeepSeek-V4-Flash
+modality: text
 official:
-  input: 1.5       # mock 官方价（¥/1M，CNY）
-  output: 6
-  cacheRead: 0.15
+  input: 0.15
+  output: 0.6
+  cacheRead: 0.003
   cacheWrite: 0
-  currency: CNY
-providers: [command-code-goat, opencode-go, nvidia-aggregator]
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go

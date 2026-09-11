@@ -1,33 +1,16 @@
-# Opencode Go — 订阅聚合（mock 数据，非真实报价）
-# 虚构的聚合订阅：月费 $20 无额外附加费，缓存写入不单独计费（记为 0）。
-# 所有价格均为虚构示例，用于本站 UI 演示，不代表任何真实服务商的价格。
+# OpenCode Go 订阅套餐与模型配置
 id: opencode-go
-name: Opencode Go
-nameZh: 开放编码聚合
+name: OpenCode Go
+nameZh: OpenCode Go 套餐
 kind: subscription
 currency: USD
 websiteUrl: https://opencode.ai
 pricingUrl: https://opencode.ai/docs/zh-cn/go
+planUrl: https://opencode.ai/docs/zh-cn/go
 docUrl: https://opencode.ai/docs
 description: >-
-  mock 数据（虚构服务）：面向日常编码与长上下文场景的聚合订阅商。月费覆盖共享 额度池，模型按每百万 token 消耗池内
-  credits，缓存写入免费。模型定价为虚构 示例，用于演示订阅聚合与官方 API 的价格对比，不代表真实厂商报价。
-billing:
-  baseFee: 20
-  feePct: 0
-  currency: USD
-  poolNote: 月费 $20 无附加费，缓存写入免费（记 0）
+  OpenCode Go 开发者聚合订阅套餐，月费 $10，提供最高 60 美元总额度池，不同模型具有不同专属额度与倍率。
 plans:
-  - id: standard
-    name: 编码畅享套餐
-    baseFee: 20
-    currency: USD
-    feePct: 0
-    quotaType: credits
-    quotaAmount: 58
-    rateLimit:
-      hasLimit: no
-    poolNote: 月费 $20 无附加费，共享 58 credits 额度池
   - id: go
     name: Go 套餐
     baseFee: 10
@@ -48,9 +31,6 @@ models:
     output: 6
     cacheRead: 0.25
     cacheWrite: 2.5
-    credits: 58
-    quota90: 845.5
-    quota95: 1070.1
     multiplier: 4
     modelQuota: 15
   - modelId: qwen-3.7-plus
@@ -58,35 +38,13 @@ models:
     output: 1.6
     cacheRead: 0.04
     cacheWrite: 0.5
-    credits: 42
-    quota90: 1235.3
-    quota95: 1567.2
     multiplier: 1
     modelQuota: 60
-  - modelId: qwen-3.5-turbo
-    input: 0.09
-    output: 0.28
-    cacheRead: 0.009
-    cacheWrite: 0
-    credits: 34
-    quota90: 1789.5
-    quota95: 2274.2
-  - modelId: gpt-5.6-sol
-    input: 2.5
-    output: 9.8
-    cacheRead: 0.25
-    cacheWrite: 0
-    credits: 90
-    quota90: 164.2
-    quota95: 206.7
   - modelId: deepseek-v4-flash
     input: 0.15
     output: 0.6
     cacheRead: 0.003
     cacheWrite: null
-    credits: 40
-    quota90: 1230.8
-    quota95: 1553.4
     multiplier: 2
     modelQuota: 30
   - modelId: glm-5.3-flash

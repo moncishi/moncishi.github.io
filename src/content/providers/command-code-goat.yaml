@@ -1,34 +1,16 @@
-# Command Code Goat — 订阅聚合（mock 数据，非真实报价）
-# 虚构的编程向聚合订阅：月费 $10 + 7% 平台附加费，共享额度池，按模型消耗池内 credits。
-# 所有价格均为虚构示例，用于本站 UI 演示，不代表任何真实服务商的价格。
+# Command Code Goat 订阅套餐与模型配置
 id: command-code-goat
 name: Command Code Goat
-nameZh: 编程码羊聚合
+nameZh: Command Code Goat 套餐
 kind: subscription
 currency: USD
 websiteUrl: https://commandcode.ai
 pricingUrl: https://commandcode.ai/docs/plans/goat
+planUrl: https://commandcode.ai/docs/plans/goat
 docUrl: https://commandcode.ai/docs
 description: >-
-  mock 数据（虚构服务）：编程向聚合订阅商。一次月费进入共享额度池，各模型按 每百万 token 的 $ 定价消耗池内
-  credits。模型定价为虚构示例，用于演示订阅聚合 与官方 API 的价格对比，不代表真实厂商报价。
-billing:
-  baseFee: 10
-  feePct: 7
-  currency: USD
-  poolNote: 月费 $10 + 7% 平台附加费，共享额度池，按模型消耗池内 credits
+  Command Code Goat 开发者聚合订阅套餐，月费 $10，提供最高 70 美元总额度池，不同模型具有不同专属额度与倍率。
 plans:
-  - id: go
-    name: Go 套餐
-    baseFee: 8
-    currency: CNY
-    feePct: 0
-    quotaType: currency
-    quotaAmount: 10
-    quotaCurrency: USD
-    rateLimit:
-      hasLimit: unknown
-    poolNote: 8元/月，提供 10 美元额度
   - id: goat
     name: GOAT Plan
     baseFee: 10
@@ -49,27 +31,13 @@ models:
     output: 4.4
     cacheRead: 0.26
     cacheWrite: null
-    credits: 48
-    quota90: 417.4
-    quota95: 531.9
     multiplier: 1
     modelQuota: 70
-  - modelId: glm-5.2-flash
-    input: 0.2
-    output: 0.6
-    cacheRead: 0.02
-    cacheWrite: null
-    credits: 26
-    quota90: 619
-    quota95: 787.9
   - modelId: qwen-3.7-plus
     input: 0.4
     output: 1.6
     cacheRead: 0.08
     cacheWrite: 0.5
-    credits: 28
-    quota90: 663.5
-    quota95: 843.4
     multiplier: 2.12
     modelQuota: 33
   - modelId: qwen-3.8-max
@@ -77,29 +45,15 @@ models:
     output: 6
     cacheRead: 0.25
     cacheWrite: 2.5
-    credits: 42
-    quota90: 543.3
-    quota95: 687.4
     multiplier: 3.5
     modelQuota: 20
-  - modelId: gpt-5.6-sol
-    input: 5
-    output: 30
-    cacheRead: 0.5
-    cacheWrite: 6.25
-    credits: 74
-    quota90: 121.5
-    quota95: 153.2
-    multiplier: 1
-    modelQuota: 70
   - modelId: deepseek-v4-flash
-    input: 0.2
-    output: 0.65
-    cacheRead: 0.02
+    input: 0.15
+    output: 0.6
+    cacheRead: 0.003
     cacheWrite: null
-    credits: 24
-    quota90: 564.7
-    quota95: 716.4
+    multiplier: 1.17
+    modelQuota: 60
   - modelId: tencent-hy3
     input: 0.14
     output: 0.58

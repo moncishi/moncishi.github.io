@@ -1,9 +1,12 @@
 id: qwen-3.8-max
-name: Qwen-3.8-Max
+name: Qwen 3.8 Max
+modality: text
 official:
-  input: 10        # mock 官方价（¥/1M，CNY）
-  output: 40
-  cacheRead: 1.0
-  cacheWrite: 0
-  currency: CNY
-providers: [command-code-goat, opencode-go, nvidia-aggregator, qwen-official]
+  input: 2.0
+  output: 6.0
+  cacheRead: 0.25
+  cacheWrite: 2.5
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go
