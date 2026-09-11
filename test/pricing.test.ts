@@ -114,7 +114,7 @@ test('planValueMetrics produces complete metrics for a plan and model price', ()
 test('formatRateLimitNote formats note according to domain rules', () => {
   assert.equal(formatRateLimitNote(undefined), undefined);
   assert.equal(formatRateLimitNote({ hasLimit: 'no' }), '无限制');
-  assert.equal(formatRateLimitNote({ hasLimit: 'unknown' }), undefined);
+  assert.equal(formatRateLimitNote({ hasLimit: 'unknown' }), '限额未知');
   assert.equal(formatRateLimitNote({ hasLimit: 'yes', rolling5h: '20次或$5' }), '20次或$5');
   assert.equal(formatRateLimitNote({ hasLimit: 'yes', rolling5h: null }), '有限额');
   assert.equal(

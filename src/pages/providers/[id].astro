@@ -223,7 +223,13 @@ const sectionSub = isOfficial
 									</span>
 								)}
 								{rateLimitNote && (
-									<span class={isLimit ? "px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400" : "px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"}>
+									<span class={
+										pl.rateLimit?.hasLimit === 'yes'
+											? "px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400"
+											: pl.rateLimit?.hasLimit === 'no'
+											? "px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+											: "px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-600 dark:text-slate-400"
+									}>
 										{rateLimitNote}
 									</span>
 								)}

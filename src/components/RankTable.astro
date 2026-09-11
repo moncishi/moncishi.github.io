@@ -20,7 +20,7 @@
  * Behaviour:
  *  - Every row is genuinely clickable: the provider cell holds an <a> whose
  *    ::after is stretched over the entire row (stretched-link pattern), so
- *    clicking anywhere on the row — or the trailing "查看供应商详情 →"
+ *    clicking anywhere on the row — or the trailing "查看订阅商详情 →"
  *    affordance — opens that provider's detail page (/providers/[id]).
  *  - The #1 row is highlighted (accent-soft bg + blue left bar + "最佳值" pill
  *    next to its bold blue currency/M value).
@@ -160,7 +160,7 @@ const colSpan = 7;
 			<thead>
 				<tr>
 					<th scope="col" class="rt-th rt-th--rank">排名</th>
-					<th scope="col" class="rt-th rt-th--provider">供应商</th>
+					<th scope="col" class="rt-th rt-th--provider">订阅商</th>
 					<th scope="col" class="rt-th rt-th--fee">月费</th>
 					<th scope="col" class="rt-th rt-th--quota">月额度 M</th>
 					<th scope="col" class="rt-th rt-th--mper">M/货币</th>
@@ -309,7 +309,7 @@ const colSpan = 7;
 								>
 									{href && (
 										<span class="rt-go">
-											<span class="rt-go-text">查看供应商详情</span>
+											<span class="rt-go-text">查看订阅商详情</span>
 											<span class="rt-go-arrow" aria-hidden="true">→</span>
 										</span>
 									)}

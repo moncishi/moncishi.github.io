@@ -79,6 +79,9 @@ export function formatRateLimitNote(rateLimit?: RateLimit): string | undefined {
   if (rateLimit.hasLimit === 'no') {
     return '无限制';
   }
+  if (rateLimit.hasLimit === 'unknown') {
+    return '限额未知';
+  }
   return undefined;
 }
 
