@@ -1,0 +1,12 @@
+id: gemini-3.8-flash
+name: Gemini 3.8 Flash
+modality: text
+description: Gemini 3.8 Flash 模型（由 Command Code 提供接入）
+official:
+  input: 1.5
+  output: 7.5
+  cacheRead: 0.15
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat

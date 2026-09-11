@@ -1,0 +1,12 @@
+id: hy4-preview
+name: Hy4 preview
+modality: text
+description: Hy4 preview 模型（由 OpenCode 提供接入）
+official:
+  input: 0.834
+  output: 2.501
+  cacheRead: 0.042
+  cacheWrite: null
+  currency: USD
+providers:
+  - opencode-go

@@ -1,0 +1,13 @@
+id: deepseek-v4.1-flash
+name: DeepSeek V4.1 Flash
+modality: text
+description: DeepSeek V4.1 Flash 模型（由 Command Code 提供接入）
+official:
+  input: 0.15
+  output: 0.6
+  cacheRead: 0.003
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go

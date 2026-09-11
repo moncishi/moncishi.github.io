@@ -1,0 +1,13 @@
+id: qwen-3.8-flash
+name: Qwen 3.8 Flash
+modality: text
+description: Qwen 3.8 Flash 模型（由 Command Code 提供接入）
+official:
+  input: 0.16
+  output: 0.47
+  cacheRead: 0.016
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go

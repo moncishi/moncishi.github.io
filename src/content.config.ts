@@ -10,7 +10,7 @@ const planSchema = z.object({
   feePct: z.number().optional().default(0),
   quotaType: z.enum(['credits', 'currency']),
   quotaAmount: z.number(), // e.g. 20000 credits or 60 USD
-  quotaCurrency: z.enum(['USD', 'CNY']).optional(),
+  quotaCurrency: z.enum(['USD', 'CNY']).nullable().optional(),
   rateLimit: z
     .object({
       hasLimit: z.enum(['yes', 'no', 'unknown']),
@@ -48,6 +48,8 @@ const providers = defineCollection({
         cacheRead: z.number().nullable(),
         cacheWrite: z.number().nullable(),
         credits: z.number().optional(), // monthly credits / pool face value
+        modelQuota: z.number().nullable().optional(), // model-specific allowance e.g. 20 USD
+        multiplier: z.number().nullable().optional(), // pool consumption multiplier e.g. 70/20 = 3.5
         quota90: z.number().optional(), // published M(90,9,1) quota (millions)
         quota95: z.number().optional(), // published M(95,4,1) quota
       }),

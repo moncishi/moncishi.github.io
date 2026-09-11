@@ -1,0 +1,12 @@
+id: deepseek-v4-flash-fast
+name: DeepSeek V4 Flash Fast
+modality: text
+description: DeepSeek V4 Flash Fast 模型（由 Command Code 提供接入）
+official:
+  input: 0.28
+  output: 0.56
+  cacheRead: 0.07
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat

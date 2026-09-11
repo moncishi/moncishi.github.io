@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as yaml from 'yaml';
-import type { ExtractedModel } from './types.ts';
+import type { ExtractedModel, ExtractedProviderData } from './types.ts';
 
 export interface UpdateSummary {
   createdModels: string[];
@@ -102,3 +102,132 @@ export function applyExtractedPricing(
 
   return summary;
 }
+
+export function applyProviderUpdates(providerData: ExtractedProviderData): {
+  providerId: string;
+  planUpdated: boolean;
+  modelsCount: number;
+} {
+  const modelsDir = path.resolve(process.cwd(), 'src/content/models');
+  const providersDir = path.resolve(process.cwd(), 'src/content/providers');
+
+  const providerPath = path.join(providersDir, `${providerData.providerId}.yaml`);
+  let doc: yaml.Document;
+
+  if (!fs.existsSync(providerPath)) {
+    doc = new yaml.Document({
+      id: providerData.providerId,
+      name: providerData.providerName,
+      nameZh: providerData.providerNameZh ?? providerData.providerName,
+      kind: providerData.kind,
+      currency: providerData.currency,
+      description:
+        providerData.description ??
+        `${providerData.providerName} 订阅套餐，提供额度池与主流模型支持。`,
+      plans: [],
+      models: [],
+    });
+  } else {
+    const raw = fs.readFileSync(providerPath, 'utf-8');
+    doc = yaml.parseDocument(raw);
+  }
+
+  // 1. Update plans
+  const plansNode = doc.get('plans') as any;
+  const plans: Array<Record<string, any>> = plansNode?.toJSON ? plansNode.toJSON() : [];
+  const incomingPlans = providerData.plans && providerData.plans.length > 0
+    ? providerData.plans
+    : providerData.plan
+      ? [providerData.plan]
+      : [];
+
+  for (const pl of incomingPlans) {
+    const planIdx = plans.findIndex((p) => p.id === pl.id);
+    if (planIdx !== -1) {
+      plans[planIdx] = {
+        ...plans[planIdx],
+        name: pl.name,
+        baseFee: pl.baseFee,
+        currency: pl.currency,
+        feePct: pl.feePct ?? plans[planIdx].feePct ?? 0,
+        quotaType: pl.quotaType,
+        quotaAmount: pl.quotaAmount,
+        quotaCurrency: pl.quotaCurrency ?? pl.currency,
+        rateLimit: pl.rateLimit ?? plans[planIdx].rateLimit,
+        poolNote: pl.poolNote ?? plans[planIdx].poolNote,
+      };
+    } else {
+      plans.push(pl);
+    }
+  }
+  doc.set('plans', plans);
+
+  // 2. Update models
+  const modelsNode = doc.get('models') as any;
+  const currentModels: Array<Record<string, any>> = modelsNode?.toJSON
+    ? modelsNode.toJSON()
+    : [];
+  const modelMap = new Map(currentModels.map((item) => [item.modelId, item]));
+
+  for (const pm of providerData.models) {
+    const existing = modelMap.get(pm.modelId);
+    if (existing) {
+      existing.input = pm.input;
+      existing.output = pm.output;
+      existing.cacheRead = pm.cacheRead;
+      existing.cacheWrite = pm.cacheWrite;
+      if (pm.multiplier !== undefined) existing.multiplier = pm.multiplier;
+      if (pm.modelQuota !== undefined) existing.modelQuota = pm.modelQuota;
+    } else {
+      currentModels.push({
+        modelId: pm.modelId,
+        input: pm.input,
+        output: pm.output,
+        cacheRead: pm.cacheRead,
+        cacheWrite: pm.cacheWrite,
+        ...(pm.multiplier !== undefined ? { multiplier: pm.multiplier } : {}),
+        ...(pm.modelQuota !== undefined ? { modelQuota: pm.modelQuota } : {}),
+      });
+    }
+
+    // Ensure model exists in models collection
+    const modelFilePath = path.join(modelsDir, `${pm.modelId}.yaml`);
+    if (!fs.existsSync(modelFilePath)) {
+      const newModelDoc = new yaml.Document({
+        id: pm.modelId,
+        name: pm.modelName,
+        modality: 'text',
+        description: `${pm.modelName} 模型（由 ${providerData.providerName} 提供接入）`,
+        official: {
+          input: pm.input,
+          output: pm.output,
+          cacheRead: pm.cacheRead,
+          cacheWrite: pm.cacheWrite,
+          currency: providerData.currency,
+        },
+        providers: [providerData.providerId],
+      });
+      fs.writeFileSync(modelFilePath, newModelDoc.toString(), 'utf-8');
+    } else {
+      const mRaw = fs.readFileSync(modelFilePath, 'utf-8');
+      const mDoc = yaml.parseDocument(mRaw);
+      const provNode = mDoc.get('providers') as any;
+      const provList: string[] = provNode?.toJSON ? provNode.toJSON() : [];
+      if (!provList.includes(providerData.providerId)) {
+        provList.push(providerData.providerId);
+        mDoc.set('providers', provList);
+        fs.writeFileSync(modelFilePath, mDoc.toString(), 'utf-8');
+      }
+    }
+  }
+
+  doc.set('models', currentModels);
+  fs.writeFileSync(providerPath, doc.toString(), 'utf-8');
+
+  return {
+    providerId: providerData.providerId,
+    planUpdated: true,
+    modelsCount: currentModels.length,
+  };
+}
+

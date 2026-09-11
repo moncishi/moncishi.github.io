@@ -1,0 +1,13 @@
+id: minimax-m3
+name: MiniMax M3
+modality: text
+description: MiniMax M3 模型（由 Command Code 提供接入）
+official:
+  input: 0.3
+  output: 1.2
+  cacheRead: 0.06
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go

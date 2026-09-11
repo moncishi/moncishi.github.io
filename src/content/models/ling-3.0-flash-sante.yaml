@@ -1,0 +1,12 @@
+id: ling-3.0-flash-sante
+name: Ling 3.0 Flash Sante
+modality: text
+description: Ling 3.0 Flash Sante 模型（由 Command Code 提供接入）
+official:
+  input: 0
+  output: 0
+  cacheRead: 0
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat

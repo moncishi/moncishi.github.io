@@ -1,0 +1,62 @@
+你是一个专业的 AI 聚合服务商（第三方 Provider）计费规则与套餐模型解析专家。
+请仔细阅读下面提供的第三方订阅商套餐介绍 Markdown 文档，提取该套餐的月费、总额度池、限额规则以及所支持的每个模型的单价、模型专属额度（allowance/quota）与倍率（multiplier）。
+
+### 字段契约与输出格式：
+输出必须是纯 JSON 对象，格式如下：
+{
+  "providerId": "服务商 ID，例如 command-code-goat 或 opencode-go 或 glm-coding",
+  "providerName": "服务商展示名，例如 Command Code 或 OpenCode 或 GLM Coding Plan",
+  "providerNameZh": "中文展示名（可选），例如 智谱 GLM 编码套餐",
+  "kind": "subscription",
+  "currency": "USD 或 CNY",
+  "description": "服务商简要描述",
+  "plans": [
+    {
+      "id": "套餐 ID，例如 goat, go, lite, pro, max",
+      "name": "套餐名称，例如 Goat 套餐 或 Pro 套餐",
+      "baseFee": 10,                 // 基础月费（数字）
+      "currency": "USD 或 CNY",       // 币种
+      "feePct": 0,                  // 平台附加费率，默认 0
+      "quotaType": "currency 或 credits", // 'currency'（货币额度）或 'credits'（积分/点数）
+      "quotaAmount": 70,            // 套餐总额度/积分上限（若为月费则对应每月总积分或额度）
+      "quotaCurrency": "USD 或 CNY", // quotaType 为 currency 时填写
+      "rateLimit": {
+        "hasLimit": "yes",          // 取值 'yes' | 'no' | 'unknown'
+        "rolling5h": "5小时限额说明", // 5小时滑动窗口限额说明
+        "weekly": "周限额说明",      // 周限额说明
+        "monthly": "月限额说明"      // 月限额说明
+      },
+      "poolNote": "额度池说明，例如：每周 60,000 积分 (约 240,000 积分/月)，5小时上限 12,000 积分，非高峰时段 50% 抵扣"
+    }
+  ],
+  "models": [
+    {
+      "modelId": "模型 slug，规范的 kebab-case，如 glm-5.3, qwen-3.8-max, deepseek-v4-flash",
+      "modelName": "官方展示名，如 GLM-5.3, Qwen 3.8 Max",
+      "input": 690,               // 输入单价或消耗积分（/1M tokens）
+      "output": 2400,             // 输出单价或消耗积分（/1M tokens）
+      "cacheRead": 170,           // 缓存读取（/1M tokens），无则 null
+      "cacheWrite": 0,            // 缓存写入（/1M tokens），无或不收费写 null / 0
+      "modelQuota": 20,           // 该模型专属月额度（若为全额或积分统一扣费则为 null）
+      "multiplier": 1.0           // 消耗倍率：若各模型有专属额度则 = 总额度 / 该模型额度；若所有套餐的模型积分消耗相同，则均为 1.0
+    }
+  ]
+}
+
+### 提取与计算规则：
+1. **多套餐支持**：
+   - 若服务商提供多个档位（例如 Lite、Pro、Max），请在 `plans` 数组中提取出每一个套餐的完整信息。
+   - 若只有单一套餐，`plans` 包含该单个套餐。
+2. **积分制（credits）与抵扣系数换算**：
+   - 若服务商为积分制（例如智谱 GLM Coding Plan），`quotaType` 设为 `'credits'`。
+   - 若文档中抵扣系数是按每 10,000 Token 给出（如 GLM-5.3: Input 6.9, Cached 1.7, Output 24），则折算为每 1M Token 的积分消耗：`积分/1M = 系数 × 100`（即 input: 690, cacheRead: 170, output: 2400）。
+   - 若所有套餐的模型积分消耗相同，各模型的 `multiplier` 设为 `1.0`。
+3. **货币额度与模型倍率计算**：
+   - 若为美元额度池（如 Goat/Go）：如果总额度为 70 美元，某模型专属额度为 20 美元，则该模型倍率 `multiplier = 70 / 20 = 3.5`（四舍五入保留2位小数）。
+   - 如果某模型未单独限制（享受全额总额度），则 `multiplier = 1.0`，`modelQuota` 为总额度。
+2. **单价单位换算**：
+   - 提取表格中的 Per 1M tokens（每百万 Token）价格（例如 $2.00 -> 2.0；$0.25 -> 0.25）。
+   - 免费模型（Free）如果单价为 0，请记为 0。
+3. **模型 ID 规范化**：
+   - 将模型名统一规范化为小写 kebab-case，例如 `Qwen 3.8 Max` -> `qwen-3.8-max`；`Qwen 3.8 Max 0902` -> `qwen-3.8-max-0902`；`GLM-5.2` -> `glm-5.2`；`GPT-5.6 Sol` -> `gpt-5.6-sol`。
+4. 严格输出纯 JSON 对象，严禁包裹任何非 JSON 说明。

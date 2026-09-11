@@ -1,0 +1,12 @@
+id: inkling-small
+name: Inkling Small
+modality: text
+description: Inkling Small 模型（由 Command Code 提供接入）
+official:
+  input: 0.5
+  output: 1.2
+  cacheRead: 0.1
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat

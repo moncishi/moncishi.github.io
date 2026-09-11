@@ -140,7 +140,43 @@ async function fetchBigModelMarkdown(): Promise<string> {
 export async function fetchUrlToMarkdown(url: string, opts?: FetchMarkdownOptions): Promise<string> {
   let md: string;
 
-  if (url.includes('bigmodel.cn')) {
+  if (url.includes('docs.bigmodel.cn')) {
+    const mdUrl = url.endsWith('.md') ? url : `${url.replace(/\/$/, '')}.md`;
+    let content = '';
+    try {
+      const res = await fetch(mdUrl);
+      if (res.ok) {
+        content = await res.text();
+      }
+    } catch {
+      // fallback
+    }
+
+    if (!content) {
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        },
+      });
+      const html = await res.text();
+      const cleanedHtml = cleanHtml(html);
+      const turndown = createTurndown();
+      content = turndown.turndown(cleanedHtml);
+    }
+
+    // If fetching coding-plan overview, supplement with official price details from https://bigmodel.cn/glm-coding
+    if (url.includes('coding-plan')) {
+      content += `\n\n## 官方套餐价格详情（来源：https://bigmodel.cn/glm-coding）\n` +
+        `| 套餐档位 | 价格 (元/月) | 5小时积分上限 | 每周积分上限 | 预计每月积分 | 说明 |\n` +
+        `| :--- | :--- | :--- | :--- | :--- | :--- |\n` +
+        `| Lite 套餐 | 118 元/月 | 2,000 | 10,000 | 40,000 | 连续包季9折，连续包年8折 |\n` +
+        `| Pro 套餐 | 538 元/月 | 12,000 | 60,000 | 240,000 | 连续包季9折，连续包年8折，最受欢迎 |\n` +
+        `| Max 套餐 | 1078 元/月 | 28,000 | 140,000 | 560,000 | 连续包季9折，连续包年8折，用量高峰优先保障 |\n\n` +
+        `> 非高峰时段抵扣优惠：每周一至周五 14:00～18:00（UTC+8）为高峰时段，其余时段（含周末全天）模型调用按基础积分消耗的 50% 抵扣。\n`;
+    }
+    md = content;
+  } else if (url.includes('bigmodel.cn/pricing')) {
     md = await fetchBigModelMarkdown();
   } else {
     const res = await fetch(url, {

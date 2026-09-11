@@ -1,0 +1,12 @@
+id: tencent-hy3
+name: Tencent Hy3
+modality: text
+description: Tencent Hy3 模型（由 Command Code 提供接入）
+official:
+  input: 0.14
+  output: 0.58
+  cacheRead: 0.035
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat

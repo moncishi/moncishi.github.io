@@ -37,4 +37,54 @@ export interface VendorConfig {
   description?: string;
 }
 
+export interface ExtractedProviderPlan {
+  id: string;
+  name: string;
+  baseFee: number;
+  currency: 'USD' | 'CNY';
+  feePct?: number;
+  quotaType: 'currency' | 'credits';
+  quotaAmount: number;
+  quotaCurrency?: 'USD' | 'CNY';
+  rateLimit?: {
+    hasLimit: 'yes' | 'no' | 'unknown';
+    rolling5h?: string | null;
+    weekly?: string | null;
+    monthly?: string | null;
+  };
+  poolNote?: string;
+}
+
+export interface ProviderPlanConfig {
+  providerId: string;
+  providerName: string;
+  providerNameZh?: string;
+  planId: string;
+  url: string;
+  description?: string;
+}
+
+export interface ExtractedProviderModel {
+  modelId: string;
+  modelName: string;
+  input: number;
+  output: number;
+  cacheRead: number | null;
+  cacheWrite: number | null;
+  modelQuota?: number | null; // e.g. 20 (USD)
+  multiplier?: number | null; // e.g. 70 / 20 = 3.5
+}
+
+export interface ExtractedProviderData {
+  providerId: string;
+  providerName: string;
+  providerNameZh?: string;
+  kind: 'subscription';
+  currency: 'USD' | 'CNY';
+  description?: string;
+  plan?: ExtractedProviderPlan;
+  plans?: ExtractedProviderPlan[];
+  models: ExtractedProviderModel[];
+}
+
 export type LlmEngineType = 'deepseek' | 'agy';

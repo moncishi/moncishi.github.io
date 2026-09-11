@@ -10,3 +10,6 @@ official:
   currency: CNY
 providers:
   - glm-official
+  - command-code-goat
+  - opencode-go
+  - glm-coding

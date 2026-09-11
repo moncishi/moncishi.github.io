@@ -1,0 +1,12 @@
+id: kimi-k2.5
+name: Kimi K2.5
+modality: text
+description: Kimi K2.5 模型（由 Command Code 提供接入）
+official:
+  input: 0.6
+  output: 3
+  cacheRead: 0.1
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat

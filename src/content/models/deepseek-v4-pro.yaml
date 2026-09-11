@@ -10,3 +10,4 @@ official:
   currency: CNY
 providers:
   - deepseek-official
+  - opencode-go

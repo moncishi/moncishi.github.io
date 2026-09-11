@@ -7,9 +7,8 @@ nameZh: 编程码羊聚合
 kind: subscription
 currency: USD
 description: >-
-  mock 数据（虚构服务）：编程向聚合订阅商。一次月费进入共享额度池，各模型按
-  每百万 token 的 $ 定价消耗池内 credits。模型定价为虚构示例，用于演示订阅聚合
-  与官方 API 的价格对比，不代表真实厂商报价。
+  mock 数据（虚构服务）：编程向聚合订阅商。一次月费进入共享额度池，各模型按 每百万 token 的 $ 定价消耗池内
+  credits。模型定价为虚构示例，用于演示订阅聚合 与官方 API 的价格对比，不代表真实厂商报价。
 billing:
   baseFee: 10
   feePct: 7
@@ -28,65 +27,395 @@ plans:
       hasLimit: unknown
     poolNote: 8元/月，提供 10 美元额度
   - id: goat
-    name: Goat 套餐
+    name: GOAT Plan
     baseFee: 10
     currency: USD
-    feePct: 7
+    feePct: 0
     quotaType: currency
-    quotaAmount: 60
+    quotaAmount: 70
     quotaCurrency: USD
     rateLimit:
-      hasLimit: 'yes'
-      rolling5h: 20次或$5
-      monthly: 60美元
-    poolNote: 10美元/月 + 7% 平台附加费，提供 60 美元额度
+      hasLimit: yes
+      rolling5h: 5小时限额 $14
+      weekly: 周限额 $35
+      monthly: 月限额 $70
+    poolNote: 月费 $10，提供最高 70 美元总额度池，不同模型具有不同专属额度与倍率
 models:
-  # cacheWrite: 本商不单列缓存写入费（已含在读取价内），记 null
   - modelId: glm-5.2
-    input: 0.55
-    output: 1.6
-    cacheRead: 0.055
+    input: 1.4
+    output: 4.4
+    cacheRead: 0.26
     cacheWrite: null
     credits: 48
-    quota90: 417.4      # = 48 / (0.9*0.055 + 0.09*0.55 + 0.01*1.6)
-    quota95: 531.9      # = 48 / (0.95*0.055 + 0.04*0.55 + 0.01*1.6)
+    quota90: 417.4
+    quota95: 531.9
+    multiplier: 1
+    modelQuota: 70
   - modelId: glm-5.2-flash
     input: 0.2
     output: 0.6
     cacheRead: 0.02
     cacheWrite: null
     credits: 26
-    quota90: 619.0      # = 26 / (0.9*0.02 + 0.09*0.2 + 0.01*0.6)
-    quota95: 787.9      # = 26 / (0.95*0.02 + 0.04*0.2 + 0.01*0.6)
+    quota90: 619
+    quota95: 787.9
   - modelId: qwen-3.7-plus
-    input: 0.2
-    output: 0.62
-    cacheRead: 0.02
-    cacheWrite: null
+    input: 0.4
+    output: 1.6
+    cacheRead: 0.08
+    cacheWrite: 0.5
     credits: 28
-    quota90: 663.5      # = 28 / (0.9*0.02 + 0.09*0.2 + 0.01*0.62)
-    quota95: 843.4      # = 28 / (0.95*0.02 + 0.04*0.2 + 0.01*0.62)
+    quota90: 663.5
+    quota95: 843.4
+    multiplier: 2.12
+    modelQuota: 33
   - modelId: qwen-3.8-max
-    input: 0.36
-    output: 1.25
-    cacheRead: 0.036
-    cacheWrite: null
+    input: 2
+    output: 6
+    cacheRead: 0.25
+    cacheWrite: 2.5
     credits: 42
-    quota90: 543.3      # = 42 / (0.9*0.036 + 0.09*0.36 + 0.01*1.25)
-    quota95: 687.4      # = 42 / (0.95*0.036 + 0.04*0.36 + 0.01*1.25)
+    quota90: 543.3
+    quota95: 687.4
+    multiplier: 3.5
+    modelQuota: 20
   - modelId: gpt-5.6-sol
-    input: 2.8
-    output: 10.5
-    cacheRead: 0.28
-    cacheWrite: null
+    input: 5
+    output: 30
+    cacheRead: 0.5
+    cacheWrite: 6.25
     credits: 74
-    quota90: 121.5      # = 74 / (0.9*0.28 + 0.09*2.8 + 0.01*10.5)
-    quota95: 153.2      # = 74 / (0.95*0.28 + 0.04*2.8 + 0.01*10.5)
+    quota90: 121.5
+    quota95: 153.2
+    multiplier: 1
+    modelQuota: 70
   - modelId: deepseek-v4-flash
     input: 0.2
     output: 0.65
     cacheRead: 0.02
     cacheWrite: null
     credits: 24
-    quota90: 564.7      # = 24 / (0.9*0.02 + 0.09*0.2 + 0.01*0.65)
-    quota95: 716.4      # = 24 / (0.95*0.02 + 0.04*0.2 + 0.01*0.65)
+    quota90: 564.7
+    quota95: 716.4
+  - modelId: tencent-hy3
+    input: 0.14
+    output: 0.58
+    cacheRead: 0.035
+    cacheWrite: null
+    multiplier: 1
+    modelQuota: 70
+  - modelId: qwen-3.8-27b
+    input: 0.4
+    output: 3
+    cacheRead: 0.04
+    cacheWrite: null
+    multiplier: 1
+    modelQuota: 70
+  - modelId: deepseek-v4-flash-latest
+    input: 0.15
+    output: 0.6
+    cacheRead: 0.003
+    cacheWrite: null
+    multiplier: 1.17
+    modelQuota: 60
+  - modelId: deepseek-v4.1-flash
+    input: 0.15
+    output: 0.6
+    cacheRead: 0.003
+    cacheWrite: null
+    multiplier: 1.17
+    modelQuota: 60
+  - modelId: kimi-k2.7-code
+    input: 0.95
+    output: 4
+    cacheRead: 0.19
+    cacheWrite: null
+    multiplier: 1.17
+    modelQuota: 60
+  - modelId: minimax-m3
+    input: 0.3
+    output: 1.2
+    cacheRead: 0.06
+    cacheWrite: null
+    multiplier: 1.49
+    modelQuota: 47
+  - modelId: glm-5.3-flash
+    input: 0.15
+    output: 0.5
+    cacheRead: 0.03
+    cacheWrite: null
+    multiplier: 1.75
+    modelQuota: 40
+  - modelId: gemini-3.8-flash
+    input: 1.5
+    output: 7.5
+    cacheRead: 0.15
+    cacheWrite: null
+    multiplier: 1.75
+    modelQuota: 40
+  - modelId: qwen-3.7-max
+    input: 2.5
+    output: 7.5
+    cacheRead: 0.5
+    cacheWrite: 3.13
+    multiplier: 2.12
+    modelQuota: 33
+  - modelId: qwen-3.6-plus
+    input: 0.5
+    output: 3
+    cacheRead: 0.1
+    cacheWrite: null
+    multiplier: 2.12
+    modelQuota: 33
+  - modelId: mimo-v2.5
+    input: 0.14
+    output: 0.28
+    cacheRead: 0.0028
+    cacheWrite: null
+    multiplier: 2.33
+    modelQuota: 30
+  - modelId: gpt-5.6-luna
+    input: 0.2
+    output: 1.2
+    cacheRead: 0.02
+    cacheWrite: 0.25
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: deepseek-v4-pro-latest
+    input: 0.66
+    output: 1.98
+    cacheRead: 0.022
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: mimo-v2.5-pro
+    input: 0.435
+    output: 0.87
+    cacheRead: 0.0036
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: qwen-3.8-max-0902
+    input: 2
+    output: 6
+    cacheRead: 0.25
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: tencent-hy4-preview
+    input: 0.834
+    output: 2.501
+    cacheRead: 0.042
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: qwen-3.8-flash
+    input: 0.16
+    output: 0.47
+    cacheRead: 0.016
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: deepseek-v4-flash-vision-exp
+    input: 0.22
+    output: 0.66
+    cacheRead: 0.007
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: deepseek-v4-flash-fast
+    input: 0.28
+    output: 0.56
+    cacheRead: 0.07
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: glm-5.3
+    input: 1.4
+    output: 4.4
+    cacheRead: 0.26
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: muse-spark-1.3
+    input: 1.25
+    output: 4.25
+    cacheRead: 0.15
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: muse-spark-1.3-contributor
+    input: 0.1
+    output: 0.2
+    cacheRead: 0.002
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: muse-spark-1.2
+    input: 1.25
+    output: 4.25
+    cacheRead: 0.15
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: muse-spark-1.2-contributor
+    input: 0.1
+    output: 0.2
+    cacheRead: 0.002
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: kimi-k3
+    input: 3
+    output: 15
+    cacheRead: 0.3
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: kimi-k2.7-code-highspeed
+    input: 1.9
+    output: 8
+    cacheRead: 0.38
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: grok-4.5
+    input: 2
+    output: 6
+    cacheRead: 0.5
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: grok-4.6
+    input: 2
+    output: 6
+    cacheRead: 0.5
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: gemini-3.7-flash
+    input: 1.5
+    output: 7.5
+    cacheRead: 0.15
+    cacheWrite: 0.08334
+    multiplier: 1.75
+    modelQuota: 40
+  - modelId: glm-5.2-fast
+    input: 3
+    output: 10.25
+    cacheRead: 0.5
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: inkling
+    input: 1
+    output: 4.05
+    cacheRead: 0.17
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: inkling-small
+    input: 0.5
+    output: 1.2
+    cacheRead: 0.1
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: step-3.7-flash
+    input: 0.2
+    output: 1.15
+    cacheRead: 0.04
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: step-3.5-flash
+    input: 0.1
+    output: 0.3
+    cacheRead: 0.02
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: nemotron-3-ultra
+    input: 0.6
+    output: 2.4
+    cacheRead: 0.12
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: kimi-k2.6
+    input: 0.95
+    output: 4
+    cacheRead: 0.16
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: kimi-k2.5
+    input: 0.6
+    output: 3
+    cacheRead: 0.1
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: glm-5.1
+    input: 1.4
+    output: 4.4
+    cacheRead: 0.26
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: glm-5
+    input: 1
+    output: 3.2
+    cacheRead: 0.2
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: qwen-3.7-flash
+    input: 0.03
+    output: 0.13
+    cacheRead: 0.006
+    cacheWrite: 0.038
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: qwen-3.6-max-preview
+    input: 1.3
+    output: 7.8
+    cacheRead: 0.26
+    cacheWrite: 1.63
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: minimax-m2.7
+    input: 0.3
+    output: 1.2
+    cacheRead: 0.06
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: minimax-m2.5
+    input: 0.3
+    output: 1.2
+    cacheRead: 0.03
+    cacheWrite: null
+    multiplier: 3.5
+    modelQuota: 20
+  - modelId: ling-3.0-flash-sante
+    input: 0
+    output: 0
+    cacheRead: 0
+    cacheWrite: null
+    multiplier: 1
+    modelQuota: 70
+  - modelId: longcat-2.0
+    input: 0
+    output: 0
+    cacheRead: 0
+    cacheWrite: null
+    multiplier: 1
+    modelQuota: 70
+  - modelId: laguna-s-2.1
+    input: 0
+    output: 0
+    cacheRead: 0
+    cacheWrite: null
+    multiplier: 1
+    modelQuota: 70

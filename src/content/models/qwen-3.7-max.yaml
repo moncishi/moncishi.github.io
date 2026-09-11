@@ -1,0 +1,13 @@
+id: qwen-3.7-max
+name: Qwen 3.7 Max
+modality: text
+description: Qwen 3.7 Max 模型（由 Command Code 提供接入）
+official:
+  input: 2.5
+  output: 7.5
+  cacheRead: 0.5
+  cacheWrite: 3.13
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go

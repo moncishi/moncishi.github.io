@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { cleanHtml } from '../tools/pricing-sync/1-fetch-markdown.ts';
-import { applyExtractedPricing } from '../tools/pricing-sync/3-apply-updates.ts';
+import { applyExtractedPricing, applyProviderUpdates } from '../tools/pricing-sync/3-apply-updates.ts';
 import type { ExtractedModel } from '../tools/pricing-sync/types.ts';
 
 test('cleanHtml removes script, style, and nav elements', () => {
@@ -62,4 +62,59 @@ test('applyExtractedPricing correctly creates model YAML file structure', () => 
 
   // Cleanup test file
   fs.unlinkSync(testFile);
+});
+
+test('applyProviderUpdates correctly creates provider YAML with plans and multipliers', () => {
+  const mockProviderData = {
+    providerId: 'test-subscription-provider',
+    providerName: 'Test Provider',
+    kind: 'subscription' as const,
+    currency: 'USD' as const,
+    plans: [
+      {
+        id: 'tier-1',
+        name: 'Tier 1 Plan',
+        baseFee: 10,
+        currency: 'USD' as const,
+        feePct: 0,
+        quotaType: 'currency' as const,
+        quotaAmount: 70,
+        rateLimit: {
+          hasLimit: 'yes' as const,
+          rolling5h: '$14 limit',
+        },
+      },
+    ],
+    models: [
+      {
+        modelId: 'test-sub-model-1',
+        modelName: 'Test Sub Model 1',
+        input: 2.0,
+        output: 6.0,
+        cacheRead: 0.25,
+        cacheWrite: null,
+        modelQuota: 20,
+        multiplier: 3.5,
+      },
+    ],
+  };
+
+  const summary = applyProviderUpdates(mockProviderData);
+  assert.equal(summary.providerId, 'test-subscription-provider');
+  assert.equal(summary.modelsCount, 1);
+
+  const providerFile = path.resolve(process.cwd(), 'src/content/providers/test-subscription-provider.yaml');
+  assert.ok(fs.existsSync(providerFile));
+  const content = fs.readFileSync(providerFile, 'utf-8');
+  assert.ok(content.includes('id: test-subscription-provider'));
+  assert.ok(content.includes('id: tier-1'));
+  assert.ok(content.includes('multiplier: 3.5'));
+  assert.ok(content.includes('modelQuota: 20'));
+
+  // Clean up test provider file and created model file
+  fs.unlinkSync(providerFile);
+  const modelFile = path.resolve(process.cwd(), 'src/content/models/test-sub-model-1.yaml');
+  if (fs.existsSync(modelFile)) {
+    fs.unlinkSync(modelFile);
+  }
 });

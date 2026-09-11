@@ -1,0 +1,13 @@
+id: mimo-v2.5-pro
+name: MiMo V2.5 Pro
+modality: text
+description: MiMo V2.5 Pro 模型（由 Command Code 提供接入）
+official:
+  input: 0.435
+  output: 0.87
+  cacheRead: 0.0036
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go

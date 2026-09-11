@@ -1,0 +1,12 @@
+id: hy3
+name: Hy3
+modality: text
+description: Hy3 模型（由 OpenCode 提供接入）
+official:
+  input: 0.14
+  output: 0.58
+  cacheRead: 0.035
+  cacheWrite: null
+  currency: USD
+providers:
+  - opencode-go

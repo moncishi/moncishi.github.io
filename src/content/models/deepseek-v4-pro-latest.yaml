@@ -1,0 +1,12 @@
+id: deepseek-v4-pro-latest
+name: DeepSeek V4 Pro (latest)
+modality: text
+description: DeepSeek V4 Pro (latest) 模型（由 Command Code 提供接入）
+official:
+  input: 0.66
+  output: 1.98
+  cacheRead: 0.022
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat

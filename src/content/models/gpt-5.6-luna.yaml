@@ -1,0 +1,13 @@
+id: gpt-5.6-luna
+name: GPT-5.6 Luna
+modality: text
+description: GPT-5.6 Luna 模型（由 Command Code 提供接入）
+official:
+  input: 0.2
+  output: 1.2
+  cacheRead: 0.02
+  cacheWrite: 0.25
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go

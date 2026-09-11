@@ -1,0 +1,12 @@
+id: qwen-3.8-max-0902
+name: Qwen 3.8 Max 0902
+modality: text
+description: Qwen 3.8 Max 0902 模型（由 Command Code 提供接入）
+official:
+  input: 2
+  output: 6
+  cacheRead: 0.25
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat

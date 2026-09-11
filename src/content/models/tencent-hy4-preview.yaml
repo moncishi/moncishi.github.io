@@ -1,0 +1,12 @@
+id: tencent-hy4-preview
+name: Tencent Hy4 Preview
+modality: text
+description: Tencent Hy4 Preview 模型（由 Command Code 提供接入）
+official:
+  input: 0.834
+  output: 2.501
+  cacheRead: 0.042
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat

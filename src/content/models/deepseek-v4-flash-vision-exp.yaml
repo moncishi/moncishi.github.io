@@ -1,0 +1,13 @@
+id: deepseek-v4-flash-vision-exp
+name: DeepSeek V4 Flash Vision (exp)
+modality: text
+description: DeepSeek V4 Flash Vision (exp) 模型（由 Command Code 提供接入）
+official:
+  input: 0.22
+  output: 0.66
+  cacheRead: 0.007
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go

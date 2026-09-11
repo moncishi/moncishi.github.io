@@ -1,0 +1,13 @@
+id: longcat-2.0
+name: LongCat 2.0
+modality: text
+description: LongCat 2.0 模型（由 Command Code 提供接入）
+official:
+  input: 0
+  output: 0
+  cacheRead: 0
+  cacheWrite: null
+  currency: USD
+providers:
+  - command-code-goat
+  - opencode-go
