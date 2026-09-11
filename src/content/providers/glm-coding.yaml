@@ -3,6 +3,9 @@ name: GLM Coding Plan
 nameZh: 智谱 GLM 编码套餐
 kind: subscription
 currency: CNY
+websiteUrl: https://bigmodel.cn/glm-coding
+pricingUrl: https://bigmodel.cn/glm-coding
+docUrl: https://docs.bigmodel.cn/cn/coding-plan/overview
 description: 智谱 AI 专为 AI 编码打造的订阅套餐，覆盖需求理解、代码生成、调试修复等全流程开发，采用积分抵扣机制，支持非高峰时段 50% 抵扣优惠。
 plans:
   - id: lite

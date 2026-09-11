@@ -6,6 +6,9 @@ name: Command Code Goat
 nameZh: 编程码羊聚合
 kind: subscription
 currency: USD
+websiteUrl: https://commandcode.ai
+pricingUrl: https://commandcode.ai/docs/plans/goat
+docUrl: https://commandcode.ai/docs
 description: >-
   mock 数据（虚构服务）：编程向聚合订阅商。一次月费进入共享额度池，各模型按 每百万 token 的 $ 定价消耗池内
   credits。模型定价为虚构示例，用于演示订阅聚合 与官方 API 的价格对比，不代表真实厂商报价。

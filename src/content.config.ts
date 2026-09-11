@@ -20,6 +20,7 @@ const planSchema = z.object({
     })
     .optional(),
   poolNote: z.string().optional(),
+  planUrl: z.string().url().optional(),
 });
 
 const providers = defineCollection({
@@ -31,6 +32,9 @@ const providers = defineCollection({
     kind: z.enum(['official', 'subscription']),
     currency: z.enum(['USD', 'CNY']),
     description: z.string().optional(),
+    websiteUrl: z.string().url().optional(),
+    pricingUrl: z.string().url().optional(),
+    docUrl: z.string().url().optional(),
     plans: z.array(planSchema).default([]),
     billing: z
       .object({

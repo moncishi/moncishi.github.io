@@ -105,7 +105,7 @@ async function syncVendor(
   }
 
   console.log(`⏳ 步骤 3/3: 应用更新至 src/content 目录...`);
-  const summary = applyExtractedPricing(models, vendorId, officialProviderId);
+  const summary = applyExtractedPricing(models, vendorId, officialProviderId, config);
   console.log(`🎉 同步完成!`);
   if (summary.createdModels.length > 0) {
     console.log(`  ✨ 新建模型 (${summary.createdModels.length}): ${summary.createdModels.join(', ')}`);
@@ -163,6 +163,23 @@ async function syncProvider(
     console.log(`\n🔍 [Dry Run 模式] 提取结果 JSON:`);
     console.log(JSON.stringify(providerData, null, 2));
     return;
+  }
+
+  // Enrich with URLs from config if present
+  if (config) {
+    if (!providerData.websiteUrl && config.websiteUrl) providerData.websiteUrl = config.websiteUrl;
+    if (!providerData.pricingUrl && config.pricingUrl) providerData.pricingUrl = config.pricingUrl;
+    if (!providerData.docUrl && config.docUrl) providerData.docUrl = config.docUrl;
+    if (config.planUrl) {
+      if (providerData.plans) {
+        for (const pl of providerData.plans) {
+          if (!pl.planUrl) pl.planUrl = config.planUrl;
+        }
+      }
+      if (providerData.plan && !providerData.plan.planUrl) {
+        providerData.plan.planUrl = config.planUrl;
+      }
+    }
   }
 
   console.log(`⏳ 步骤 3/3: 应用更新至 src/content 目录...`);

@@ -12,7 +12,8 @@ export interface UpdateSummary {
 export function applyExtractedPricing(
   models: ExtractedModel[],
   vendorId: string,
-  officialProviderId: string,
+  officialProviderId?: string,
+  vendorConfig?: VendorConfig,
 ): UpdateSummary {
   const modelsDir = path.resolve(process.cwd(), 'src/content/models');
   const providersDir = path.resolve(process.cwd(), 'src/content/providers');
@@ -37,13 +38,18 @@ export function applyExtractedPricing(
       doc.set('name', m.name);
       if (m.modality) doc.set('modality', m.modality);
       doc.set('official', m.official);
+      if (m.description && !doc.get('description')) {
+        doc.set('description', m.description);
+      }
 
       // Ensure official provider is included
-      const providersNode = doc.get('providers') as any;
-      const providers: string[] = providersNode?.toJSON ? providersNode.toJSON() : [];
-      if (!providers.includes(officialProviderId)) {
-        providers.push(officialProviderId);
-        doc.set('providers', providers);
+      if (officialProviderId) {
+        const providersNode = doc.get('providers') as any;
+        const providers: string[] = providersNode?.toJSON ? providersNode.toJSON() : [];
+        if (!providers.includes(officialProviderId)) {
+          providers.push(officialProviderId);
+          doc.set('providers', providers);
+        }
       }
 
       fs.writeFileSync(modelPath, doc.toString(), 'utf-8');
@@ -55,7 +61,7 @@ export function applyExtractedPricing(
         modality: m.modality || 'text',
         description: m.description || `${m.name} 官方模型`,
         official: m.official,
-        providers: [officialProviderId],
+        providers: officialProviderId ? [officialProviderId] : [],
       });
 
       fs.writeFileSync(modelPath, doc.toString(), 'utf-8');
@@ -64,40 +70,46 @@ export function applyExtractedPricing(
   }
 
   // 2. Update official provider file if it exists
-  const providerPath = path.join(providersDir, `${officialProviderId}.yaml`);
-  if (fs.existsSync(providerPath)) {
-    const raw = fs.readFileSync(providerPath, 'utf-8');
-    const doc = yaml.parseDocument(raw);
+  if (officialProviderId) {
+    const providerPath = path.join(providersDir, `${officialProviderId}.yaml`);
+    if (fs.existsSync(providerPath)) {
+      const raw = fs.readFileSync(providerPath, 'utf-8');
+      const doc = yaml.parseDocument(raw);
 
-    const modelsNode = doc.get('models') as any;
-    const providerModels: Array<Record<string, any>> = modelsNode?.toJSON
-      ? modelsNode.toJSON()
-      : [];
-    const modelMap = new Map(providerModels.map((item) => [item.modelId, item]));
+      if (vendorConfig?.websiteUrl) doc.set('websiteUrl', vendorConfig.websiteUrl);
+      if (vendorConfig?.pricingUrl) doc.set('pricingUrl', vendorConfig.pricingUrl);
+      if (vendorConfig?.docUrl) doc.set('docUrl', vendorConfig.docUrl);
 
-    for (const m of models) {
-      if (m.modality !== 'text' || !('input' in m.official)) continue;
+      const modelsNode = doc.get('models') as any;
+      const providerModels: Array<Record<string, any>> = modelsNode?.toJSON
+        ? modelsNode.toJSON()
+        : [];
+      const modelMap = new Map(providerModels.map((item) => [item.modelId, item]));
 
-      const existing = modelMap.get(m.id);
-      if (existing) {
-        existing.input = m.official.input;
-        existing.output = m.official.output;
-        existing.cacheRead = m.official.cacheRead;
-        existing.cacheWrite = m.official.cacheWrite;
-      } else {
-        providerModels.push({
-          modelId: m.id,
-          input: m.official.input,
-          output: m.official.output,
-          cacheRead: m.official.cacheRead,
-          cacheWrite: m.official.cacheWrite,
-        });
+      for (const m of models) {
+        if (m.modality !== 'text' || !('input' in m.official)) continue;
+
+        const existing = modelMap.get(m.id);
+        if (existing) {
+          existing.input = m.official.input;
+          existing.output = m.official.output;
+          existing.cacheRead = m.official.cacheRead;
+          existing.cacheWrite = m.official.cacheWrite;
+        } else {
+          providerModels.push({
+            modelId: m.id,
+            input: m.official.input,
+            output: m.official.output,
+            cacheRead: m.official.cacheRead,
+            cacheWrite: m.official.cacheWrite,
+          });
+        }
       }
-    }
 
-    doc.set('models', providerModels);
-    fs.writeFileSync(providerPath, doc.toString(), 'utf-8');
-    summary.providerUpdated = true;
+      doc.set('models', providerModels);
+      fs.writeFileSync(providerPath, doc.toString(), 'utf-8');
+      summary.providerUpdated = true;
+    }
   }
 
   return summary;
@@ -132,6 +144,10 @@ export function applyProviderUpdates(providerData: ExtractedProviderData): {
     doc = yaml.parseDocument(raw);
   }
 
+  if (providerData.websiteUrl) doc.set('websiteUrl', providerData.websiteUrl);
+  if (providerData.pricingUrl) doc.set('pricingUrl', providerData.pricingUrl);
+  if (providerData.docUrl) doc.set('docUrl', providerData.docUrl);
+
   // 1. Update plans
   const plansNode = doc.get('plans') as any;
   const plans: Array<Record<string, any>> = plansNode?.toJSON ? plansNode.toJSON() : [];
@@ -155,6 +171,7 @@ export function applyProviderUpdates(providerData: ExtractedProviderData): {
         quotaCurrency: pl.quotaCurrency ?? pl.currency,
         rateLimit: pl.rateLimit ?? plans[planIdx].rateLimit,
         poolNote: pl.poolNote ?? plans[planIdx].poolNote,
+        ...(pl.planUrl ? { planUrl: pl.planUrl } : {}),
       };
     } else {
       plans.push(pl);

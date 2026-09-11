@@ -6,6 +6,9 @@ name: NVIDIA Aggregator
 nameZh: 英伟达聚合器（虚构）
 kind: subscription
 currency: USD
+websiteUrl: https://build.nvidia.com
+pricingUrl: https://build.nvidia.com
+docUrl: https://docs.api.nvidia.com
 description: >-
   mock 数据（虚构服务）：虚构的多模型聚合入口，并非 NVIDIA 官方产品。月费进入
   共享额度池，模型按每百万 token 消耗 credits。模型定价为虚构示例，用于演示

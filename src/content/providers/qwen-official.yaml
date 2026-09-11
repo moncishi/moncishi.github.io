@@ -6,6 +6,9 @@ name: Qwen Official API
 nameZh: Qwen 官方 API（通义千问）
 kind: official
 currency: CNY
+websiteUrl: https://help.aliyun.com/zh/model-studio
+pricingUrl: https://help.aliyun.com/zh/model-studio/developer-reference/billing-for-model-studio
+docUrl: https://help.aliyun.com/zh/model-studio/getting-started/
 description: >-
   mock 数据（虚构）：Qwen 系列模型的官方按量 API 入口。纯按 token 计费（¥/百万），
   无月费、无额度池，价格随用随付。此处所有 ¥ 价格均为虚构示例，用于本站比价演示，

@@ -98,6 +98,8 @@ const cards = providers.map((p) => {
 			name: p.name,
 			kind: p.kind,
 			...(p.description !== undefined ? { description: p.description } : {}),
+			...(p.pricingUrl ? { pricingUrl: p.pricingUrl } : {}),
+			...(p.websiteUrl ? { websiteUrl: p.websiteUrl } : {}),
 		},
 		topModels,
 		detailHref: `/providers/${p.id}`,

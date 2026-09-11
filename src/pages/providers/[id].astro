@@ -192,9 +192,46 @@ const sectionSub = isOfficial
 		</nav>
 
 		<header class="page-head">
-			<div class="head-row">
-				<h1 class="provider-title">{provider.name}</h1>
-				<Badge kind={provider.kind} />
+			<div class="head-row flex flex-wrap items-center justify-between gap-4">
+				<div class="flex items-center gap-3">
+					<h1 class="provider-title">{provider.name}</h1>
+					<Badge kind={provider.kind} />
+				</div>
+				<div class="provider-links flex flex-wrap items-center gap-2">
+					{provider.websiteUrl && (
+						<a
+							href={provider.websiteUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-400 transition"
+							title="访问官网"
+						>
+							🌐 官网
+						</a>
+					)}
+					{provider.pricingUrl && (
+						<a
+							href={provider.pricingUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-md border border-blue-200 dark:border-blue-900/50 bg-blue-50/60 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition font-medium"
+							title="查看官方价格与套餐页面"
+						>
+							🔗 价格 / 订阅页 ↗
+						</a>
+					)}
+					{provider.docUrl && (
+						<a
+							href={provider.docUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-400 transition"
+							title="开发接入文档"
+						>
+							📖 文档
+						</a>
+					)}
+				</div>
 			</div>
 			<p class="billing-line">
 				<span class="bill-primary">{billPrimary}</span>

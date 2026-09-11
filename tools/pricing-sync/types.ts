@@ -34,6 +34,9 @@ export interface VendorConfig {
   vendorName: string;
   officialProviderId: string;
   url: string;
+  websiteUrl?: string;
+  pricingUrl?: string;
+  docUrl?: string;
   description?: string;
 }
 
@@ -53,6 +56,7 @@ export interface ExtractedProviderPlan {
     monthly?: string | null;
   };
   poolNote?: string;
+  planUrl?: string;
 }
 
 export interface ProviderPlanConfig {
@@ -61,6 +65,10 @@ export interface ProviderPlanConfig {
   providerNameZh?: string;
   planId: string;
   url: string;
+  websiteUrl?: string;
+  pricingUrl?: string;
+  docUrl?: string;
+  planUrl?: string;
   description?: string;
 }
 
@@ -82,6 +90,9 @@ export interface ExtractedProviderData {
   kind: 'subscription';
   currency: 'USD' | 'CNY';
   description?: string;
+  websiteUrl?: string;
+  pricingUrl?: string;
+  docUrl?: string;
   plan?: ExtractedProviderPlan;
   plans?: ExtractedProviderPlan[];
   models: ExtractedProviderModel[];

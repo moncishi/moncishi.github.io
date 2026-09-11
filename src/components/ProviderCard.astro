@@ -45,6 +45,8 @@ interface Props {
 		name: string;
 		kind: 'official' | 'subscription';
 		description?: string;
+		pricingUrl?: string;
+		websiteUrl?: string;
 	};
 	topModels: ProviderTopModel[]; // already the top 3, sorted ascending $/M
 	detailHref: string; // /providers/[id]
@@ -142,11 +144,22 @@ function priceText(v: number | null | undefined): string | null {
 		)
 	}
 
-	<footer class="pc-footer">
+	<footer class="pc-footer flex items-center justify-between">
 		<a class="pc-detail" href={detailHref}>
 			查看详情
 			<span class="pc-detail-arrow" aria-hidden="true">→</span>
 		</a>
+		{provider.pricingUrl && (
+			<a
+				class="text-xs text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-0.5"
+				href={provider.pricingUrl}
+				target="_blank"
+				rel="noopener noreferrer"
+				title="查看官方价格与套餐"
+			>
+				官方价格页 ↗
+			</a>
+		)}
 	</footer>
 </article>
 
