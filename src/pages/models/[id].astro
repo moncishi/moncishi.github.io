@@ -29,6 +29,7 @@ import MixSlider from '../../components/MixSlider.astro';
 import RankTable from '../../components/RankTable.astro';
 import {
 	DEFAULT_MIX,
+	formatPrecision3,
 	formatRateLimitNote,
 	isImageOfficial,
 	isTextOfficial,
@@ -93,10 +94,9 @@ const rows = usdChannels.map((c, i) => {
 	};
 });
 
-/** Compact price for the subtitle: 1 dp, trailing ".0" trimmed ("15", "1.2"). */
+/** Compact price for the subtitle: up to 3 dp, trailing zeros trimmed. */
 function fmtRef(n: number): string {
-	const r = Math.round((n + Number.EPSILON) * 10) / 10;
-	return Number.isInteger(r) ? String(r) : r.toFixed(1);
+	return formatPrecision3(n, 3) ?? String(n);
 }
 
 const isImage = isImageOfficial(official);

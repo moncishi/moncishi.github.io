@@ -40,16 +40,10 @@ const leaderboardRows = usdBoard.map((entry) => {
 		rateLimitNote: formatRateLimitNote(entry.planRateLimit),
 		providerHref: `/providers/${entry.providerId}`,
 		modelHref: `/models/${entry.modelId}`,
-		currencyPerM: entry.curPerM === null ? null : round3(entry.curPerM),
-		mPerCurrency: entry.mPerCur === null ? null : round3(entry.mPerCur),
-		currencyPerMCny:
-			cnyEntry === undefined || cnyEntry.curPerM === null
-				? null
-				: round3(cnyEntry.curPerM),
-		mPerCurrencyCny:
-			cnyEntry === undefined || cnyEntry.mPerCur === null
-				? null
-				: round3(cnyEntry.mPerCur),
+		currencyPerM: entry.curPerM,
+		mPerCurrency: entry.mPerCur,
+		currencyPerMCny: cnyEntry?.curPerM ?? null,
+		mPerCurrencyCny: cnyEntry?.mPerCur ?? null,
 	};
 });
 

@@ -244,6 +244,9 @@ export function formatPrecision3(n: number | null | undefined, maxDecimals = 3):
   return rounded.toFixed(maxDecimals).replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1');
 }
 
+/** Alias for formatPrecision3 per issue spec. */
+export const formatPrecision = formatPrecision3;
+
 /**
  * Currency display with up to 3 decimals, trailing zeros stripped.
  * If 0 < n < 0.001, renders "<$0.001" or "<¥0.001" instead of $0.

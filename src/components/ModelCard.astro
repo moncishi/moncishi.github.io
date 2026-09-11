@@ -33,6 +33,7 @@
  *  otherwise).
  */
 import {
+	formatPrecision3,
 	isImageOfficial,
 	toDisplayCurrency,
 	type Currency,
@@ -68,7 +69,7 @@ function normNum(v: number | null | undefined): number | null {
 
 /** Price cell — up to 3 decimals, trailing zeros trimmed: 15 / 1.25 / 0.088. */
 function fmtPrice(n: number): string {
-	return n.toFixed(3).replace(/(\.\d*[1-9])0+$|\.0+$/, '$1');
+	return formatPrecision3(n, 3) ?? String(n);
 }
 
 /**
