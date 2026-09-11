@@ -8,7 +8,7 @@ kind: official
 currency: CNY
 description: >-
   mock 数据（虚构）：Qwen 系列模型的官方按量 API 入口。纯按 token 计费（¥/百万），
-  无月费、无资源池，价格随用随付。此处所有 ¥ 价格均为虚构示例，用于本站比价演示，
+  无月费、无额度池，价格随用随付。此处所有 ¥ 价格均为虚构示例，用于本站比价演示，
   不代表真实官方定价。
 billing:
   baseFee: 0

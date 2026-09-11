@@ -10,14 +10,18 @@
 import { getCollection } from 'astro:content';
 
 import {
+  isImageOfficial,
+  isTextOfficial,
   planActualMonthly,
   planValueMetrics,
   toDisplayCurrency,
   valueMetrics,
   type Billing,
   type Currency,
+  type ImagePricing,
   type Kind,
   type Mix,
+  type OfficialModelPricing,
   type Plan,
   type Price,
   type QuotaType,
@@ -116,8 +120,8 @@ export interface LeaderboardEntry {
 }
 
 /** Official ¥ CNY price block from the models collection, reshaped to a `Price`. */
-function officialToPrice(official: any): Price | null {
-  if (official && 'input' in official && 'output' in official) {
+function officialToPrice(official: unknown): Price | null {
+  if (isTextOfficial(official)) {
     return {
       input: official.input,
       output: official.output,
@@ -270,10 +274,9 @@ export async function getProvidersWithModels(): Promise<ProviderWithModels[]> {
       const modelRows = (p.models ?? []).map((row) => {
         const model = modelIndex.get(row.modelId);
         const officialPrice = model?.official ? officialToPrice(model.official) : null;
-        const officialPricing =
-          model?.official && 'pricing' in model.official
-            ? (model.official as { pricing: Record<string, number> }).pricing
-            : null;
+        const officialPricing = isImageOfficial(model?.official)
+          ? model.official.pricing
+          : null;
 
         return {
           modelId: row.modelId,

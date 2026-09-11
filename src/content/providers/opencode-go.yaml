@@ -1,5 +1,5 @@
 # Opencode Go — 订阅聚合（mock 数据，非真实报价）
-# 虚构的聚合订阅：月费 $20 无额外手续费，缓存写入不单独计费（记为 0）。
+# 虚构的聚合订阅：月费 $20 无额外附加费，缓存写入不单独计费（记为 0）。
 # 所有价格均为虚构示例，用于本站 UI 演示，不代表任何真实服务商的价格。
 id: opencode-go
 name: Opencode Go
@@ -8,16 +8,16 @@ kind: subscription
 currency: USD
 description: >-
   mock 数据（虚构服务）：面向日常编码与长上下文场景的聚合订阅商。月费覆盖共享
-  资源池，模型按每百万 token 消耗池内 credits，缓存写入免费。模型定价为虚构
+  额度池，模型按每百万 token 消耗池内 credits，缓存写入免费。模型定价为虚构
   示例，用于演示订阅聚合与官方 API 的价格对比，不代表真实厂商报价。
 billing:
   baseFee: 20
   feePct: 0
   currency: USD
-  poolNote: 月费 $20 无手续费，缓存写入免费（记 0）
+  poolNote: 月费 $20 无附加费，缓存写入免费（记 0）
 plans:
   - id: standard
-    name: 编码畅享包
+    name: 编码畅享套餐
     baseFee: 20
     currency: USD
     feePct: 0
@@ -25,7 +25,7 @@ plans:
     quotaAmount: 58
     rateLimit:
       hasLimit: 'no'
-    poolNote: 月费 $20 无手续费，共享 58 credits 资源池
+    poolNote: 月费 $20 无附加费，共享 58 credits 额度池
 models:
   - modelId: qwen-3.8-max
     input: 0.32

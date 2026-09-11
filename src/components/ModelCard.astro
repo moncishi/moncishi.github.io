@@ -32,12 +32,17 @@
  *  canonical numbers (data-usd native when official.currency is USD, converted
  *  otherwise).
  */
-import { toDisplayCurrency, type Currency } from '../lib/pricing';
+import {
+	isImageOfficial,
+	toDisplayCurrency,
+	type Currency,
+	type OfficialModelPricing,
+} from '../lib/pricing';
 
 interface ModelProps {
 	id: string;
 	name: string;
-	official: any;
+	official: OfficialModelPricing;
 }
 
 interface Props {
@@ -126,7 +131,7 @@ function cellContent(
 	return { price: money(native), text: '', muted: false };
 }
 
-const isImage = official && 'pricing' in official;
+const isImage = isImageOfficial(official);
 
 /** Two prominent cells: label stacked above a large price. */
 const primaryCells = isImage
@@ -143,7 +148,7 @@ const primaryCells = isImage
 const secondaryCells = isImage
 	? [
 			{ label: '计费方式', price: null, text: '按张计费', muted: true },
-			{ label: '模型类型', price: null, text: '图像生成', muted: true },
+			{ label: '模型模态', price: null, text: '图像生成', muted: true },
 	  ]
 	: [
 			{ label: '缓存读', ...cellContent(official.cacheRead, 'money') },

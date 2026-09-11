@@ -8,6 +8,8 @@ import {
   fmtMoney,
   round1,
   formatRateLimitNote,
+  isImageOfficial,
+  isTextOfficial,
   type Plan,
   type Price,
   type Mix,
@@ -115,9 +117,24 @@ test('formatRateLimitNote formats note according to domain rules', () => {
   assert.equal(formatRateLimitNote({ hasLimit: 'unknown' }), undefined);
   assert.equal(formatRateLimitNote({ hasLimit: 'yes', rolling5h: '20次或$5' }), '20次或$5');
   assert.equal(formatRateLimitNote({ hasLimit: 'yes', rolling5h: null }), '有限额');
+  assert.equal(
+    formatRateLimitNote({
+      hasLimit: 'yes',
+      rolling5h: '20次或$5',
+      monthly: '60美元',
+    }),
+    '20次或$5 · 月:60美元',
+  );
+  assert.equal(
+    formatRateLimitNote({
+      hasLimit: 'yes',
+      weekly: '100次',
+    }),
+    '周:100次',
+  );
 });
 
-test('ImagePricing type structure holds 1k and 2k prices', () => {
+test('ImagePricing and type guards correctly distinguish image vs text pricing', () => {
   const imagePricing: ImagePricing = {
     '1k': 0.08,
     '2k': 0.15,
@@ -125,4 +142,23 @@ test('ImagePricing type structure holds 1k and 2k prices', () => {
   assert.equal(imagePricing['1k'], 0.08);
   assert.equal(imagePricing['2k'], 0.15);
   assert.equal(fmtMoney(imagePricing['1k'], 'CNY', { decimals: 2 }), '¥0.08');
+
+  const imageOfficial = {
+    pricing: { '1k': 0.08, '2k': 0.15 },
+    currency: 'CNY' as const,
+  };
+  const textOfficial = {
+    input: 10,
+    output: 40,
+    cacheRead: 1,
+    cacheWrite: 0,
+    currency: 'CNY' as const,
+  };
+
+  assert.equal(isImageOfficial(imageOfficial), true);
+  assert.equal(isTextOfficial(imageOfficial), false);
+  assert.equal(isImageOfficial(textOfficial), false);
+  assert.equal(isTextOfficial(textOfficial), true);
+  assert.equal(isImageOfficial(null), false);
+  assert.equal(isTextOfficial(undefined), false);
 });

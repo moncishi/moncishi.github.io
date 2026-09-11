@@ -8,7 +8,7 @@ kind: official
 currency: CNY
 description: >-
   mock 数据（虚构）：GLM 系列模型的官方按量 API 入口。纯按 token 计费（¥/百万），
-  无月费、无资源池，价格随用随付。此处所有 ¥ 价格均为虚构示例，用于本站比价演示，
+  无月费、无额度池，价格随用随付。此处所有 ¥ 价格均为虚构示例，用于本站比价演示，
   不代表真实官方定价。
 billing:
   baseFee: 0
@@ -21,25 +21,7 @@ plans:
     quotaAmount: 0
     rateLimit:
       hasLimit: 'no'
-    poolNote: 纯按量计费，无月费
-  - id: lite
-    name: Lite 套餐
-    baseFee: 49
-    currency: CNY
-    quotaType: credits
-    quotaAmount: 20000
-    rateLimit:
-      hasLimit: 'no'
-    poolNote: 49元/月，提供 20,000 credits 额度池
-  - id: pro
-    name: Pro 套餐
-    baseFee: 119
-    currency: CNY
-    quotaType: credits
-    quotaAmount: 80000
-    rateLimit:
-      hasLimit: 'no'
-    poolNote: 119元/月，提供 80,000 credits 额度池
+    poolNote: 纯按量计费，无月费，随用随付
 models:
   - modelId: glm-5.2
     input: 15

@@ -27,21 +27,20 @@ import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import MixSlider from '../../components/MixSlider.astro';
 import RankTable from '../../components/RankTable.astro';
-import { DEFAULT_MIX, formatRateLimitNote, type Currency } from '../../lib/pricing';
+import {
+	DEFAULT_MIX,
+	formatRateLimitNote,
+	isImageOfficial,
+	isTextOfficial,
+	type Currency,
+	type OfficialModelPricing,
+} from '../../lib/pricing';
 import { getModelChannels } from '../../lib/data';
-
-interface OfficialBlock {
-	input: number;
-	output: number;
-	cacheRead: number | null;
-	cacheWrite: number | null;
-	currency: Currency;
-}
 
 export interface Props {
 	modelId: string;
 	modelName: string;
-	official: OfficialBlock;
+	official: OfficialModelPricing;
 }
 
 export async function getStaticPaths(): Promise<
@@ -100,7 +99,7 @@ function fmtRef(n: number): string {
 	return Number.isInteger(r) ? String(r) : r.toFixed(1);
 }
 
-const isImage = official && 'pricing' in official;
+const isImage = isImageOfficial(official);
 const pageTitle = `${modelName} 订阅商对比`;
 const pageDescription = `${modelName} 在各订阅商与官方 API 之间的月费、月额度与每 M 成本对比`;
 ---
@@ -116,19 +115,19 @@ const pageDescription = `${modelName} 在各订阅商与官方 API 之间的月�
 		<header class="page-head">
 			<h1 class="model-title">{modelName}</h1>
 			<p class="model-sub">
-				{isImage ? (
+				{isImageOfficial(official) ? (
 					<>
-						{currencySymbol} 官方：1K {official.pricing?.['1k'] ?? '—'} / 2K{' '}
-						{official.pricing?.['2k'] ?? '—'}
+						{currencySymbol} 官方：1K {official.pricing['1k'] ?? '—'} / 2K{' '}
+						{official.pricing['2k'] ?? '—'}
 						<span class="model-sub-unit">（官方按量参考价，¥/张）</span>
 					</>
-				) : (
+				) : isTextOfficial(official) ? (
 					<>
 						{currencySymbol} 官方：输入 {fmtRef(official.input)} / 输出{' '}
 						{fmtRef(official.output)}
 						<span class="model-sub-unit">（官方按量参考价，¥/M）</span>
 					</>
-				)}
+				) : null}
 			</p>
 		</header>
 

@@ -38,11 +38,43 @@ export interface Plan {
 export type ImageResolution = '1k' | '2k';
 export type ImagePricing = Record<ImageResolution, number>;
 
+export interface TextOfficial {
+  input: number;
+  output: number;
+  cacheRead: number | null;
+  cacheWrite: number | null;
+  currency: Currency;
+}
+
+export interface ImageOfficial {
+  pricing: ImagePricing;
+  currency: Currency;
+}
+
+export type OfficialModelPricing = TextOfficial | ImageOfficial;
+
+export function isImageOfficial(official: unknown): official is ImageOfficial {
+  return Boolean(official && typeof official === 'object' && 'pricing' in official);
+}
+
+export function isTextOfficial(official: unknown): official is TextOfficial {
+  return Boolean(
+    official &&
+      typeof official === 'object' &&
+      'input' in official &&
+      'output' in official,
+  );
+}
+
 /** Canonical user-facing note for a plan's rate limit. */
 export function formatRateLimitNote(rateLimit?: RateLimit): string | undefined {
   if (!rateLimit) return undefined;
   if (rateLimit.hasLimit === 'yes') {
-    return rateLimit.rolling5h ?? '有限额';
+    const parts: string[] = [];
+    if (rateLimit.rolling5h) parts.push(rateLimit.rolling5h);
+    if (rateLimit.weekly) parts.push(`周:${rateLimit.weekly}`);
+    if (rateLimit.monthly) parts.push(`月:${rateLimit.monthly}`);
+    return parts.length > 0 ? parts.join(' · ') : '有限额';
   }
   if (rateLimit.hasLimit === 'no') {
     return '无限制';

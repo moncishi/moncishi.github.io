@@ -14,7 +14,7 @@
  *   1. Breadcrumb: 订阅商 / {provider name}.
  *   2. Header: provider name (h1) + kind <Badge> + a billing line — for
  *      subscription providers the composed plan "月费 $10 + 7% ≈ $10.7/月 ·
- *      共享资源池" (amount from pricing.actualMonthly); for official providers
+ *      共享额度池" (amount from pricing.actualMonthly); for official providers
  *      the 按量 marker "官方按量 · ¥/1M · 无月费".
  *   3. MixSlider — renders the 90/9/1 usage-mix strip for UX. Live recompute
  *      from its window `mixchange` event is intentionally NOT wired yet (same
@@ -36,11 +36,15 @@ import MixSlider from '../../components/MixSlider.astro';
 import ProviderTable from '../../components/ProviderTable.astro';
 import {
 	DEFAULT_MIX,
-	actualMonthly,
+	MIX_95_4_1,
+	formatRateLimitNote,
+	planActualMonthly,
 	round1,
 	type Currency,
+	type Plan,
 } from '../../lib/pricing';
 import {
+	computePlanMetrics,
 	computeRowMetrics,
 	getProvidersWithModels,
 	type ProviderWithModels,
@@ -73,9 +77,15 @@ function fmtTrim(n: number): string {
 	return fixed.endsWith('.0') ? fixed.slice(0, -2) : fixed;
 }
 
+// Select active / primary plan: prefer primary plan with baseFee > 0, fallback to first plan
+const primaryPlan: Plan | undefined =
+	provider.plans && provider.plans.length > 0
+		? provider.plans.find((p) => p.baseFee > 0) ?? provider.plans[0]
+		: undefined;
+
 // --- Billing line (header) ------------------------------------------------
-// Subscription: composed from the plan — 月费 + feePct, actual monthly from
-// pricing.actualMonthly (baseFee × (1 + feePct)) — plus the 共享资源池 marker.
+// Subscription: composed from primary plan — 月费 + feePct, actual monthly from
+// planActualMonthly — plus the 共享额度池 marker.
 // Official: 按量 (pay-as-you-go) marker in the listing currency.
 let billPrimary: string;
 let billRest: string;
@@ -83,34 +93,28 @@ let billRest: string;
 if (isOfficial) {
 	billPrimary = '官方按量';
 	billRest = `${currencySymbol}/1M · 无月费，随用随付`;
-} else {
-	const billing =
-		provider.billing && provider.billing.baseFee > 0 ? provider.billing : null;
-	if (!billing) {
-		billPrimary = '订阅聚合';
-		billRest = '按共享资源池计费';
-	} else {
-		const pct = typeof billing.feePct === 'number' ? billing.feePct : 0;
-		billPrimary = `月费 ${currencySymbol}${fmtTrim(billing.baseFee)}`;
-		const extra: string[] = [];
-		if (pct > 0) {
-			billPrimary += ` + ${pct}%`;
-			const actual = actualMonthly(billing, billing.currency ?? 'USD');
-			extra.push(`≈ ${currencySymbol}${fmtTrim(actual)}/月`);
-		} else if (pct === 0) {
-			extra.push('无附加费');
-		}
-		extra.push('共享资源池');
-		billRest = extra.join(' · ');
+} else if (primaryPlan && primaryPlan.baseFee > 0) {
+	const planSymbol = primaryPlan.currency === 'CNY' ? '¥' : '$';
+	const pct = typeof primaryPlan.feePct === 'number' ? primaryPlan.feePct : 0;
+	billPrimary = `月费 ${planSymbol}${fmtTrim(primaryPlan.baseFee)}`;
+	const extra: string[] = [];
+	if (pct > 0) {
+		billPrimary += ` + ${pct}%`;
+		const actual = planActualMonthly(primaryPlan, primaryPlan.currency);
+		extra.push(`≈ ${planSymbol}${fmtTrim(actual)}/月`);
+	} else if (pct === 0) {
+		extra.push('无附加费');
 	}
+	extra.push(primaryPlan.quotaType === 'credits' ? '积分额度池' : '共享额度池');
+	billRest = extra.join(' · ');
+} else {
+	billPrimary = '订阅聚合';
+	billRest = '按共享额度池计费';
 }
 
 // --- ProviderTable rows ----------------------------------------------------
-// Metrics: computed per modelRow via computeRowMetrics(…, DEFAULT_MIX, 'USD')
-// plus a CNY twin; rows are sorted on raw curPerM so ties behave predictably,
-// then the display values are rounded to 1 dp (the ProviderTable contract).
-// Official rows → every pool metric null → they sort last (stable) and render
-// "—".
+// Metrics: derived from provider.plans (primaryPlan) via computePlanMetrics,
+// falling back to computeRowMetrics if no plan exists.
 type SortableRow = {
 	modelId: string;
 	modelName: string;
@@ -128,17 +132,28 @@ type SortableRow = {
 };
 
 const sortable: SortableRow[] = provider.modelRows.map((row) => {
-	const mUsd = computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'USD');
-	const mCny = computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'CNY');
+	const mUsd = primaryPlan
+		? computePlanMetrics(row.price, primaryPlan, DEFAULT_MIX, 'USD', provider.currency)
+		: computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'USD');
+	const mCny = primaryPlan
+		? computePlanMetrics(row.price, primaryPlan, DEFAULT_MIX, 'CNY', provider.currency)
+		: computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'CNY');
+	const mUsd95 = primaryPlan
+		? computePlanMetrics(row.price, primaryPlan, MIX_95_4_1, 'USD', provider.currency)
+		: null;
+
+	const quota90 = mUsd.quotaM !== null ? round1(mUsd.quotaM) : row.quota90;
+	const quota95 = mUsd95?.quotaM != null ? round1(mUsd95.quotaM) : row.quota95;
+
 	return {
 		modelId: row.modelId,
 		modelName: row.modelName,
 		modelHref: `/models/${row.modelId}`,
 		price: row.price,
 		nativeCurrency: provider.currency,
-		credits: row.credits,
-		quota90: row.quota90,
-		quota95: row.quota95,
+		credits: primaryPlan ? primaryPlan.quotaAmount : row.credits,
+		quota90,
+		quota95,
 		mPerCur: mUsd.mPerCur === null ? null : round1(mUsd.mPerCur),
 		mPerCurCny: mCny.mPerCur === null ? null : round1(mCny.mPerCur),
 		curPerM: mUsd.curPerM === null ? null : round1(mUsd.curPerM),
@@ -150,9 +165,6 @@ const sortable: SortableRow[] = provider.modelRows.map((row) => {
 sortable.sort((a, b) => a._sort - b._sort);
 
 // Drop the internal sort key before handing rows to the display component.
-// rank 1 carries isBest (ProviderTable's own rank===1 fallback highlights the
-// first row even without the flag — same convention as /models/[id]'s RankTable,
-// which also ranks a pure-按量 list 1..n and lets the component highlight #1).
 const rows = sortable.map(({ _sort, ...row }, i) => ({
 	...row,
 	rank: i + 1,
@@ -165,9 +177,10 @@ const pageDescription = isOfficial
 	? `${provider.name} 各模型的官方按量 ¥ 价格（mock 数据）`
 	: `${provider.name} 各模型的月费、月额度与每 M 成本明细（mock 数据）`;
 const sectionTitle = isOfficial ? '官方按量价格' : '模型价格与月配额';
+const planNote = primaryPlan && !isOfficial ? `（套餐：${primaryPlan.name}）` : '';
 const sectionSub = isOfficial
 	? '官方 API 按 token 计费，无月费与额度池'
-	: `按 ${currencySymbol}/M 升序，第 1 行为最佳值 · 折算配比 ${mixLabel}`;
+	: `按 ${currencySymbol}/M 升序，第 1 行为最佳值 · 折算配比 ${mixLabel}${planNote ? ' · ' + planNote : ''}`;
 ---
 
 <Layout title={pageTitle} description={pageDescription} activeNav="providers">
@@ -194,29 +207,29 @@ const sectionSub = isOfficial
 			</p>
 			{provider.plans && provider.plans.length > 0 && (
 				<div class="plans-strip flex flex-wrap gap-2 pt-2">
-					{provider.plans.map((pl) => (
-						<div class="plan-badge flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-xs">
-							<span class="font-semibold text-slate-800 dark:text-slate-200">{pl.name}</span>
-							<span class="text-slate-500">
-								{pl.baseFee > 0 ? `${pl.currency === 'USD' ? '$' : '¥'}${pl.baseFee}/月` : '按量/0月费'}
-							</span>
-							{pl.quotaAmount > 0 && (
-								<span class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
-									{pl.quotaType === 'credits' ? `${pl.quotaAmount.toLocaleString()} 点` : `${pl.quotaCurrency === 'USD' ? '$' : '¥'}${pl.quotaAmount} 额度`}
+					{provider.plans.map((pl) => {
+						const rateLimitNote = formatRateLimitNote(pl.rateLimit);
+						const isLimit = pl.rateLimit?.hasLimit === 'yes';
+						const isSelected = primaryPlan?.id === pl.id;
+						return (
+							<div class={`plan-badge flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs ${isSelected ? 'border-blue-500/40 bg-blue-50/60 dark:bg-blue-950/20 ring-1 ring-blue-500/20' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50'}`}>
+								<span class="font-semibold text-slate-800 dark:text-slate-200">{pl.name}</span>
+								<span class="text-slate-500">
+									{pl.baseFee > 0 ? `${pl.currency === 'USD' ? '$' : '¥'}${pl.baseFee}/月` : '按量/0月费'}
 								</span>
-							)}
-							{pl.rateLimit?.hasLimit === 'yes' && (
-								<span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400">
-									{pl.rateLimit.rolling5h ?? '有限额'}
-								</span>
-							)}
-							{pl.rateLimit?.hasLimit === 'no' && (
-								<span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-									无限制
-								</span>
-							)}
-						</div>
-					))}
+								{pl.quotaAmount > 0 && (
+									<span class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
+										{pl.quotaType === 'credits' ? `${pl.quotaAmount.toLocaleString()} 点` : `${pl.quotaCurrency === 'USD' ? '$' : '¥'}${pl.quotaAmount} 额度`}
+									</span>
+								)}
+								{rateLimitNote && (
+									<span class={isLimit ? "px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400" : "px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"}>
+										{rateLimitNote}
+									</span>
+								)}
+							</div>
+						);
+					})}
 				</div>
 			)}
 		</header>

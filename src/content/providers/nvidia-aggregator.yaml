@@ -1,5 +1,5 @@
 # NVIDIA Aggregator — 订阅聚合（mock 数据，非真实报价）
-# 虚构的聚合商：月费 $15 + 3% 手续费，无独立缓存写入费（记 null）。
+# 虚构的聚合商：月费 $15 + 3% 平台附加费，无独立缓存写入费（记 null）。
 # 所有价格均为虚构示例，用于本站 UI 演示，不代表任何真实服务商的价格。
 id: nvidia-aggregator
 name: NVIDIA Aggregator
@@ -8,16 +8,16 @@ kind: subscription
 currency: USD
 description: >-
   mock 数据（虚构服务）：虚构的多模型聚合入口，并非 NVIDIA 官方产品。月费进入
-  共享资源池，模型按每百万 token 消耗 credits。模型定价为虚构示例，用于演示
+  共享额度池，模型按每百万 token 消耗 credits。模型定价为虚构示例，用于演示
   订阅聚合与官方 API 的价格对比，不代表真实厂商报价。
 billing:
   baseFee: 15
   feePct: 3
   currency: USD
-  poolNote: 月费 $15 + 3% 手续费，无独立缓存写入费（记 null）
+  poolNote: 月费 $15 + 3% 平台附加费，无独立缓存写入费（记 null）
 plans:
   - id: standard
-    name: 聚合标准包
+    name: 聚合标准套餐
     baseFee: 15
     currency: USD
     feePct: 3
@@ -25,7 +25,7 @@ plans:
     quotaAmount: 85
     rateLimit:
       hasLimit: unknown
-    poolNote: 月费 $15 + 3% 手续费，共享 85 credits 资源池
+    poolNote: 月费 $15 + 3% 平台附加费，共享 85 credits 额度池
 models:
   - modelId: gpt-5.6-sol
     input: 2.3

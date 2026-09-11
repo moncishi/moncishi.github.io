@@ -1,5 +1,5 @@
 # Command Code Goat — 订阅聚合（mock 数据，非真实报价）
-# 虚构的编程向聚合订阅：月费 $10 + 7% 手续费，共享资源池，按模型消耗池内 credits。
+# 虚构的编程向聚合订阅：月费 $10 + 7% 平台附加费，共享额度池，按模型消耗池内 credits。
 # 所有价格均为虚构示例，用于本站 UI 演示，不代表任何真实服务商的价格。
 id: command-code-goat
 name: Command Code Goat
@@ -7,14 +7,14 @@ nameZh: 编程码羊聚合
 kind: subscription
 currency: USD
 description: >-
-  mock 数据（虚构服务）：编程向聚合订阅商。一次月费进入共享资源池，各模型按
+  mock 数据（虚构服务）：编程向聚合订阅商。一次月费进入共享额度池，各模型按
   每百万 token 的 $ 定价消耗池内 credits。模型定价为虚构示例，用于演示订阅聚合
   与官方 API 的价格对比，不代表真实厂商报价。
 billing:
   baseFee: 10
   feePct: 7
   currency: USD
-  poolNote: 月费 $10 + 7% 手续费，共享资源池，按模型消耗池内 credits
+  poolNote: 月费 $10 + 7% 平台附加费，共享额度池，按模型消耗池内 credits
 plans:
   - id: go
     name: Go 套餐
