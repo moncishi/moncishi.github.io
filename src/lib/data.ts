@@ -41,6 +41,10 @@ export interface ProviderModelRow {
   officialPricing?: Record<string, number> | null;
   /** Monthly credits / pool face value, when the provider bills a pool. */
   credits: number | null;
+  /** Model-specific allowance e.g. 20 USD. */
+  modelQuota?: number | null;
+  /** Pool consumption multiplier e.g. 70/20 = 3.5. */
+  multiplier?: number | null;
   /** Published (90/9/1) monthly quota in M tokens, when the provider states it. */
   quota90: number | null;
   /** Published (95/4/1) monthly quota in M tokens, when the provider states it. */
@@ -187,12 +191,14 @@ export function computePlanMetrics(
   mix: Mix,
   displayCurrency: Currency,
   priceCurrency: Currency = 'USD',
+  modelQuota?: number | null,
+  multiplier?: number | null,
 ): RowMetrics {
   if (plan.baseFee === 0 && plan.quotaAmount === 0) {
     return { quotaM: null, monthlyFee: null, mPerCur: null, curPerM: null };
   }
 
-  const vm = planValueMetrics(price, mix, plan, displayCurrency, priceCurrency);
+  const vm = planValueMetrics(price, mix, plan, displayCurrency, priceCurrency, modelQuota, multiplier);
   if (vm.quotaM === null || vm.actualMonthly === null) {
     return { quotaM: null, monthlyFee: null, mPerCur: null, curPerM: null };
   }
@@ -291,6 +297,8 @@ export async function getProvidersWithModels(): Promise<ProviderWithModels[]> {
           officialPrice,
           officialPricing,
           credits: row.credits ?? null,
+          modelQuota: row.modelQuota ?? null,
+          multiplier: row.multiplier ?? null,
           quota90: row.quota90 ?? null,
           quota95: row.quota95 ?? null,
         } satisfies ProviderModelRow;
@@ -336,6 +344,8 @@ export async function getModelChannels(
             mix,
             displayCurrency,
             p.currency,
+            row.modelQuota,
+            row.multiplier,
           );
           return {
             providerId: p.id,
@@ -403,6 +413,8 @@ export async function getGlobalLeaderboard(
             mix,
             displayCurrency,
             p.currency,
+            row.modelQuota,
+            row.multiplier,
           );
           if (metrics.curPerM === null || metrics.mPerCur === null) continue;
           combos.push({

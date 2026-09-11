@@ -185,14 +185,25 @@ export function planQuotaMillion(
   plan: Plan,
   weightedCostPerM: number | null,
   priceCurrency?: Currency,
+  modelQuota?: number | null,
+  multiplier?: number | null,
 ): number | null {
   if (weightedCostPerM === null || !Number.isFinite(weightedCostPerM) || weightedCostPerM <= 0) return null;
+
+  // Compute effective quota amount for this model (taking into account modelQuota and multiplier)
+  let effectiveAmount = plan.quotaAmount;
+  if (modelQuota !== undefined && modelQuota !== null && modelQuota > 0) {
+    effectiveAmount = modelQuota;
+  } else if (multiplier !== undefined && multiplier !== null && multiplier > 0) {
+    effectiveAmount = plan.quotaAmount / multiplier;
+  }
+
   if (plan.quotaType === 'credits') {
-    return plan.quotaAmount / weightedCostPerM;
+    return effectiveAmount / weightedCostPerM;
   }
   const quotaCur = plan.quotaCurrency ?? plan.currency;
   const targetPriceCur = priceCurrency ?? quotaCur;
-  const quotaInPriceCur = toDisplayCurrency(plan.quotaAmount, quotaCur, targetPriceCur);
+  const quotaInPriceCur = toDisplayCurrency(effectiveAmount, quotaCur, targetPriceCur);
   return quotaInPriceCur / weightedCostPerM;
 }
 
@@ -271,9 +282,11 @@ export function planValueMetrics(
   plan: Plan,
   displayCurrency: Currency,
   priceCurrency: Currency = 'USD',
+  modelQuota?: number | null,
+  multiplier?: number | null,
 ): ValueMetrics {
   const weighted = weightedCostPerM(price, mix);
-  const quotaM = planQuotaMillion(plan, weighted, priceCurrency);
+  const quotaM = planQuotaMillion(plan, weighted, priceCurrency, modelQuota, multiplier);
   const actualMonthlyCur = planActualMonthly(plan, displayCurrency);
   return {
     quotaM,

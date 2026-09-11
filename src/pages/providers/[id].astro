@@ -133,13 +133,13 @@ type SortableRow = {
 
 const sortable: SortableRow[] = provider.modelRows.map((row) => {
 	const mUsd = primaryPlan
-		? computePlanMetrics(row.price, primaryPlan, DEFAULT_MIX, 'USD', provider.currency)
+		? computePlanMetrics(row.price, primaryPlan, DEFAULT_MIX, 'USD', provider.currency, row.modelQuota, row.multiplier)
 		: computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'USD');
 	const mCny = primaryPlan
-		? computePlanMetrics(row.price, primaryPlan, DEFAULT_MIX, 'CNY', provider.currency)
+		? computePlanMetrics(row.price, primaryPlan, DEFAULT_MIX, 'CNY', provider.currency, row.modelQuota, row.multiplier)
 		: computeRowMetrics(row.price, row.credits, provider.billing, DEFAULT_MIX, 'CNY');
 	const mUsd95 = primaryPlan
-		? computePlanMetrics(row.price, primaryPlan, MIX_95_4_1, 'USD', provider.currency)
+		? computePlanMetrics(row.price, primaryPlan, MIX_95_4_1, 'USD', provider.currency, row.modelQuota, row.multiplier)
 		: null;
 
 	const quota90 = mUsd.quotaM !== null ? round1(mUsd.quotaM) : row.quota90;
@@ -151,7 +151,7 @@ const sortable: SortableRow[] = provider.modelRows.map((row) => {
 		modelHref: `/models/${row.modelId}`,
 		price: row.price,
 		nativeCurrency: provider.currency,
-		credits: primaryPlan ? primaryPlan.quotaAmount : row.credits,
+		credits: row.modelQuota ?? (primaryPlan ? primaryPlan.quotaAmount : row.credits),
 		quota90,
 		quota95,
 		mPerCur: mUsd.mPerCur === null ? null : round1(mUsd.mPerCur),
@@ -174,13 +174,13 @@ const rows = sortable.map(({ _sort, ...row }, i) => ({
 const mixLabel = '缓存90/输入9/输出1';
 const pageTitle = provider.name;
 const pageDescription = isOfficial
-	? `${provider.name} 各模型的官方按量 ¥ 价格（mock 数据）`
-	: `${provider.name} 各模型的月费、月额度与每 M 成本明细（mock 数据）`;
+	? `${provider.name} 各模型的官方按量价格明细`
+	: `${provider.name} 各模型的月费、月额度与每元产出明细`;
 const sectionTitle = isOfficial ? '官方按量价格' : '模型价格与月配额';
 const planNote = primaryPlan && !isOfficial ? `（套餐：${primaryPlan.name}）` : '';
 const sectionSub = isOfficial
 	? '官方 API 按 token 计费，无月费与额度池'
-	: `按 ${currencySymbol}/M 升序，第 1 行为最佳值 · 折算配比 ${mixLabel}${planNote ? ' · ' + planNote : ''}`;
+	: `按每元额度降序，第 1 行为最佳值 · 折算配比 ${mixLabel}${planNote ? ' · ' + planNote : ''}`;
 ---
 
 <Layout title={pageTitle} description={pageDescription} activeNav="providers">

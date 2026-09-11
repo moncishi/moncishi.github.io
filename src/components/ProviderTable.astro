@@ -101,7 +101,7 @@ function fmtCredits(n: number): string {
 
 		<table class="provider-table">
 			<caption class="pt-vh">
-				各模型价格与月配额明细，按「货币/M」由低到高排序（越低越优，第 1 行为最佳值）；
+				各模型价格与月配额明细，按「每元额度」由高到低排序（越高越优，第 1 行为最佳值）；
 				点击模型名跳转该模型的对比页。
 			</caption>
 
@@ -128,8 +128,8 @@ function fmtCredits(n: number): string {
 						<span class="th-en">Cache Write</span>
 					</th>
 					<th scope="col" class="head head-num">
-						<span class="th-zh">月度积分</span>
-						<span class="th-en">Credits</span>
+						<span class="th-zh">额度 / 积分</span>
+						<span class="th-en">Quota / Credits</span>
 					</th>
 					<th scope="col" class="head head-num">
 						<span class="th-zh">月额度M(90,9,1)</span>
@@ -140,12 +140,8 @@ function fmtCredits(n: number): string {
 						<span class="th-en">Quota M 95/4/1</span>
 					</th>
 					<th scope="col" class="head head-num">
-						<span class="th-zh">M/货币</span>
-						<span class="th-en">M / currency</span>
-					</th>
-					<th scope="col" class="head head-num">
-						<span class="th-zh">货币/M</span>
-						<span class="th-en">currency / M</span>
+						<span class="th-zh">每元额度 (M)</span>
+						<span class="th-en">Tokens / $ (M)</span>
 					</th>
 				</tr>
 			</thead>
@@ -236,22 +232,10 @@ function fmtCredits(n: number): string {
 									) : (
 										<span
 											data-price
-											data-usd={mpUsd}
-											data-cny={mpCny}
-											class="val m-per-cur"
-										>{`$${mpUsd}`}</span>
-									)}
-								</td>
-								<td class="cell num">
-									{cpUsd === null ? (
-										<span class="nil">—</span>
-									) : (
-										<span
-											data-price
-											data-usd={cpUsd}
-											data-cny={cpCny}
-											class="val cur-per-m"
-										>{`$${cpUsd}`}</span>
+											data-usd={`${mpUsd} M`}
+											data-cny={`${mpCny} M`}
+											class="val m-per-cur font-semibold text-emerald-600 dark:text-emerald-400"
+										>{`${mpUsd} M`}</span>
 									)}
 								</td>
 							</tr>

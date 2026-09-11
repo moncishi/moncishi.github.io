@@ -71,6 +71,12 @@ test('planQuotaMillion calculates quota for credits vs currency quota', () => {
   };
   assert.equal(planQuotaMillion(planGoat, 0.5, 'USD'), 120);
 
+  // Model-specific quota (e.g. 20 USD limit instead of 60 USD full pool)
+  assert.equal(planQuotaMillion(planGoat, 0.5, 'USD', 20), 40);
+
+  // Multiplier scaling (e.g. 3.5 multiplier -> 60 / 3.5 / 0.5)
+  assert.equal(round1(planQuotaMillion(planGoat, 0.5, 'USD', null, 3.5)!), round1(60 / 3.5 / 0.5));
+
   // Currency mismatch: quota is 10 USD, price is in CNY (7.0 CNY/M) -> 10 USD = 70 CNY -> 10M
   assert.equal(planQuotaMillion(planGoat, 7.0, 'CNY'), 60);
 });
