@@ -1,0 +1,12 @@
+id: deepseek-v4-pro
+name: DeepSeek-V4-Pro-0813
+modality: text
+description: DeepSeek-V4-Pro-0813 模型，支持思考模式与非思考模式，上下文长度 1M，最大输出 384K。
+official:
+  input: 9
+  output: 27
+  cacheRead: 0.3
+  cacheWrite: null
+  currency: CNY
+providers:
+  - deepseek-official

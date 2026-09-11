@@ -1,0 +1,12 @@
+id: deepseek-flash
+name: DeepSeek-V4.1-Flash
+modality: text
+description: DeepSeek-V4.1-Flash 模型，支持思考模式与非思考模式、图像理解，上下文长度 1M，最大输出 384K。
+official:
+  input: 2
+  output: 8
+  cacheRead: 0.04
+  cacheWrite: null
+  currency: CNY
+providers:
+  - deepseek-official

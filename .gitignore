@@ -32,3 +32,4 @@ pnpm-debug.log*
 # AI concept images (never commit generated images)
 .ui-concepts/
 .sensenova_cache/
+.scratch/

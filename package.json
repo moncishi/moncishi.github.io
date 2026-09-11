@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "test": "node --experimental-strip-types --test test/**/*.test.ts",
+    "sync:pricing": "node --experimental-strip-types tools/pricing-sync/index.ts",
     "astro": "astro"
   },
   "dependencies": {
@@ -19,5 +20,12 @@
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@types/turndown": "^5.0.6",
+    "@types/yaml": "^1.9.6",
+    "cheerio": "^1.2.0",
+    "turndown": "^7.2.4",
+    "yaml": "^2.9.0"
   }
 }

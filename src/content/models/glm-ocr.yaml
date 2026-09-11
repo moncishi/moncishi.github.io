@@ -1,0 +1,12 @@
+id: glm-ocr
+name: GLM-OCR
+modality: text
+description: 轻量级的专业 OCR 模型
+official:
+  input: 0.2
+  output: 0.2
+  cacheRead: null
+  cacheWrite: null
+  currency: CNY
+providers:
+  - glm-official

@@ -1,0 +1,12 @@
+id: glm-5.3-flash
+name: GLM-5.3-Flash
+modality: text
+description: 原生多模态模型，部分能力对齐 Claude Opus 4.8，价格仅 1/40，让前沿智能真正普惠
+official:
+  input: 0.8
+  output: 2.8
+  cacheRead: 0.23
+  cacheWrite: 0
+  currency: CNY
+providers:
+  - glm-official

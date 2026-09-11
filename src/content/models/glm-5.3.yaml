@@ -1,0 +1,12 @@
+id: glm-5.3
+name: GLM-5.3
+modality: text
+description: 最新旗舰模型，编程体验提升 50%，部分网络安全能力持平 Mythos 5
+official:
+  input: 8
+  output: 28
+  cacheRead: 2
+  cacheWrite: 0
+  currency: CNY
+providers:
+  - glm-official
